@@ -100,19 +100,6 @@ public class CodeBuilder {
 		return this;
 	}
 
-	public String build() {
-		StringBuilder sbField = new StringBuilder();
-		StringBuilder sbMethod = new StringBuilder();
-
-		for ( Method method : mapMethodBefore.keySet() ) {
-			sbMethod.append(getMethodCode(method, sbField));
-		}
-
-		String txt = getClassCode().replace("{method}", sbMethod.toString()).replace("{field}", sbField.toString());
-		System.out.println(txt);
-		return txt;
-	}
-
 	private String getBeforeCode(Method method, StringBuilder sbField) {
 		List<AopBefore> list = mapMethodBefore.get(method);
 		if ( list == null || list.isEmpty() ) {
@@ -193,7 +180,7 @@ public class CodeBuilder {
 		return sb.toString();
 	}
 
-	private String getMethodCode(Method method, StringBuilder sbField) {
+	private String getMethodCode(Method method, StringBuilder sbField, String tmplFile) {
 		String desc = method.toGenericString();
 		Class<?> returnType = method.getReturnType();
 		String methodName = method.getName();
@@ -221,7 +208,7 @@ public class CodeBuilder {
 		String throwingCode = getThrowingCode(method, sbField);
 		String lastCode = getLastCode(method, sbField);
 
-		String txt = readText("template_method.txt");
+		String txt = readText(tmplFile);
 		return txt.replace("{returnType}", returnType.getName()).replace("{methodName}", methodName).replace("{desc}", desc)
 				.replace("{beforeCode}", beforeCode).replace("{afterCode}", afterCode).replace("{throwingCode}", throwingCode)
 				.replace("{lastCode}", lastCode).replace("{paramDefines}", paramDefines).replace("{paramValues}", paramValues)
@@ -244,6 +231,23 @@ public class CodeBuilder {
 			return null;
 		}
 		return CmnFile.readFileText(url.getPath(), "utf-8");
+	}
+
+	public String build() {
+		StringBuilder sbField = new StringBuilder();
+		StringBuilder sbMethod = new StringBuilder();
+
+		for ( Method method : mapMethodBefore.keySet() ) {
+			String tmpl = "template_method.txt";
+			if ( "void".equals(method.getReturnType().toGenericString()) ) {
+				tmpl = "template_void_method.txt";
+			}
+			sbMethod.append(getMethodCode(method, sbField, tmpl));
+		}
+
+		String txt = getClassCode().replace("{method}", sbMethod.toString()).replace("{field}", sbField.toString());
+		System.out.println(txt);
+		return txt;
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {

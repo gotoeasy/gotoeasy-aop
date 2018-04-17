@@ -6,8 +6,7 @@ public class Test {
 		return "Hello " + name;
 	}
 
-	public String hello(String name) {
-		return "Hello " + name;
+	public void hello(String name) {
 	}
 
 }
