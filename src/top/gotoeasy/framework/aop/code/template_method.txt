@@ -1,18 +1,18 @@
     @Override
     {methodDefine} {
         Method method = getMethodByDesc("{desc}");
-new AopPoint();
+
         {returnType} rs;
-        try {
+{commentOut}        try {
 {beforeCode}
             rs = super.{methodName}({parameterNames});
 {afterCode}
             return rs;
-        } catch (Exception e) {
-{throwingCode}
-            throw new RuntimeException(e);
-        } finally {
-{lastCode}
-        }
+{commentOut}        } catch (Exception e) {
+{commentOut}{throwingCode}
+{commentOut}            throw new RuntimeException(e);
+{commentOut}        } finally {
+{commentOut}{lastCode}
+{commentOut}        }
 
     }

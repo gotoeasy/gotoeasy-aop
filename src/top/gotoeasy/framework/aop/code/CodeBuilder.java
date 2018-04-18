@@ -238,7 +238,6 @@ public class CodeBuilder {
 		String desc = method.toGenericString();
 		Class<?> returnType = method.getReturnType();
 		String methodName = method.getName();
-		Class<?>[] paramTypes = method.getParameterTypes();
 
 		String methodDefine = AopUtil.getMethodDefine(method);
 		String parameterNames = AopUtil.getParameterNames(method);
@@ -248,10 +247,16 @@ public class CodeBuilder {
 		String throwingCode = getThrowingCode(method);
 		String lastCode = getLastCode(method);
 
+		String commentOut = "//";
+		if ( mapMethodThrowing.containsKey(method) || mapMethodLast.containsKey(method) ) {
+			commentOut = "";
+		}
+
 		String txt = readText(tmplFile);
 		return txt.replace("{methodDefine}", methodDefine).replace("{returnType}", returnType.getName()).replace("{methodName}", methodName)
 				.replace("{desc}", desc).replace("{beforeCode}", beforeCode).replace("{afterCode}", afterCode).replace("{throwingCode}", throwingCode)
-				.replace("{lastCode}", lastCode).replace("{parameterNames}", parameterNames).replace("{superClass}", clas.getName());
+				.replace("{lastCode}", lastCode).replace("{parameterNames}", parameterNames).replace("{superClass}", clas.getName())
+				.replace("{commentOut}", commentOut);
 	}
 
 	private String getClassCode() {
