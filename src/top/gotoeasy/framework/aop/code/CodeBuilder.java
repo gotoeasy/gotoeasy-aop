@@ -3,7 +3,6 @@ package top.gotoeasy.framework.aop.code;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,7 @@ public class CodeBuilder {
 	private Map<Method, AopAround>			mapMethodAround		= new LinkedHashMap<>();
 
 	private int								seq					= 1;
-	private Map<String, Object>				fieldMap			= new HashMap<>();
+	private Map<Object, String>				fieldNameMap		= new LinkedHashMap<>();
 
 	/**
 	 * 生成创建器
@@ -45,6 +44,10 @@ public class CodeBuilder {
 	}
 
 	public CodeBuilder setAopBefore(Method method, AopBefore aopObj) {
+		if ( !fieldNameMap.containsKey(aopObj) ) {
+			fieldNameMap.put(aopObj, "aopObj" + seq++);
+		}
+
 		List<AopBefore> list = mapMethodBefore.get(method);
 		if ( list == null ) {
 			list = new ArrayList<>();
@@ -59,6 +62,10 @@ public class CodeBuilder {
 	}
 
 	public CodeBuilder setAopAfter(Method method, AopAfter aopObj) {
+		if ( !fieldNameMap.containsKey(aopObj) ) {
+			fieldNameMap.put(aopObj, "aopObj" + seq++);
+		}
+
 		List<AopAfter> list = mapMethodAfter.get(method);
 		if ( list == null ) {
 			list = new ArrayList<>();
@@ -73,6 +80,10 @@ public class CodeBuilder {
 	}
 
 	public CodeBuilder setAopThrowing(Method method, AopThrowing aopObj) {
+		if ( !fieldNameMap.containsKey(aopObj) ) {
+			fieldNameMap.put(aopObj, "aopObj" + seq++);
+		}
+
 		List<AopThrowing> list = mapMethodThrowing.get(method);
 		if ( list == null ) {
 			list = new ArrayList<>();
@@ -87,6 +98,10 @@ public class CodeBuilder {
 	}
 
 	public CodeBuilder setAopLast(Method method, AopLast aopObj) {
+		if ( !fieldNameMap.containsKey(aopObj) ) {
+			fieldNameMap.put(aopObj, "aopObj" + seq++);
+		}
+
 		List<AopLast> list = mapMethodLast.get(method);
 		if ( list == null ) {
 			list = new ArrayList<>();
@@ -100,87 +115,67 @@ public class CodeBuilder {
 		return this;
 	}
 
-	private String getBeforeCode(Method method, StringBuilder sbField) {
+	private String getBeforeCode(Method method) {
 		List<AopBefore> list = mapMethodBefore.get(method);
 		if ( list == null || list.isEmpty() ) {
 			return "";
 		}
 
-		String txt = "            aopBefore{n}.before(this, method, {paramValues});";
+		String txt = "            ((AopBefore){aopObj}).before(this, method, {paramValues});";
 		StringBuilder sb = new StringBuilder();
-		String n;
 		for ( int i = 0; i < list.size(); i++ ) {
-			n = ((seq++) * 100 + i + 1) + "";
-			sb.append(txt.replace("{n}", n)).append("\n");
-
-			sbField.append("    public AopBefore aopBefore{n};".replace("{n}", n)).append("\n");
-			fieldMap.put("aopBefore{n}".replace("{n}", n), list.get(i));
+			sb.append(txt.replace("{aopObj}", fieldNameMap.get(list.get(i)))).append("\n");
 		}
 
 		return sb.toString();
 	}
 
-	private String getAfterCode(Method method, StringBuilder sbField) {
+	private String getAfterCode(Method method) {
 		List<AopAfter> list = mapMethodAfter.get(method);
 		if ( list == null || list.isEmpty() ) {
 			return "";
 		}
 
-		String txt = "            aopAfter{n}.after(this, method, {paramValues});";
+		String txt = "            ((AopAfter){aopObj}).after(this, method, {paramValues});";
 		StringBuilder sb = new StringBuilder();
-		String n;
 		for ( int i = 0; i < list.size(); i++ ) {
-			n = ((seq++) * 100 + i + 1) + "";
-			sb.append(txt.replace("{n}", n)).append("\n");
-
-			sbField.append("    public AopAfter aopAfter{n};".replace("{n}", n)).append("\n");
-			fieldMap.put("aopAfter{n}".replace("{n}", n), list.get(i));
+			sb.append(txt.replace("{aopObj}", fieldNameMap.get(list.get(i)))).append("\n");
 		}
 
 		return sb.toString();
 	}
 
-	private String getThrowingCode(Method method, StringBuilder sbField) {
+	private String getThrowingCode(Method method) {
 		List<AopThrowing> list = mapMethodThrowing.get(method);
 		if ( list == null || list.isEmpty() ) {
 			return "";
 		}
 
-		String txt = "            aopThrowing{n}.throwing(this, method, e, {paramValues});";
+		String txt = "            ((AopThrowing){aopObj}).throwing(this, method, e, {paramValues});";
 		StringBuilder sb = new StringBuilder();
-		String n;
 		for ( int i = 0; i < list.size(); i++ ) {
-			n = ((seq++) * 100 + i + 1) + "";
-			sb.append(txt.replace("{n}", n)).append("\n");
-
-			sbField.append("    public AopThrowing aopThrowing{n};".replace("{n}", n)).append("\n");
-			fieldMap.put("aopThrowing{n}".replace("{n}", n), list.get(i));
+			sb.append(txt.replace("{aopObj}", fieldNameMap.get(list.get(i)))).append("\n");
 		}
 
 		return sb.toString();
 	}
 
-	private String getLastCode(Method method, StringBuilder sbField) {
+	private String getLastCode(Method method) {
 		List<AopLast> list = mapMethodLast.get(method);
 		if ( list == null || list.isEmpty() ) {
 			return "";
 		}
 
-		String txt = "            aopLast{n}.last(this, method, {paramValues});";
+		String txt = "            ((AopLast){aopObj}).last(this, method, {paramValues});";
 		StringBuilder sb = new StringBuilder();
-		String n;
 		for ( int i = 0; i < list.size(); i++ ) {
-			n = ((seq++) * 100 + i + 1) + "";
-			sb.append(txt.replace("{n}", n)).append("\n");
-
-			sbField.append("    public AopLast aopLast{n};".replace("{n}", n)).append("\n");
-			fieldMap.put("aopLast{n}".replace("{n}", n), list.get(i));
+			sb.append(txt.replace("{aopObj}", fieldNameMap.get(list.get(i)))).append("\n");
 		}
 
 		return sb.toString();
 	}
 
-	private String getMethodCode(Method method, StringBuilder sbField, String tmplFile) {
+	private String getMethodCode(Method method, String tmplFile) {
 		String desc = method.toGenericString();
 		Class<?> returnType = method.getReturnType();
 		String methodName = method.getName();
@@ -196,17 +191,26 @@ public class CodeBuilder {
 					sb.append(", ");
 					sbVal.append(", ");
 				}
-				sb.append(paramTypes[i].getName()).append(" p" + i);
+				if ( paramTypes[i].isArray() ) {
+					sb.append(paramTypes[i].getComponentType().getName());
+					if ( method.isVarArgs() && i == paramTypes.length - 1 ) {
+						sb.append(" ... p" + i);
+					} else {
+						sb.append("[] p" + i);
+					}
+				} else {
+					sb.append(paramTypes[i].getName()).append(" p" + i);
+				}
 				sbVal.append("p" + i);
 			}
 			paramDefines = sb.toString();
 			paramValues = sbVal.toString();
 		}
 
-		String beforeCode = getBeforeCode(method, sbField);
-		String afterCode = getAfterCode(method, sbField);
-		String throwingCode = getThrowingCode(method, sbField);
-		String lastCode = getLastCode(method, sbField);
+		String beforeCode = getBeforeCode(method);
+		String afterCode = getAfterCode(method);
+		String throwingCode = getThrowingCode(method);
+		String lastCode = getLastCode(method);
 
 		String txt = readText(tmplFile);
 		return txt.replace("{returnType}", returnType.getName()).replace("{methodName}", methodName).replace("{desc}", desc)
@@ -234,7 +238,6 @@ public class CodeBuilder {
 	}
 
 	public String build() {
-		StringBuilder sbField = new StringBuilder();
 		StringBuilder sbMethod = new StringBuilder();
 
 		for ( Method method : mapMethodBefore.keySet() ) {
@@ -242,7 +245,12 @@ public class CodeBuilder {
 			if ( "void".equals(method.getReturnType().toGenericString()) ) {
 				tmpl = "template_void_method.txt";
 			}
-			sbMethod.append(getMethodCode(method, sbField, tmpl));
+			sbMethod.append(getMethodCode(method, tmpl));
+		}
+
+		StringBuilder sbField = new StringBuilder();
+		for ( String fieldName : fieldNameMap.values() ) {
+			sbField.append("    public Object " + fieldName + ";\n");
 		}
 
 		String txt = getClassCode().replace("{method}", sbMethod.toString()).replace("{field}", sbField.toString());
@@ -262,7 +270,7 @@ public class CodeBuilder {
 			builder.setAopBefore(method, aopTest);
 			builder.setAopAfter(method, aopTestAfter);
 			builder.setAopThrowing(method, aopTestThrowing);
-			//	builder.setAopLast(method, aopTestLast);
+			builder.setAopLast(method, aopTestLast);
 		}
 
 		String className = Test.class.getName() + "$$gotoeasy$$";
@@ -274,20 +282,20 @@ public class CodeBuilder {
 		Class<?> aClass = loader.loadClass(className);
 		Test test = (Test)aClass.newInstance();
 
-		for ( String key : builder.fieldMap.keySet() ) {
-			CmnBean.setFieldValue(test, key, builder.fieldMap.get(key));
+		for ( Object obj : builder.fieldNameMap.keySet() ) {
+			CmnBean.setFieldValue(test, builder.fieldNameMap.get(obj), obj);
 		}
 
 		////////////////////
 
 		for ( int i = 0; i < 10000; i++ ) {
-			test.hello("xxxxx", i);
+			test.hello("xxxxx");
 		}
 
 		long ss = System.currentTimeMillis();
 		String xxx = null;
 		for ( int i = 0; i < 1000 * 10000; i++ ) {
-			xxx = test.hello("xxxxx", i);
+			xxx = test.hello("xxxxx");
 		}
 		System.err.println("MyAop: " + (System.currentTimeMillis() - ss) + "MS,   " + xxx);
 
@@ -304,13 +312,13 @@ public class CodeBuilder {
 		Test pojo = (Test)obj;
 
 		for ( int i = 0; i < 10000; i++ ) {
-			pojo.hello("xxxxx", i);
+			//pojo.hello("xxxxx", i);
 		}
 
 		long ss = System.currentTimeMillis();
 		String xxx = null;
 		for ( int i = 0; i < 1000 * 10000; i++ ) {
-			xxx = pojo.hello("xxxxx", i);
+//			xxx = pojo.hello("xxxxx", i);
 		}
 		System.err.println("CglibAop: " + (System.currentTimeMillis() - ss) + "MS,   " + xxx);
 	}
