@@ -6,7 +6,7 @@ import java.util.Map;
 
 import top.gotoeasy.framework.aop.util.AopUtil;
 
-public class AopPoint {
+public class AroundPoint {
 
 	private Object								target;
 	private Class<?>							superClass;
@@ -22,7 +22,16 @@ public class AopPoint {
 	private static final Map<String, Method>	mapMethod	= new HashMap<>();
 	private static final Map<String, Method>	mapSuper	= new HashMap<>();
 
-	public void init(Object target, Class<?> superClass, String desc, Throwable throwable, Object ... args) {
+	public AroundPoint(Object target, Class<?> superClass, String desc, Object ... args) {
+		this.target = target;
+		this.superClass = superClass;
+		this.desc = desc;
+		this.args = args;
+
+		this.method = getMethodByDesc();
+	}
+
+	public AroundPoint(Object target, Class<?> superClass, String desc, Throwable throwable, Object ... args) {
 		this.target = target;
 		this.superClass = superClass;
 		this.desc = desc;
@@ -30,10 +39,6 @@ public class AopPoint {
 		this.args = args;
 
 		this.method = getMethodByDesc();
-	}
-
-	public void init(Object target, Class<?> superClass, String desc, Object ... args) {
-		init(target, superClass, desc, null, args);
 	}
 
 	public void reset() {

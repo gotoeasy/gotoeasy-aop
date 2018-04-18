@@ -9,6 +9,8 @@ public class {simpleName}$$gotoeasy$$ extends {superClass} {
 
     private Map<String, Method>	map	= new HashMap<>(); // 方法缓存
 
+{field}
+
     private Method getMethodByDesc(String desc){
         Method rs = map.get(desc);
         if ( rs == null ) {
@@ -22,8 +24,6 @@ public class {simpleName}$$gotoeasy$$ extends {superClass} {
         }
         return rs;
     }
-
-{field}
 
 {method}
 

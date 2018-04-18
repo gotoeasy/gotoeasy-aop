@@ -1,6 +1,6 @@
     @Override
     {methodDefine} {
         String desc = "{desc}";
-		AopPoint point = new AopPoint(this, {superClass}.class, desc, {parameterNames});
+		AroundPoint point = new AroundPoint(this, {superClass}.class, desc, {parameterNames});
 		{return} ((AopAround){aopObj}).around(point);
     }

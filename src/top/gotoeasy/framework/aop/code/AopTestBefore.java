@@ -8,7 +8,7 @@ public class AopTestBefore implements AopBefore {
 
 	@Override
 	public void before(Object proxy, Method method, Object ... args) {
-//		System.err.println(args);
+		System.err.println(args);
 	}
 
 }

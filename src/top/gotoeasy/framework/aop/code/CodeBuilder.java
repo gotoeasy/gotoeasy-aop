@@ -318,12 +318,12 @@ public class CodeBuilder {
 
 		Method[] methods = Test.class.getDeclaredMethods();
 		for ( int i = 0; i < methods.length; i++ ) {
-//			if ( i == 0 ) {
-//				builder.setAopAround(methods[i], aopTestAround);
-//				continue;
-//			}
-			builder.setAopBefore(methods[i], aopTest);
-			builder.setAopAfter(methods[i], aopTestAfter);
+			if ( i == 0 ) {
+				builder.setAopAround(methods[i], aopTestAround);
+				continue;
+			}
+//			builder.setAopBefore(methods[i], aopTest);
+//			builder.setAopAfter(methods[i], aopTestAfter);
 //			builder.setAopThrowing(methods[i], aopTestThrowing);
 //			builder.setAopLast(methods[i], aopTestLast);
 		}
@@ -342,7 +342,6 @@ public class CodeBuilder {
 		}
 
 		////////////////////
-
 		for ( int i = 0; i < 10000; i++ ) {
 			test.hello("xxxxx");
 		}
@@ -354,7 +353,7 @@ public class CodeBuilder {
 		}
 		System.err.println("MyAop: " + (System.currentTimeMillis() - ss) + "MS,   " + xxx);
 
-		//	cglibAop();
+		cglibAop();
 	}
 
 	private static void cglibAop() {

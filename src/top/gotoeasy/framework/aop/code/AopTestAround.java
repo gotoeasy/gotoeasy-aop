@@ -5,7 +5,7 @@ import top.gotoeasy.framework.aop.callback.AopAround;
 public class AopTestAround implements AopAround {
 
 	@Override
-	public Object around(AopPoint point) {
+	public Object around(AroundPoint point) {
 		// TODO Auto-generated method stub
 		return point.invokeSuper();
 	}
