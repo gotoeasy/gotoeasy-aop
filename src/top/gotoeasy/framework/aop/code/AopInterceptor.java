@@ -7,6 +7,8 @@ import net.sf.cglib.proxy.MethodProxy;
 
 public class AopInterceptor implements MethodInterceptor {
 
+	AopTestBefore aopTestBefore = new AopTestBefore();
+
 	@Override
 	public Object intercept(Object target, Method method, Object[] args, MethodProxy proxy) throws Throwable {
 

@@ -1,21 +1,11 @@
     @Override
-    public {returnType} {methodName}({paramDefines}) {
-        String desc = "{desc}";
-        Method method = map.get(desc);
-        if ( method == null ) {
-            for ( Method th : {superClass}.class.getDeclaredMethods() ) {
-                if ( th.toGenericString().equals(desc) ) {
-                    method = th;
-                    map.put(desc, method);
-                    break;
-                }
-            }
-        }
-
+    {methodDefine} {
+        Method method = getMethodByDesc("{desc}");
+new AopPoint();
         {returnType} rs;
         try {
 {beforeCode}
-            rs = super.{methodName}({paramValues});
+            rs = super.{methodName}({parameterNames});
 {afterCode}
             return rs;
         } catch (Exception e) {

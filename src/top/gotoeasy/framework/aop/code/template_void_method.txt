@@ -1,20 +1,10 @@
     @Override
-    public {returnType} {methodName}({paramDefines}) {
-        String desc = "{desc}";
-        Method method = map.get(desc);
-        if ( method == null ) {
-            for ( Method th : {superClass}.class.getDeclaredMethods() ) {
-                if ( th.toGenericString().equals(desc) ) {
-                    method = th;
-                    map.put(desc, method);
-                    break;
-                }
-            }
-        }
+    {methodDefine} {
+        Method method = getMethodByDesc("{desc}");
 
          try {
 {beforeCode}
-            super.{methodName}({paramValues});
+            super.{methodName}({parameterNames});
 {afterCode}
         } catch (Exception e) {
 {throwingCode}

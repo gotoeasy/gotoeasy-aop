@@ -1,9 +1,9 @@
 package top.gotoeasy.framework.aop.callback;
 
-import java.lang.reflect.Method;
+import top.gotoeasy.framework.aop.code.AopPoint;
 
 public interface AopAround {
 
-	public Object around(Object proxy, Method method, Object ... args);
+	public Object around(AopPoint point);
 
 }

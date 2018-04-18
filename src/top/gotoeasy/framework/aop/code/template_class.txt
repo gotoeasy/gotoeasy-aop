@@ -9,8 +9,23 @@ public class {simpleName}$$gotoeasy$$ extends {superClass} {
 
     private Map<String, Method>	map	= new HashMap<>(); // 方法缓存
 
+    private Method getMethodByDesc(String desc){
+        Method rs = map.get(desc);
+        if ( rs == null ) {
+            for ( Method th : {superClass}.class.getDeclaredMethods() ) {
+                if ( th.toGenericString().equals(desc) ) {
+                	rs = th;
+                    map.put(desc, th);
+                    break;
+                }
+            }
+        }
+        return rs;
+    }
+
 {field}
 
 {method}
 
+{callSuper}
 }
