@@ -3,7 +3,7 @@ package {pack};
 import java.lang.reflect.*;
 import java.util.*;
 
-import top.gotoeasy.framework.aop.callback.*;
+import top.gotoeasy.framework.aop.*;
 
 public class {simpleName}$$gotoeasy$$ extends {superClass} {
 

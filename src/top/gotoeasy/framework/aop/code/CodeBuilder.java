@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.cglib.proxy.Enhancer;
-import top.gotoeasy.framework.aop.callback.AopAfter;
-import top.gotoeasy.framework.aop.callback.AopAround;
-import top.gotoeasy.framework.aop.callback.AopBefore;
-import top.gotoeasy.framework.aop.callback.AopLast;
-import top.gotoeasy.framework.aop.callback.AopThrowing;
+import top.gotoeasy.framework.aop.AopAfter;
+import top.gotoeasy.framework.aop.AopAround;
+import top.gotoeasy.framework.aop.AopBefore;
+import top.gotoeasy.framework.aop.AopLast;
+import top.gotoeasy.framework.aop.AopThrowing;
 import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.compiler.MemoryClassLoader;
 import top.gotoeasy.framework.core.compiler.MemoryJavaCompiler;
@@ -353,7 +353,22 @@ public class CodeBuilder {
 		}
 		System.err.println("MyAop: " + (System.currentTimeMillis() - ss) + "MS,   " + xxx);
 
+		nativecall();
 		cglibAop();
+	}
+
+	private static void nativecall() {
+		Test test = new Test();
+		for ( int i = 0; i < 10000; i++ ) {
+			test.hello("xxxxx");
+		}
+
+		long ss = System.currentTimeMillis();
+		String xxx = null;
+		for ( int i = 0; i < 1000 * 10000; i++ ) {
+			xxx = test.hello("xxxxx");
+		}
+		System.err.println("Native: " + (System.currentTimeMillis() - ss) + "MS,   " + xxx);
 	}
 
 	private static void cglibAop() {

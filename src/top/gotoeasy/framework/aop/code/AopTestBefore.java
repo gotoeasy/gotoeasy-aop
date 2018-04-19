@@ -2,7 +2,7 @@ package top.gotoeasy.framework.aop.code;
 
 import java.lang.reflect.Method;
 
-import top.gotoeasy.framework.aop.callback.AopBefore;
+import top.gotoeasy.framework.aop.AopBefore;
 
 public class AopTestBefore implements AopBefore {
 

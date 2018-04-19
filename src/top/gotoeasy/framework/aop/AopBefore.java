@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.aop.callback;
+package top.gotoeasy.framework.aop;
 
 import java.lang.reflect.Method;
 
