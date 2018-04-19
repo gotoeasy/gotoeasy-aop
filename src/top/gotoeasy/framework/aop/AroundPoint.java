@@ -152,7 +152,7 @@ public class AroundPoint {
 			return mapMethod.get(desc);
 		}
 
-		for ( Method th : top.gotoeasy.framework.aop.test.Test.class.getDeclaredMethods() ) {
+		for ( Method th : superClass.getDeclaredMethods() ) {
 			if ( th.toGenericString().equals(desc) ) {
 				mapMethod.put(desc, th);
 				return th;
