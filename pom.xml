@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>top.gotoeasy</groupId>
 	<artifactId>gotoeasy-aop</artifactId>
-	<version>1.0.0</version>
+	<version>0.0.1-SNAPSHOT</version>
 	
-	<name>gotoeasy-rmi</name>
+	<name>gotoeasy-aop</name>
 	<url>https://github.com/gotoeasy/gotoeasy-rmi</url>
 	<description>gotoeasy aop</description>
  
@@ -25,9 +25,9 @@
 	</developers>
 	
 	<scm>
-		<connection>scm:https://github.com/gotoeasy/gotoeasy-rmi.git</connection>
-		<developerConnection>scm:https://github.com/gotoeasy/gotoeasy-rmi.git</developerConnection>
-		<url>https://github.com/gotoeasy/gotoeasy-rmi</url>
+		<connection>scm:https://github.com/gotoeasy/gotoeasy-aop.git</connection>
+		<developerConnection>scm:https://github.com/gotoeasy/gotoeasy-aop.git</developerConnection>
+		<url>https://github.com/gotoeasy/gotoeasy-aop</url>
 		<tag>1.0.0</tag>
 	</scm>
 	
