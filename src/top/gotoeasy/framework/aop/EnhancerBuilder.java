@@ -378,7 +378,7 @@ public class EnhancerBuilder {
 		String txt = getClassCode().replace("{method}", sbMethod.toString()).replace("{field}", sbField.toString()).replace("{callSuper}",
 				sbSuper.toString());
 
-		log.debug(txt);
+		log.trace(txt);
 		return txt;
 	}
 
