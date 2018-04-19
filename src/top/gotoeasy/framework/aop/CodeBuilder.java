@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.aop.code;
+package top.gotoeasy.framework.aop;
 
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.cglib.proxy.Enhancer;
-import top.gotoeasy.framework.aop.AopAfter;
-import top.gotoeasy.framework.aop.AopAround;
-import top.gotoeasy.framework.aop.AopBefore;
-import top.gotoeasy.framework.aop.AopLast;
-import top.gotoeasy.framework.aop.AopThrowing;
+import top.gotoeasy.framework.aop.code.AopInterceptor;
+import top.gotoeasy.framework.aop.code.AopTestAfter;
+import top.gotoeasy.framework.aop.code.AopTestAround;
+import top.gotoeasy.framework.aop.code.AopTestBefore;
+import top.gotoeasy.framework.aop.code.AopTestLast;
+import top.gotoeasy.framework.aop.code.AopTestThrowing;
+import top.gotoeasy.framework.aop.code.Test;
 import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.compiler.MemoryClassLoader;
 import top.gotoeasy.framework.core.compiler.MemoryJavaCompiler;
@@ -47,7 +49,7 @@ public class CodeBuilder {
 			if ( mapAop.containsKey(method) ) {
 				throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法");
 			} else if ( mapMethodAround.containsKey(method) ) {
-				throw new RuntimeException("Around拦截重复，Around拦截必须独占，不能和其他拦截共同拦截同一方法");
+				throw new RuntimeException("重复的Around拦截，Around拦截必须独占，不能和其他拦截共同拦截同一方法");
 			}
 		} else {
 			if ( mapMethodAround.containsKey(method) ) {
@@ -79,7 +81,7 @@ public class CodeBuilder {
 			return "";
 		}
 
-		String txt = AopUtil.readText(CodeBuilder.class, "template_around.txt");
+		String txt = AopUtil.readText(Test.class, "template_around.txt");
 		txt = txt.replace("{methodDefine}", AopUtil.getMethodDefine(method));
 		txt = txt.replace("{desc}", method.toGenericString());
 		txt = txt.replace("{superClass}", clas.getName());
@@ -292,7 +294,7 @@ public class CodeBuilder {
 
 		for ( Method method : mapMethodAround.keySet() ) {
 			sbMethod.append(getAroundCode(method));
-			sbSuper.append(AopUtil.getInvokeSuperMethod(method));
+			sbSuper.append(AopUtil.getCodeInvokeSuperMethod(method));
 		}
 
 		StringBuilder sbField = new StringBuilder();
