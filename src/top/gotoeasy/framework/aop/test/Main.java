@@ -2,12 +2,12 @@ package top.gotoeasy.framework.aop.test;
 
 import java.lang.reflect.Method;
 
-import top.gotoeasy.framework.aop.CodeBuilder;
+import top.gotoeasy.framework.aop.EnhancerBuilder;
 
 public class Main {
 
 	public static void main(String[] args) {
-		CodeBuilder builder = CodeBuilder.get();
+		EnhancerBuilder builder = EnhancerBuilder.get();
 		builder.setSuperclass(Test.class);
 
 		AopTestBefore aopTest = new AopTestBefore();

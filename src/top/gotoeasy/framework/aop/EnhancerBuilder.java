@@ -12,11 +12,14 @@ import top.gotoeasy.framework.core.compiler.MemoryJavaCompiler;
 import top.gotoeasy.framework.core.util.CmnBean;
 
 /**
- * 代理类源码创建器
+ * 代理对象创建器
+ * <p>
+ * 通过继承的方式对指定类进行增强、创建代理对象
+ * </p>
  * @since 2018/04
  * @author 青松
  */
-public class CodeBuilder {
+public class EnhancerBuilder {
 
 	private Class<?>						clas;
 
@@ -35,8 +38,8 @@ public class CodeBuilder {
 	 * 生成创建器
 	 * @return 创建器
 	 */
-	public static CodeBuilder get() {
-		return new CodeBuilder();
+	public static EnhancerBuilder get() {
+		return new EnhancerBuilder();
 	}
 
 	/**
@@ -63,7 +66,7 @@ public class CodeBuilder {
 	 * @param clas 被代理类
 	 * @return 创建器
 	 */
-	public CodeBuilder setSuperclass(Class<?> clas) {
+	public EnhancerBuilder setSuperclass(Class<?> clas) {
 		this.clas = clas;
 		return this;
 	}
@@ -74,7 +77,7 @@ public class CodeBuilder {
 	 * @param aopObj 拦截处理对象
 	 * @return 创建器
 	 */
-	public CodeBuilder setAopAround(Method method, AopAround aopObj) {
+	public EnhancerBuilder setAopAround(Method method, AopAround aopObj) {
 		checkAround(method, aopObj);
 
 		if ( !fieldNameMap.containsKey(aopObj) ) {
@@ -114,7 +117,7 @@ public class CodeBuilder {
 	 * @param aopObj 拦截处理对象
 	 * @return 创建器
 	 */
-	public CodeBuilder setAopBefore(Method method, AopBefore aopObj) {
+	public EnhancerBuilder setAopBefore(Method method, AopBefore aopObj) {
 		checkAround(method, aopObj);
 
 		if ( !fieldNameMap.containsKey(aopObj) ) {
@@ -141,7 +144,7 @@ public class CodeBuilder {
 	 * @param aopObj 拦截处理对象
 	 * @return 创建器
 	 */
-	public CodeBuilder setAopAfter(Method method, AopAfter aopObj) {
+	public EnhancerBuilder setAopAfter(Method method, AopAfter aopObj) {
 		checkAround(method, aopObj);
 
 		if ( !fieldNameMap.containsKey(aopObj) ) {
@@ -168,7 +171,7 @@ public class CodeBuilder {
 	 * @param aopObj 拦截处理对象
 	 * @return 创建器
 	 */
-	public CodeBuilder setAopThrowing(Method method, AopThrowing aopObj) {
+	public EnhancerBuilder setAopThrowing(Method method, AopThrowing aopObj) {
 		checkAround(method, aopObj);
 
 		if ( !fieldNameMap.containsKey(aopObj) ) {
@@ -195,7 +198,7 @@ public class CodeBuilder {
 	 * @param aopObj 拦截处理对象
 	 * @return 创建器
 	 */
-	public CodeBuilder setAopLast(Method method, AopLast aopObj) {
+	public EnhancerBuilder setAopLast(Method method, AopLast aopObj) {
 		checkAround(method, aopObj);
 
 		if ( !fieldNameMap.containsKey(aopObj) ) {
