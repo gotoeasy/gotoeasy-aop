@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import top.gotoeasy.framework.aop.util.AopUtil;
+import top.gotoeasy.framework.aop.util.SourceTemplate;
 import top.gotoeasy.framework.core.compiler.MemoryClassLoader;
 import top.gotoeasy.framework.core.compiler.MemoryJavaCompiler;
 import top.gotoeasy.framework.core.reflect.ClassScaner;
@@ -106,7 +107,7 @@ public class EnhancerBuilder {
 			return "";
 		}
 
-		String txt = AopUtil.readText("template_around.txt");
+		String txt = SourceTemplate.getSourceAround();
 		txt = txt.replace("{methodDefine}", AopUtil.getMethodDefine(method));
 		txt = txt.replace("{desc}", method.toGenericString());
 		txt = txt.replace("{superClass}", clas.getName());
@@ -308,10 +309,10 @@ public class EnhancerBuilder {
 	/**
 	 * 生成方法拦截源码
 	 * @param method 方法
-	 * @param tmplFile 源码模板文件
+	 * @param tmpl 源码模板
 	 * @return 源码
 	 */
-	private String getMethodCode(Method method, String tmplFile) {
+	private String getMethodCode(Method method, String tmpl) {
 		String desc = method.toGenericString();
 		Class<?> returnType = method.getReturnType();
 		String methodName = method.getName();
@@ -329,7 +330,7 @@ public class EnhancerBuilder {
 			commentOut = "";
 		}
 
-		String txt = AopUtil.readText(tmplFile);
+		String txt = tmpl;
 		return txt.replace("{methodDefine}", methodDefine).replace("{returnType}", returnType.getName()).replace("{methodName}", methodName)
 				.replace("{desc}", desc).replace("{beforeCode}", beforeCode).replace("{afterCode}", afterCode).replace("{throwingCode}", throwingCode)
 				.replace("{lastCode}", lastCode).replace("{parameterNames}", parameterNames).replace("{superClass}", clas.getName())
@@ -344,7 +345,7 @@ public class EnhancerBuilder {
 		String pack = clas.getPackage().getName();
 		String simpleName = clas.getSimpleName();
 
-		String txt = AopUtil.readText("template_class.txt");
+		String txt = SourceTemplate.getSourceClass();
 
 		return txt.replace("{pack}", pack).replace("{simpleName}", simpleName).replace("{superClass}", clas.getName());
 	}
@@ -358,9 +359,9 @@ public class EnhancerBuilder {
 		StringBuilder sbMethod = new StringBuilder();
 
 		for ( Method method : mapAop.keySet() ) {
-			String tmpl = "template_method.txt";
+			String tmpl = SourceTemplate.getSourceMethod();
 			if ( AopUtil.isVoid(method) ) {
-				tmpl = "template_void_method.txt";
+				tmpl = SourceTemplate.getSourceVoidMethod();
 			}
 			sbMethod.append(getMethodCode(method, tmpl));
 		}

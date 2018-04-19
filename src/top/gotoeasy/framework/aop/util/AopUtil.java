@@ -5,9 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 
-import top.gotoeasy.framework.core.util.CmnFile;
 import top.gotoeasy.framework.core.util.CmnMessageDigest;
 
 /**
@@ -172,17 +170,6 @@ public class AopUtil {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	/**
-	 * 按utf-8编码读取指定文件内容
-	 * @param fileName 文件名
-	 * @return 文件内容
-	 */
-	public static String readText(String fileName) {
-		String path = AopUtil.class.getPackage().getName().replace(".", "/") + "/";
-		URL url = Thread.currentThread().getContextClassLoader().getResource(path + fileName);
-		return CmnFile.readFileText(url.getPath(), "utf-8");
 	}
 
 	/**
