@@ -1,5 +1,8 @@
 package top.gotoeasy.framework.aop.util;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -98,6 +101,15 @@ public class AopUtil {
 
 	public static boolean isVoid(Method method) {
 		return "void".equals(method.getReturnType().toGenericString());
+	}
+
+	public static MethodHandle getMethodHandle(Method method) {
+		try {
+			MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
+			return MethodHandles.lookup().findVirtual(method.getDeclaringClass(), method.getName(), methodType);  //查找方法句柄  
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static String readText(Class<?> clas, String fileName) {
