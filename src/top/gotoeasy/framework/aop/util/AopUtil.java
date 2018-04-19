@@ -180,13 +180,22 @@ public class AopUtil {
 	 * @param fileName 文件名
 	 * @return 文件内容
 	 */
-	public static String readText(Class<?> clas, String fileName) {
-		String path = clas.getPackage().getName().replace(".", "/") + "/";
+	public static String readText(String fileName) {
+		String path = AopUtil.class.getPackage().getName().replace(".", "/") + "/";
 		URL url = Thread.currentThread().getContextClassLoader().getResource(path + fileName);
-		if ( url == null ) {
-			return null;
-		}
 		return CmnFile.readFileText(url.getPath(), "utf-8");
+	}
+
+	/**
+	 * 取得代理类的类名
+	 * <p>
+	 * 代理类的类名 = 被代理类的类名 + "$$gotoeasy$$"
+	 * </p>
+	 * @param clas 被代理类
+	 * @return 代理类的类名
+	 */
+	public static String getProxyClassName(Class<?> clas) {
+		return clas.getName() + "$$gotoeasy$$";
 	}
 
 }

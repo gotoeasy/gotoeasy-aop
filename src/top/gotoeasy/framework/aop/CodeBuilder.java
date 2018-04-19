@@ -1,26 +1,21 @@
 package top.gotoeasy.framework.aop;
 
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.cglib.proxy.Enhancer;
-import top.gotoeasy.framework.aop.code.AopInterceptor;
-import top.gotoeasy.framework.aop.code.AopTestAfter;
-import top.gotoeasy.framework.aop.code.AopTestAround;
-import top.gotoeasy.framework.aop.code.AopTestBefore;
-import top.gotoeasy.framework.aop.code.AopTestLast;
-import top.gotoeasy.framework.aop.code.AopTestThrowing;
-import top.gotoeasy.framework.aop.code.Test;
 import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.compiler.MemoryClassLoader;
 import top.gotoeasy.framework.core.compiler.MemoryJavaCompiler;
 import top.gotoeasy.framework.core.util.CmnBean;
-import top.gotoeasy.framework.core.util.CmnFile;
 
+/**
+ * 代理类源码创建器
+ * @since 2018/04
+ * @author 青松
+ */
 public class CodeBuilder {
 
 	private Class<?>						clas;
@@ -44,6 +39,11 @@ public class CodeBuilder {
 		return new CodeBuilder();
 	}
 
+	/**
+	 * 检查拦截冲突
+	 * @param method 方法
+	 * @param aopObj 拦截处理对象
+	 */
 	private void checkAround(Method method, Object aopObj) {
 		if ( aopObj instanceof AopAround ) {
 			if ( mapAop.containsKey(method) ) {
@@ -58,11 +58,22 @@ public class CodeBuilder {
 		}
 	}
 
+	/**
+	 * 设定被代理类
+	 * @param clas 被代理类
+	 * @return 创建器
+	 */
 	public CodeBuilder setSuperclass(Class<?> clas) {
 		this.clas = clas;
 		return this;
 	}
 
+	/**
+	 * 设定环绕拦截
+	 * @param method 方法
+	 * @param aopObj 拦截处理对象
+	 * @return 创建器
+	 */
 	public CodeBuilder setAopAround(Method method, AopAround aopObj) {
 		checkAround(method, aopObj);
 
@@ -75,13 +86,18 @@ public class CodeBuilder {
 		return this;
 	}
 
+	/**
+	 * 生成环绕拦截源码
+	 * @param method 方法
+	 * @return 源码
+	 */
 	private String getAroundCode(Method method) {
 		AopAround around = mapMethodAround.get(method);
 		if ( around == null ) {
 			return "";
 		}
 
-		String txt = AopUtil.readText(Test.class, "template_around.txt");
+		String txt = AopUtil.readText("template_around.txt");
 		txt = txt.replace("{methodDefine}", AopUtil.getMethodDefine(method));
 		txt = txt.replace("{desc}", method.toGenericString());
 		txt = txt.replace("{superClass}", clas.getName());
@@ -92,6 +108,12 @@ public class CodeBuilder {
 		return txt;
 	}
 
+	/**
+	 * 设定前置拦截
+	 * @param method 方法
+	 * @param aopObj 拦截处理对象
+	 * @return 创建器
+	 */
 	public CodeBuilder setAopBefore(Method method, AopBefore aopObj) {
 		checkAround(method, aopObj);
 
@@ -113,6 +135,12 @@ public class CodeBuilder {
 		return this;
 	}
 
+	/**
+	 * 设定后置拦截
+	 * @param method 方法
+	 * @param aopObj 拦截处理对象
+	 * @return 创建器
+	 */
 	public CodeBuilder setAopAfter(Method method, AopAfter aopObj) {
 		checkAround(method, aopObj);
 
@@ -134,6 +162,12 @@ public class CodeBuilder {
 		return this;
 	}
 
+	/**
+	 * 设定异常拦截
+	 * @param method 方法
+	 * @param aopObj 拦截处理对象
+	 * @return 创建器
+	 */
 	public CodeBuilder setAopThrowing(Method method, AopThrowing aopObj) {
 		checkAround(method, aopObj);
 
@@ -155,6 +189,12 @@ public class CodeBuilder {
 		return this;
 	}
 
+	/**
+	 * 设定最终拦截
+	 * @param method 方法
+	 * @param aopObj 拦截处理对象
+	 * @return 创建器
+	 */
 	public CodeBuilder setAopLast(Method method, AopLast aopObj) {
 		checkAround(method, aopObj);
 
@@ -176,6 +216,11 @@ public class CodeBuilder {
 		return this;
 	}
 
+	/**
+	 * 生成前置拦截源码
+	 * @param method 方法
+	 * @return 源码
+	 */
 	private String getBeforeCode(Method method) {
 		List<AopBefore> list = mapMethodBefore.get(method);
 		if ( list == null || list.isEmpty() ) {
@@ -191,6 +236,11 @@ public class CodeBuilder {
 		return sb.toString();
 	}
 
+	/**
+	 * 生成后置拦截源码
+	 * @param method 方法
+	 * @return 源码
+	 */
 	private String getAfterCode(Method method) {
 		List<AopAfter> list = mapMethodAfter.get(method);
 		if ( list == null || list.isEmpty() ) {
@@ -206,13 +256,18 @@ public class CodeBuilder {
 		return sb.toString();
 	}
 
+	/**
+	 * 生成异常拦截源码
+	 * @param method 方法
+	 * @return 源码
+	 */
 	private String getThrowingCode(Method method) {
 		List<AopThrowing> list = mapMethodThrowing.get(method);
 		if ( list == null || list.isEmpty() ) {
 			return "";
 		}
 
-		String txt = "            ((AopThrowing){aopObj}).throwing(this, method, e, {parameterNames});";
+		String txt = "            ((AopThrowing){aopObj}).throwing(this, method, t, {parameterNames});";
 		StringBuilder sb = new StringBuilder();
 		for ( int i = 0; i < list.size(); i++ ) {
 			sb.append(txt.replace("{aopObj}", fieldNameMap.get(list.get(i)))).append("\n");
@@ -221,6 +276,11 @@ public class CodeBuilder {
 		return sb.toString();
 	}
 
+	/**
+	 * 生成最终拦截源码
+	 * @param method 方法
+	 * @return 源码
+	 */
 	private String getLastCode(Method method) {
 		List<AopLast> list = mapMethodLast.get(method);
 		if ( list == null || list.isEmpty() ) {
@@ -236,6 +296,12 @@ public class CodeBuilder {
 		return sb.toString();
 	}
 
+	/**
+	 * 生成方法拦截源码
+	 * @param method 方法
+	 * @param tmplFile 源码模板文件
+	 * @return 源码
+	 */
 	private String getMethodCode(Method method, String tmplFile) {
 		String desc = method.toGenericString();
 		Class<?> returnType = method.getReturnType();
@@ -254,33 +320,31 @@ public class CodeBuilder {
 			commentOut = "";
 		}
 
-		String txt = readText(tmplFile);
+		String txt = AopUtil.readText(tmplFile);
 		return txt.replace("{methodDefine}", methodDefine).replace("{returnType}", returnType.getName()).replace("{methodName}", methodName)
 				.replace("{desc}", desc).replace("{beforeCode}", beforeCode).replace("{afterCode}", afterCode).replace("{throwingCode}", throwingCode)
 				.replace("{lastCode}", lastCode).replace("{parameterNames}", parameterNames).replace("{superClass}", clas.getName())
 				.replace("{commentOut}", commentOut);
 	}
 
+	/**
+	 * 生成类源码
+	 * @return 源码
+	 */
 	private String getClassCode() {
 		String pack = clas.getPackage().getName();
 		String simpleName = clas.getSimpleName();
 
-		String txt = readText("template_class.txt");
+		String txt = AopUtil.readText("template_class.txt");
 
 		return txt.replace("{pack}", pack).replace("{simpleName}", simpleName).replace("{superClass}", clas.getName());
 	}
 
-	private String readText(String file) {
-		String path = clas.getPackage().getName().replace(".", "/") + "/";
-		URL url = Thread.currentThread().getContextClassLoader().getResource(path + file);
-		if ( url == null ) {
-			return null;
-		}
-		return CmnFile.readFileText(url.getPath(), "utf-8");
-	}
-
-	public String build() {
-
+	/**
+	 * 创建代理类源码
+	 * @return 代理类源码
+	 */
+	private String createClassCode() {
 		StringBuilder sbSuper = new StringBuilder();
 		StringBuilder sbMethod = new StringBuilder();
 
@@ -308,90 +372,42 @@ public class CodeBuilder {
 		return txt;
 	}
 
-	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		CodeBuilder builder = CodeBuilder.get();
-		builder.setSuperclass(Test.class);
+	/**
+	 * 创建代理对象
+	 * @return 代理对象
+	 */
+	public Object build() {
 
-		AopTestBefore aopTest = new AopTestBefore();
-		AopTestAfter aopTestAfter = new AopTestAfter();
-		AopTestThrowing aopTestThrowing = new AopTestThrowing();
-		AopTestLast aopTestLast = new AopTestLast();
-		AopTestAround aopTestAround = new AopTestAround();
-
-		Method[] methods = Test.class.getDeclaredMethods();
-		for ( int i = 0; i < methods.length; i++ ) {
-			if ( i == 0 ) {
-				builder.setAopAround(methods[i], aopTestAround);
-				continue;
-			}
-//			builder.setAopBefore(methods[i], aopTest);
-//			builder.setAopAfter(methods[i], aopTestAfter);
-//			builder.setAopThrowing(methods[i], aopTestThrowing);
-//			builder.setAopLast(methods[i], aopTestLast);
-		}
-
-		String className = Test.class.getName() + "$$gotoeasy$$";
-		String srcCode = builder.build();
+		// 创建代理类源码
+		String className = AopUtil.getProxyClassName(clas);
+		String srcCode = createClassCode();
 
 		MemoryJavaCompiler compiler = new MemoryJavaCompiler();
 		compiler.compile(className, srcCode);
 		MemoryClassLoader loader = new MemoryClassLoader();
-		Class<?> aClass = loader.loadClass(className);
-		Test test = (Test)aClass.newInstance();
 
-		for ( Object obj : builder.fieldNameMap.keySet() ) {
-			CmnBean.setFieldValue(test, builder.fieldNameMap.get(obj), obj);
+		// 创建代理对象
+		Class<?> proxyClass;
+		Object proxyObject;
+		try {
+			proxyClass = loader.loadClass(className);
+			proxyObject = proxyClass.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				loader.close();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 
-		////////////////////
-		for ( int i = 0; i < 10000; i++ ) {
-			test.hello("xxxxx");
+		// 设定拦截处理对象
+		for ( Object obj : fieldNameMap.keySet() ) {
+			CmnBean.setFieldValue(proxyObject, fieldNameMap.get(obj), obj);
 		}
 
-		long ss = System.currentTimeMillis();
-		String xxx = null;
-		for ( int i = 0; i < 1000 * 10000; i++ ) {
-			xxx = test.hello("xxxxx");
-		}
-		System.err.println("MyAop: " + (System.currentTimeMillis() - ss) + "MS,   " + xxx);
-
-		nativecall();
-		cglibAop();
-	}
-
-	private static void nativecall() {
-		Test test = new Test();
-		for ( int i = 0; i < 10000; i++ ) {
-			test.hello("xxxxx");
-		}
-
-		long ss = System.currentTimeMillis();
-		String xxx = null;
-		for ( int i = 0; i < 1000 * 10000; i++ ) {
-			xxx = test.hello("xxxxx");
-		}
-		System.err.println("Native: " + (System.currentTimeMillis() - ss) + "MS,   " + xxx);
-	}
-
-	private static void cglibAop() {
-		// 增强
-		Enhancer enhancer = new Enhancer();
-		enhancer.setSuperclass(Test.class);
-		enhancer.setCallback(new AopInterceptor());
-		Object obj = enhancer.create(); // 返回目标类的增强子类
-
-		Test pojo = (Test)obj;
-
-		for ( int i = 0; i < 10000; i++ ) {
-			pojo.hello("xxxxx");
-		}
-
-		long ss = System.currentTimeMillis();
-		String xxx = null;
-		for ( int i = 0; i < 1000 * 10000; i++ ) {
-			xxx = pojo.hello("xxxxx");
-		}
-		System.err.println("CglibAop: " + (System.currentTimeMillis() - ss) + "MS,   " + xxx);
+		return proxyObject;
 	}
 
 }

@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.aop.code;
+package top.gotoeasy.framework.aop.test;
 
 import top.gotoeasy.framework.aop.AopAround;
 import top.gotoeasy.framework.aop.AroundPoint;

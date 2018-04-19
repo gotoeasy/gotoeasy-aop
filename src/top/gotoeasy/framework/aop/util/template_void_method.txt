@@ -2,15 +2,13 @@
     {methodDefine} {
         Method method = getMethodByDesc("{desc}");
 
-        {returnType} rs;
-{commentOut}        try {
+{commentOut}         try {
 {beforeCode}
-            rs = super.{methodName}({parameterNames});
+            super.{methodName}({parameterNames});
 {afterCode}
-            return rs;
-{commentOut}        } catch (Exception e) {
+{commentOut}        } catch (Throwable t) {
 {commentOut}{throwingCode}
-{commentOut}            throw new RuntimeException(e);
+{commentOut}            throw new RuntimeException(t);
 {commentOut}        } finally {
 {commentOut}{lastCode}
 {commentOut}        }
