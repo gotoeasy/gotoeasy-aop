@@ -176,7 +176,6 @@ public class AopUtil {
 
 	/**
 	 * 按utf-8编码读取指定文件内容
-	 * @param clas 类（文件和该类在同一目录）
 	 * @param fileName 文件名
 	 * @return 文件内容
 	 */

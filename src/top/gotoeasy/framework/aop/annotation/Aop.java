@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * 用于声明一个类为AOP类
- * @since 2018/03
+ * @since 2018/04
  * @author 青松
  */
 @Documented
@@ -16,6 +16,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 public @interface Aop {
 
-	/** Bean名称 */
+	/**
+	 * 值
+	 * @return 值
+	 */
 	String value() default "";
 }
