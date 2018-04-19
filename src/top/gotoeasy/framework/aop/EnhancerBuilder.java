@@ -392,11 +392,10 @@ public class EnhancerBuilder {
 		String className = AopUtil.getProxyClassName(clas);
 		String srcCode = createClassCode();
 
+		// 动态编译、创建代理对象
 		MemoryJavaCompiler compiler = new MemoryJavaCompiler();
 		compiler.compile(className, srcCode);
 		MemoryClassLoader loader = new MemoryClassLoader();
-
-		// 创建代理对象
 		Class<?> proxyClass;
 		Object proxyObject;
 		try {
