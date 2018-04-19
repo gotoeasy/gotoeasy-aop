@@ -3,6 +3,61 @@
 
 - depend on `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
 
+## 青松的姿势
+- 被代理类
+```java
+package top.gotoeasy.sample.aop;
+public class MyTatrget {
+	public String hello(String name) {
+		String rs = "Hello " + name;
+		System.err.println(rs);
+		return rs;
+	}
+}
+```
+- 拦截处理类
+```java
+package top.gotoeasy.sample.aop;
+import java.lang.reflect.Method;
+import top.gotoeasy.framework.aop.AopBefore;
+import top.gotoeasy.framework.aop.annotation.Aop;
+import top.gotoeasy.framework.aop.annotation.Before;
+
+@Aop
+public class AopTestBefore implements AopBefore {
+
+	@Before("*top.gotoeasy.sample.aop.MyTatrget.hello(*)")
+	@Override
+	public void before(Object proxy, Method method, Object ... args) {
+		System.err.println("input =" + args[0]);
+	}
+}
+```
+- 测试类
+```java
+package top.gotoeasy.sample.aop;
+import top.gotoeasy.framework.aop.EnhancerBuilder;
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		// 拦截器
+		AopTestBefore aopTest = new AopTestBefore();
+		MyTatrget proxy = (MyTatrget)EnhancerBuilder.get() // 创建器
+				.setSuperclass(MyTatrget.class) // 设定被代理类
+				.matchAop(aopTest) // 匹配拦截器
+				.build(); // 创建代理对象
+
+		proxy.hello("AOP");
+	}
+}
+
+// 输出结果：
+input =AOP
+Hello AOP
+```
+
 ## 为什么还做AOP轮子
 - JDK的代理必须要有接口，太鸡肋了，有谁会给自己的业务方法全部都加上接口。。。
 - CGLIB的代理只要被代理类能继承就可以，非常强悍、优越、稳定、广泛使用，但是，很多时候会为了让hashCode/toString/equals等方法不被代理，而去做些本来没有的事。。。
