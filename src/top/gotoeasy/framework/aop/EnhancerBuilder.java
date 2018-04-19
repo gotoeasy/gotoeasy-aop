@@ -50,13 +50,13 @@ public class EnhancerBuilder {
 	private void checkAround(Method method, Object aopObj) {
 		if ( aopObj instanceof AopAround ) {
 			if ( mapAop.containsKey(method) ) {
-				throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法");
+				throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopObj.getClass() + ")");
 			} else if ( mapMethodAround.containsKey(method) ) {
-				throw new RuntimeException("重复的Around拦截，Around拦截必须独占，不能和其他拦截共同拦截同一方法");
+				throw new RuntimeException("重复的Around拦截，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopObj.getClass() + ")");
 			}
 		} else {
 			if ( mapMethodAround.containsKey(method) ) {
-				throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法");
+				throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopObj.getClass() + ")");
 			}
 		}
 	}
