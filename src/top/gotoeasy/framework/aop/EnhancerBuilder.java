@@ -1,6 +1,7 @@
 package top.gotoeasy.framework.aop;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,12 +10,20 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import top.gotoeasy.framework.aop.annotation.After;
+import top.gotoeasy.framework.aop.annotation.Aop;
+import top.gotoeasy.framework.aop.annotation.Around;
+import top.gotoeasy.framework.aop.annotation.Before;
+import top.gotoeasy.framework.aop.annotation.Last;
+import top.gotoeasy.framework.aop.annotation.Throwing;
 import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.aop.util.SourceTemplate;
 import top.gotoeasy.framework.core.compiler.MemoryClassLoader;
 import top.gotoeasy.framework.core.compiler.MemoryJavaCompiler;
 import top.gotoeasy.framework.core.reflect.ClassScaner;
+import top.gotoeasy.framework.core.reflect.MethodScaner;
 import top.gotoeasy.framework.core.util.CmnBean;
+import top.gotoeasy.framework.core.util.CmnString;
 
 /**
  * 代理对象创建器
@@ -381,6 +390,175 @@ public class EnhancerBuilder {
 
 		log.trace(txt);
 		return txt;
+	}
+
+	/**
+	 * 设定拦截
+	 * <p>
+	 * 传入带拦截注解的拦截器对象，自动拦截匹配的public方法
+	 * </p>
+	 * @param aops 拦截处理对象
+	 * @return 创建器
+	 */
+	public EnhancerBuilder matchAop(Object ... aops) {
+		Method[] methods = clas.getMethods();
+		for ( Method method : methods ) {
+			for ( Object aopObj : aops ) {
+				if ( matchMethodBefore(method, aopObj) ) {
+					setAopBefore(method, (AopBefore)aopObj);
+				} else if ( matchMethodAfter(method, aopObj) ) {
+					setAopAfter(method, (AopAfter)aopObj);
+				} else if ( matchMethodThrowing(method, aopObj) ) {
+					setAopThrowing(method, (AopThrowing)aopObj);
+				} else if ( matchMethodLast(method, aopObj) ) {
+					setAopLast(method, (AopLast)aopObj);
+				} else if ( matchMethodAround(method, aopObj) ) {
+					setAopAround(method, (AopAround)aopObj);
+				}
+			}
+		}
+
+		return this;
+	}
+
+	private boolean matchMethodBefore(Method method, Object aopObj) {
+		int modifiers = method.getModifiers();
+		if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
+			return false;
+		}
+
+		if ( aopObj instanceof AopBefore ) {
+			String desc = method.toGenericString();
+			List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass());
+			for ( Method aopMethod : aopMethods ) {
+				if ( !aopMethod.isAnnotationPresent(Before.class) ) {
+					continue;
+				}
+
+				// TODO 检查@Before必须标注在AopBefore接口方法上
+
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				Before aopAnno = aopMethod.getAnnotation(Before.class);
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private boolean matchMethodAfter(Method method, Object aopObj) {
+		int modifiers = method.getModifiers();
+		if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
+			return false;
+		}
+
+		if ( aopObj instanceof AopAfter ) {
+			String desc = method.toGenericString();
+			List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass());
+			for ( Method aopMethod : aopMethods ) {
+				if ( !aopMethod.isAnnotationPresent(After.class) ) {
+					continue;
+				}
+
+				// TODO 检查@After必须标注在AopAfter接口方法上
+
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				After aopAnno = aopMethod.getAnnotation(After.class);
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private boolean matchMethodThrowing(Method method, Object aopObj) {
+		int modifiers = method.getModifiers();
+		if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
+			return false;
+		}
+
+		if ( aopObj instanceof AopThrowing ) {
+			String desc = method.toGenericString();
+			List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass());
+			for ( Method aopMethod : aopMethods ) {
+				if ( !aopMethod.isAnnotationPresent(Throwing.class) ) {
+					continue;
+				}
+
+				// TODO 检查@Throwing必须标注在AopThrowing接口方法上
+
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				Throwing aopAnno = aopMethod.getAnnotation(Throwing.class);
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private boolean matchMethodLast(Method method, Object aopObj) {
+		int modifiers = method.getModifiers();
+		if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
+			return false;
+		}
+
+		if ( aopObj instanceof AopLast ) {
+			String desc = method.toGenericString();
+			List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass());
+			for ( Method aopMethod : aopMethods ) {
+				if ( !aopMethod.isAnnotationPresent(Last.class) ) {
+					continue;
+				}
+
+				// TODO 检查@Last必须标注在AopLast接口方法上
+
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				Last aopAnno = aopMethod.getAnnotation(Last.class);
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private boolean matchMethodAround(Method method, Object aopObj) {
+		int modifiers = method.getModifiers();
+		if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
+			return false;
+		}
+
+		if ( aopObj instanceof AopAround ) {
+			String desc = method.toGenericString();
+			List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass());
+			for ( Method aopMethod : aopMethods ) {
+				if ( !aopMethod.isAnnotationPresent(Around.class) ) {
+					continue;
+				}
+
+				// TODO 检查@Around必须标注在AopAround接口方法上
+
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				Around aopAnno = aopMethod.getAnnotation(Around.class);
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
