@@ -2,10 +2,11 @@ package top.gotoeasy.framework.aop.util;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import top.gotoeasy.framework.aop.Enhancer;
 import top.gotoeasy.framework.core.util.CmnMessageDigest;
 
 /**
@@ -83,6 +84,64 @@ public class AopUtil {
 	 */
 	public static String getReturnType(Method method) {
 		return method.getReturnType().getName();
+	}
+
+	/**
+	 * 取得方法的参数类型源码
+	 * <p>
+	 * 如：String.class, int.class, int.class
+	 * </p>
+	 * @param method 方法
+	 * @return 方法的参数类型源码
+	 */
+	public static String getParameterTypes(Method method) {
+		Class<?>[] paramTypes = method.getParameterTypes();
+		if ( paramTypes.length == 0 ) {
+			return "";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for ( int i = 0; i < paramTypes.length; i++ ) {
+			if ( i > 0 ) {
+				sb.append(", ");
+			}
+			if ( paramTypes[i].isArray() ) {
+				sb.append(paramTypes[i].getComponentType().getName()).append("[]").append(".class");
+			} else {
+				sb.append(paramTypes[i].getName()).append(".class");
+			}
+		}
+
+		return sb.toString();
+	}
+
+	/**
+	 * 取得Lambda方法的参数转换源码
+	 * <p>
+	 * 如：(String)args[0], (int)args[1]
+	 * </p>
+	 * @param method 方法
+	 * @return Lambda方法的参数转换源码
+	 */
+	public static String getLambdaArgs(Method method) {
+		Class<?>[] paramTypes = method.getParameterTypes();
+		if ( paramTypes.length == 0 ) {
+			return "";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for ( int i = 0; i < paramTypes.length; i++ ) {
+			if ( i > 0 ) {
+				sb.append(", ");
+			}
+			if ( paramTypes[i].isArray() ) {
+				sb.append("(").append(paramTypes[i].getComponentType().getName()).append("[]").append(")args[").append(i).append("]");
+			} else {
+				sb.append("(").append(paramTypes[i].getName()).append(")args[").append(i).append("]");
+			}
+		}
+
+		return sb.toString();
 	}
 
 	/**
@@ -165,23 +224,52 @@ public class AopUtil {
 	 */
 	public static MethodHandle getMethodHandle(Method method) {
 		try {
-			MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
-			return MethodHandles.lookup().findVirtual(method.getDeclaringClass(), method.getName(), methodType);  //查找方法句柄  
+			Lookup lk = MethodHandles.lookup();
+			return lk.unreflect(method);
+//			MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
+//			return lk.findVirtual(method.getDeclaringClass(), method.getName(), methodType);  //查找方法句柄  
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	/**
-	 * 取得代理类的类名
+	 * 取得代理类的类名(含包名)
 	 * <p>
 	 * 代理类的类名 = 被代理类的类名 + "$$gotoeasy$$"
 	 * </p>
 	 * @param clas 被代理类
 	 * @return 代理类的类名
 	 */
-	public static String getProxyClassName(Class<?> clas) {
+	public static String getEnhancerName(Class<?> clas) {
 		return clas.getName() + "$$gotoeasy$$";
+	}
+
+	/**
+	 * 取得代理类的类名(不含包名)
+	 * <p>
+	 * 代理类的类名 = 被代理类的类名 + "$$gotoeasy$$"
+	 * </p>
+	 * @param clas 被代理类
+	 * @return 代理类的类名
+	 */
+	public static String getEnhancerSimpleName(Class<?> clas) {
+		return clas.getSimpleName() + "$$gotoeasy$$";
+	}
+
+	/**
+	 * 查找在增量对象的父类中声明的方法
+	 * @param enhancer 增量对象
+	 * @param methodName 方法名
+	 * @param classes 方法参数类型
+	 * @return 方法
+	 */
+	public static Method getMethod(Enhancer enhancer, String methodName, Class<?> ... classes) {
+		try {
+			return enhancer.getClass().getSuperclass().getDeclaredMethod(methodName, classes);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
