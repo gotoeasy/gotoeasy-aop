@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import top.gotoeasy.framework.aop.Enhancer;
-import top.gotoeasy.framework.core.util.CmnMessageDigest;
 
 /**
  * Aop工具类
@@ -18,33 +17,6 @@ import top.gotoeasy.framework.core.util.CmnMessageDigest;
  * @author 青松
  */
 public class AopUtil {
-
-	/**
-	 * 取得调用父方法的方法名
-	 * @param desc 方法的描述 {@link Method#toGenericString()}
-	 * @return 调用父方法的方法名
-	 */
-	public static String getCallSuperMethodName(String desc) {
-		return "gotoeasy$" + CmnMessageDigest.md5(desc).replace('-', '$');
-	}
-
-	/**
-	 * 生成调用父方法的源码
-	 * @param method 被代理方法
-	 * @return 调用父方法的源码
-	 */
-	public static String getCodeInvokeSuperMethod(Method method) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("public ");
-		sb.append(getReturnType(method)).append(" ");
-		sb.append(getCallSuperMethodName(method.toGenericString())).append("(");
-		sb.append(getParameterDefines(method)).append("){\n");
-		sb.append(isVoid(method) ? "" : "return ");
-		sb.append("super.").append(method.getName());
-		sb.append("(").append(getParameterNames(method)).append(");\n");
-		sb.append("}\n\n");
-		return sb.toString();
-	}
 
 	/**
 	 * 取得方法的声明代码
