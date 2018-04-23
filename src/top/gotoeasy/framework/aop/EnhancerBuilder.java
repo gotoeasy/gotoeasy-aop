@@ -51,6 +51,7 @@ public class EnhancerBuilder {
 		return new EnhancerBuilder();
 	}
 
+	//TODO 拦截检查，方法返回值检查，参数检查
 //	/**
 //	 * 检查拦截冲突
 //	 * @param method 方法
@@ -161,17 +162,17 @@ public class EnhancerBuilder {
 
 		for ( Method method : methodFieldMap.keySet() ) {
 			// private Method {varMethod};
-			sbMethodField.append("private Method ").append(methodFieldMap.get(method)).append(";\n");
+			sbMethodField.append(TAB).append("private Method ").append(methodFieldMap.get(method)).append(";\n");
 		}
 
 		for ( Method method : superInvokerFieldMap.keySet() ) {
 			// private SuperInvoker {varSuperInvoker};
-			sbSuperInvokerField.append("private SuperInvoker ").append(superInvokerFieldMap.get(method)).append(";\n");
+			sbSuperInvokerField.append(TAB).append("private SuperInvoker ").append(superInvokerFieldMap.get(method)).append(";\n");
 		}
 
 		for ( Object aopObj : aopObjFieldMap.keySet() ) {
 			// public {aopClass} {varAopObj};
-			sbAopField.append("public ").append(aopObj.getClass().getName()).append(" ").append(aopObjFieldMap.get(aopObj)).append(";\n");
+			sbAopField.append(TAB).append("public ").append(aopObj.getClass().getName()).append(" ").append(aopObjFieldMap.get(aopObj)).append(";\n");
 		}
 
 		// ---------------------------------- --------------------------------------------------
@@ -193,15 +194,25 @@ public class EnhancerBuilder {
 			sbMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
 			sbMethod.append(TAB4).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\", ")
 					.append(AopUtil.getParameterTypes(method)).append(");\n");
-//			sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (method, args) -> super.").append(method.getName()).append("(")
-//					.append(AopUtil.getLambdaArgs(method)).append(");\n");
-			sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (args) -> super.").append(method.getName()).append("(")
-					.append("(int)args[0] ").append(");\n");
-			sbMethod.append(TAB2).append("}").append("\n");
-			sbMethod.append(TAB2).append("return ").append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ")
-					.append(info.varMethod).append(", ").append(info.varSuperInvoker).append(", ").append(AopUtil.getParameterNames(method))
-					.append(");\n");
-			sbMethod.append(TAB).append("}\n");
+
+			if ( void.class.equals(method.getReturnType()) ) {
+				// 无返回值
+				sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (args) -> {super.").append(method.getName()).append("(")
+						.append("(int)args[0] ").append("); return null;};").append("\n");
+				sbMethod.append(TAB2).append("}").append("\n");
+				sbMethod.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod)
+						.append(", ").append(info.varSuperInvoker).append(", ").append(AopUtil.getParameterNames(method)).append(");\n");
+			} else {
+				// 有返回值
+				sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (args) -> super.").append(method.getName()).append("(")
+						.append("(int)args[0] ").append(");\n");
+				sbMethod.append(TAB2).append("}").append("\n");
+				sbMethod.append(TAB2).append("return ").append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ")
+						.append(info.varMethod).append(", ").append(info.varSuperInvoker).append(", ").append(AopUtil.getParameterNames(method))
+						.append(");\n");
+			}
+
+			sbMethod.append(TAB).append("}\n\n");
 		}
 
 		StringBuilder sbClass = new StringBuilder();
@@ -234,16 +245,16 @@ public class EnhancerBuilder {
 		sbClass.append("public class ").append(AopUtil.getEnhancerSimpleName(clas)).append(" extends ").append(clas.getSimpleName())
 				.append(" implements Enhancer {").append("\n");
 		sbClass.append("\n");
-		sbClass.append(TAB).append(sbMethodField);
-		sbClass.append(TAB).append(sbSuperInvokerField);
-		sbClass.append(TAB).append(sbAopField);
+		sbClass.append(sbMethodField);
+		sbClass.append(sbSuperInvokerField);
+		sbClass.append(sbAopField);
 		sbClass.append("\n");
 		sbClass.append(sbMethod);
 		sbClass.append("}").append("\n");
 
 		String srcCode = sbClass.toString();
 
-		log.trace("\n{}", srcCode);
+		log.info("\n{}", srcCode);
 		return srcCode;
 	}
 
