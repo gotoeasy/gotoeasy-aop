@@ -1,6 +1,6 @@
 package top.gotoeasy.framework.aop.test;
 
-import top.gotoeasy.framework.aop.ZAopBuilder;
+import top.gotoeasy.framework.aop.EnhancerBuilder;
 
 public class Test {
 
@@ -8,7 +8,7 @@ public class Test {
 
 	public static void main(String[] args) {
 		AopTest aop = new AopTest();
-		TatrgetCounter enhancer = (TatrgetCounter)ZAopBuilder.get().setSuperclass(TatrgetCounter.class).matchAop(aop).build();
+		TatrgetCounter enhancer = (TatrgetCounter)EnhancerBuilder.get().setSuperclass(TatrgetCounter.class).matchAop(aop).build();
 		enhancer.hello("sdadsas");
 
 		TatrgetCounter sss = new TatrgetCounter();

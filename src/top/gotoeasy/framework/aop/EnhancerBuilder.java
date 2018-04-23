@@ -26,7 +26,7 @@ import top.gotoeasy.framework.core.util.CmnString;
  * @since 2018/04
  * @author 青松
  */
-public class ZAopBuilder {
+public class EnhancerBuilder {
 
 	private static final Log			log						= LoggerFactory.getLogger(ClassScaner.class);
 
@@ -47,8 +47,8 @@ public class ZAopBuilder {
 	 * 生成创建器
 	 * @return 创建器
 	 */
-	public static ZAopBuilder get() {
-		return new ZAopBuilder();
+	public static EnhancerBuilder get() {
+		return new EnhancerBuilder();
 	}
 
 //	/**
@@ -75,7 +75,7 @@ public class ZAopBuilder {
 	 * @param clas 被代理类
 	 * @return 创建器
 	 */
-	public ZAopBuilder setSuperclass(Class<?> clas) {
+	public EnhancerBuilder setSuperclass(Class<?> clas) {
 		this.clas = clas;
 		return this;
 	}
@@ -88,7 +88,7 @@ public class ZAopBuilder {
 	 * @param aops 拦截处理对象
 	 * @return 创建器
 	 */
-	public ZAopBuilder matchAop(Object ... aops) {
+	public EnhancerBuilder matchAop(Object ... aops) {
 		Method[] methods = clas.getMethods();
 		for ( Method method : methods ) {
 			for ( Object aopObj : aops ) {
