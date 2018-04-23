@@ -193,8 +193,10 @@ public class EnhancerBuilder {
 			sbMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
 			sbMethod.append(TAB4).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\", ")
 					.append(AopUtil.getParameterTypes(method)).append(");\n");
-			sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (method, args) -> super.").append(method.getName()).append("(")
-					.append(AopUtil.getLambdaArgs(method)).append(");\n");
+//			sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (method, args) -> super.").append(method.getName()).append("(")
+//					.append(AopUtil.getLambdaArgs(method)).append(");\n");
+			sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (args) -> super.").append(method.getName()).append("(")
+					.append("(int)args[0] ").append(");\n");
 			sbMethod.append(TAB2).append("}").append("\n");
 			sbMethod.append(TAB2).append("return ").append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ")
 					.append(info.varMethod).append(", ").append(info.varSuperInvoker).append(", ").append(AopUtil.getParameterNames(method))
