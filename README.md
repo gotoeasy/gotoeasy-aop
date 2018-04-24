@@ -6,56 +6,65 @@
 ## 青松的姿势
 - 被代理类
 ```java
-package top.gotoeasy.sample.aop;
-public class MyTatrget {
-	public String hello(String name) {
-		String rs = "Hello " + name;
-		System.err.println(rs);
-		return rs;
+package top.gotoeasy.sample.aop.sample1;
+public class Sample1Add {
+	private int total = 0;
+	public int add(int intVal) { // 拦截目标方法
+		total += intVal;
+		return total;
+	}
+
+	public int getTotal() {
+		return total;
 	}
 }
 ```
 - 拦截处理类
 ```java
-package top.gotoeasy.sample.aop;
+package top.gotoeasy.sample.aop.sample1;
 import java.lang.reflect.Method;
-import top.gotoeasy.framework.aop.AopBefore;
+import top.gotoeasy.framework.aop.Enhancer;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Before;
 
 @Aop
-public class AopTestBefore implements AopBefore {
+public class Sample1Aop {
 
-	@Before("*top.gotoeasy.sample.aop.MyTatrget.hello(*)")
-	@Override
-	public void before(Object proxy, Method method, Object ... args) {
-		System.err.println("input =" + args[0]);
+	@Before("*.Sample1Add.add(*)")
+	public void before(Enhancer enhancer, Method method, int val) {
+		System.err.println("Before add " + val);
 	}
 }
 ```
-- 测试类
+- 运行测试
 ```java
-package top.gotoeasy.sample.aop;
+package top.gotoeasy.sample.aop.sample1;
 import top.gotoeasy.framework.aop.EnhancerBuilder;
 
-public class Main {
+public class Sample1Main {
 
 	public static void main(String[] args) {
+		Sample1Aop aop = new Sample1Aop();
+		Sample1Add enhancer = (Sample1Add)EnhancerBuilder.get()
+					.setSuperclass(Sample1Add.class)
+					.matchAop(aop).build();
 
-		// 拦截器
-		AopTestBefore aopTest = new AopTestBefore();
-		MyTatrget proxy = (MyTatrget)EnhancerBuilder.get() // 创建器
-				.setSuperclass(MyTatrget.class) // 设定被代理类
-				.matchAop(aopTest) // 匹配拦截器
-				.build(); // 创建代理对象
+		enhancer.add(1);
+		enhancer.add(2);
+		enhancer.add(3);
 
-		proxy.hello("AOP");
+		System.err.println("Total: " + enhancer.getTotal());
 	}
 }
 
 // 输出结果：
-input =AOP
-Hello AOP
+Before add 1
+After add 1
+Before add 2
+After add 2
+Before add 3
+After add 3
+Total: 6
 ```
 
 ## 为什么还做AOP轮子
@@ -67,52 +76,24 @@ Hello AOP
 #### `所以AOP轮子要达到的目标就是`
 - 参考CGLIB使用继承的方式实现代理，避免接口要求
 - 被代理的方法是能选择的，而不是把全部能继承的public方法都代理掉
-- 性能在尚可接受的范围内，不必比CGLIB优秀，但要有实用性
+- 有实用性，且性能要在可接受范围内
 - 进一步简化AOP程序的编写实现
 
-## `gotoeasy-aop初步成效`
-- Java8环境，1千万次调用，仅常用的前置拦截或后置拦截的话，性能有时逼近原始调用，通常会优于CGLIB
-```java
-  // 直接在继承的方法中写入以下类似代码实现代理功能，所以性能不会差哪去
-  java.lang.String rs;
-  ((AopBefore)aopObj1).before(this, method, p0);
-  rs = super.hello(p0);
-  ((AopAfter)aopObj2).after(this, method, p0);
-  return rs;
-```
-```java
-  // catch和finally也要拦截的话，类似代码如下，由于try-catch-finally的缘故性能会降低，总体上也接近CGLIB
-  java.lang.String rs;
-  try {
-      ((AopBefore)aopObj1).before(this, method, p0);
-      rs = super.hello(p0);
-      ((AopAfter)aopObj2).after(this, method, p0);
-      return rs;
-  } catch (Throwable t) {
-      ((AopThrowing)aopObj3).throwing(this, method, t, p0);
-      throw new RuntimeException(t);
-  } finally {
-      ((AopLast)aopObj4).last(this, method, p0);
-  }
-```
-- Java8环境，1千万次调用，Around拦截，性能比CGLIB差一半，尚能使用
-```java
-    // Around拦截类似代码如下，性能损失主要在于super方法的反射调用，而CGLIB做了fastClass优化表现优秀
-    // 不想修改字节码，按MethodHandle方式的super方法调用的话，性能逼近原始调用
-    // 可惜MethodHandle方式太不稳定，时对时错时快时慢，希望它在高版本能表现出色
-    // Java高版本的性能越来越好，方法反射调用应用普遍，很可能以后会被出色优化，这也是目前简单采用反射调用的原因
-    @Override
-    public final java.lang.String hello(java.lang.String p0) {
-        String desc = "public java.lang.String top.gotoeasy.sample.aop.MyTatrget.hello(java.lang.String)";
-        AroundPoint point = new AroundPoint(this, top.gotoeasy.sample.aop.MyTatrget.class, desc, p0);
-        return (java.lang.String) ((AopAround)aopObj1).around(point);
-    }
-
-    public java.lang.String gotoeasy$di9c5modhv5tbt586tih0s4gl(java.lang.String p0){
-        return super.hello(p0);
-    }
-```
-
+## `gotoeasy-aop初步成效列举`
+- Before拦截，性能明显优于CGLIB，原因很简单，gotoeasy-aop运行时就是直接调用（测试机环境：win8.1，64位，8G内存，i5-4200U）
+|No.|调用次数|直接调用|gotoeasy-aop|CGLIB|
+|1-1|100,000|4MS|7MS|14MS|
+|1-2|100,000|5MS|6MS|32MS|
+|1-3|100,000|5MS|6MS|13MS|
+|2-1|1,000,000|11MS|13MS|78MS|
+|2-2|1,000,000|16MS|9MS|55MS|
+|2-3|1,000,000|10MS|10MS|58MS|
+|3-1|10,000,000|29MS|33MS|346MS|
+|3-2|10,000,000|10MS|36MS|361MS|
+|3-3|10,000,000|11MS|13MS|343MS|
+|4-1|100,000,000|15MS|21MS|2694MS|
+|4-2|100,000,000|14MS|33MS|2438MS|
+|4-3|100,000,000|13MS|17MS|2647MS|
 
 ## GotoEasy系列
 - `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
