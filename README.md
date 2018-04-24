@@ -1,5 +1,5 @@
 # `gotoeasy-aop`
-基于JavaCompiler的AOP实现，目的为增加一种折中的AOP实现方式
+基于JavaCompiler的AOP实现，提供另一种折中的AOP实现方式
 
 - depend on `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
 
@@ -74,7 +74,7 @@ Total: 6
 - 有实用性，经过各种尝试后的一调再调，性能已是越战越勇状态
 
 ## `gotoeasy-aop初步成效列举`
- Before拦截（Sample2），性能完全逼近原始调用（测试机环境：win8.1，64位，8G内存，i5-4200U）
+Before拦截（Sample2），性能完全逼近原始调用（测试机环境：win8.1，64位，8G内存，i5-4200U）
 
 |No.|调用次数|直接调用|gotoeasy-aop|CGLIB|
 |----------|----------|----------|----------|----------|
@@ -91,8 +91,8 @@ Total: 6
 |4-2|100,000,000|14MS|33MS|2438MS|
 |4-3|100,000,000|13MS|17MS|2647MS|
 
-　　
- Around拦截（Sample3），随着调用次数的增多而会被优化，越战越勇的状态
+
+Around拦截（Sample3），随着调用次数的增多而会被优化，越战越勇的状态
 
 |No.|调用次数|直接调用|gotoeasy-aop|CGLIB|
 |----------|----------|----------|----------|----------|
@@ -111,8 +111,8 @@ Total: 6
 
 ## GotoEasy系列
 - `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
-- `gotoeasy-rmi` http://github.com/gotoeasy/gotoeasy-rmi/
 - `gotoeasy-aop` http://github.com/gotoeasy/gotoeasy-aop/
+- `gotoeasy-rmi` http://github.com/gotoeasy/gotoeasy-rmi/
 - TODO
 - TODO
 - TODO
