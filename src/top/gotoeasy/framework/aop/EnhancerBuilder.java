@@ -88,7 +88,10 @@ public class EnhancerBuilder {
 		Method[] methods = clas.getMethods();
 		for ( Method method : methods ) {
 			for ( Object aopObj : aops ) {
-				matchMethodAround(method, aopObj);
+				if ( aopObj instanceof Aop ) {
+					// 检查@Aop
+					matchMethodAround(method, aopObj);
+				}
 			}
 		}
 
