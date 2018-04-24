@@ -340,7 +340,7 @@ public class EnhancerBuilder {
 
 			String parameterTypes = AopUtil.getParameterTypes(method);
 			if ( CmnString.isNotBlank(parameterTypes) ) {
-				sbAroundMethod.append("\", ").append(parameterTypes);
+				sbAroundMethod.append(", ").append(parameterTypes);
 			}
 			sbAroundMethod.append(");\n");
 
