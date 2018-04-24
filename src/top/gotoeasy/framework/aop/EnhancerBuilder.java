@@ -88,7 +88,7 @@ public class EnhancerBuilder {
 		Method[] methods = clas.getMethods();
 		for ( Method method : methods ) {
 			for ( Object aopObj : aops ) {
-				if ( aopObj instanceof Aop ) {
+				if ( aopObj.getClass().isAnnotationPresent(Aop.class) ) {
 					// 检查@Aop
 					matchMethodAround(method, aopObj);
 				}
