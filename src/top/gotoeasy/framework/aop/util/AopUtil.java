@@ -106,10 +106,18 @@ public class AopUtil {
 			if ( i > 0 ) {
 				sb.append(", ");
 			}
-			if ( paramTypes[i].isArray() ) {
-				sb.append("(").append(paramTypes[i].getComponentType().getName()).append("[]").append(")args[").append(i).append("]");
+
+			if ( method.isVarArgs() && i == paramTypes.length - 1 ) {
+				// 可变参数
+				sb.append("(").append(paramTypes[i].getComponentType().getName()).append(")args[").append(i).append("]");
 			} else {
-				sb.append("(").append(paramTypes[i].getName()).append(")args[").append(i).append("]");
+				if ( paramTypes[i].isArray() ) {
+					// 数组
+					sb.append("(").append(paramTypes[i].getComponentType().getName()).append("[]").append(")args[").append(i).append("]");
+				} else {
+					// 普通参数
+					sb.append("(").append(paramTypes[i].getName()).append(")args[").append(i).append("]");
+				}
 			}
 		}
 

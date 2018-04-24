@@ -13,7 +13,6 @@ import top.gotoeasy.framework.core.compiler.MemoryClassLoader;
 import top.gotoeasy.framework.core.compiler.MemoryJavaCompiler;
 import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
-import top.gotoeasy.framework.core.reflect.ClassScaner;
 import top.gotoeasy.framework.core.reflect.MethodScaner;
 import top.gotoeasy.framework.core.util.CmnBean;
 import top.gotoeasy.framework.core.util.CmnString;
@@ -23,12 +22,12 @@ import top.gotoeasy.framework.core.util.CmnString;
  * <p>
  * 通过继承的方式对指定类进行增强、创建代理对象
  * </p>
- * @since 2018/04
  * @author 青松
+ * @since 2018/04
  */
 public class EnhancerBuilder {
 
-	private static final Log			log						= LoggerFactory.getLogger(ClassScaner.class);
+	private static final Log			log						= LoggerFactory.getLogger(EnhancerBuilder.class);
 
 	private Class<?>					clas;
 
@@ -43,6 +42,9 @@ public class EnhancerBuilder {
 
 	private Map<Method, MethodSrcInfo>	methodSrcInfoMap		= new LinkedHashMap<>();
 
+	private Map<Method, Method>			methodNormalAopMap		= new LinkedHashMap<>();
+	private Map<Method, Method>			methodAroundAopMap		= new LinkedHashMap<>();
+
 	/**
 	 * 生成创建器
 	 * @return 创建器
@@ -50,26 +52,6 @@ public class EnhancerBuilder {
 	public static EnhancerBuilder get() {
 		return new EnhancerBuilder();
 	}
-
-	//TODO 拦截检查，方法返回值检查，参数检查
-//	/**
-//	 * 检查拦截冲突
-//	 * @param method 方法
-//	 * @param aopObj 拦截处理对象
-//	 */
-//	private void checkAround(Method method, Object aopObj) {
-//		if ( aopObj instanceof AopAround ) {
-//			if ( mapAop.containsKey(method) ) {
-//				throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopObj.getClass() + ")");
-//			} else if ( mapMethodAround.containsKey(method) ) {
-//				throw new RuntimeException("重复的Around拦截，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopObj.getClass() + ")");
-//			}
-//		} else {
-//			if ( mapMethodAround.containsKey(method) ) {
-//				throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopObj.getClass() + ")");
-//			}
-//		}
-//	}
 
 	/**
 	 * 设定被代理类
@@ -100,6 +82,53 @@ public class EnhancerBuilder {
 		return this;
 	}
 
+	/**
+	 * 拦截检查
+	 * @param method 被拦截方法
+	 * @param aopMethod 拦截处理方法
+	 * @param isAround 是否环绕拦截
+	 */
+	private void checkAop(Method method, Method aopMethod, boolean isAround) {
+
+		// 拦截冲突检查
+		if ( isAround ) {
+			if ( methodAroundAopMap.containsKey(method) ) {
+				log.error("发现拦截冲突，目标方法：{}", method);
+				log.error("   拦截处理1：{}", methodAroundAopMap.get(method));
+				log.error("   拦截处理2：{}", aopMethod);
+				throw new RuntimeException("重复的Around拦截，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopMethod + ")");
+			} else if ( methodNormalAopMap.containsKey(method) ) {
+				log.error("发现拦截冲突，目标方法：{}", method);
+				log.error("   拦截处理1：{}", methodNormalAopMap.get(method));
+				log.error("   拦截处理2：{}", aopMethod);
+				throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopMethod + ")");
+			}
+		} else if ( methodAroundAopMap.containsKey(method) ) {
+			log.error("发现拦截冲突，目标方法：{}", method);
+			log.error("   拦截处理1：{}", methodAroundAopMap.get(method));
+			log.error("   拦截处理2：{}", aopMethod);
+			throw new RuntimeException("拦截冲突，Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopMethod + ")");
+		}
+
+		// 方法返回类型检查
+		if ( isAround ) {
+			if ( !AopUtil.isVoid(method) && AopUtil.isVoid(aopMethod) ) {
+				log.error("拦截处理漏返回类型缺失，应和目标方法一致");
+				log.error("   目标方法：{}", method);
+				log.error("   拦截处理：{}", aopMethod);
+				throw new RuntimeException("拦截错误，目标方法有返回值，拦截处理漏返回 (" + aopMethod + ")");
+			}
+		}
+
+		// 保存
+		if ( isAround ) {
+			methodAroundAopMap.put(method, aopMethod);
+		} else {
+			methodNormalAopMap.put(method, aopMethod);
+		}
+
+	}
+
 	private void matchMethodAround(Method method, Object aopObj) {
 		int modifiers = method.getModifiers();
 		if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
@@ -117,7 +146,10 @@ public class EnhancerBuilder {
 			Around aopAnno = aopMethod.getAnnotation(Around.class);
 			if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
 					&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
-				// 匹配
+				// 拦截检查
+				checkAop(method, aopMethod, true);
+
+				// 匹配成功，保存匹配结果
 				log.debug("匹配【{}拦截{}】", aopMethod, method);
 				String varAopObj = aopObjFieldMap.get(aopObj);
 				if ( varAopObj == null ) {
@@ -198,14 +230,14 @@ public class EnhancerBuilder {
 			if ( void.class.equals(method.getReturnType()) ) {
 				// 无返回值
 				sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (args) -> {super.").append(method.getName()).append("(")
-						.append("(int)args[0] ").append("); return null;};").append("\n");
+						.append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
 				sbMethod.append(TAB2).append("}").append("\n");
 				sbMethod.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod)
 						.append(", ").append(info.varSuperInvoker).append(", ").append(AopUtil.getParameterNames(method)).append(");\n");
 			} else {
 				// 有返回值
 				sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (args) -> super.").append(method.getName()).append("(")
-						.append("(int)args[0] ").append(");\n");
+						.append(AopUtil.getLambdaArgs(method)).append(");\n");
 				sbMethod.append(TAB2).append("}").append("\n");
 				sbMethod.append(TAB2).append("return ").append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ")
 						.append(info.varMethod).append(", ").append(info.varSuperInvoker).append(", ").append(AopUtil.getParameterNames(method))
@@ -271,20 +303,11 @@ public class EnhancerBuilder {
 		// 动态编译、创建代理对象
 		MemoryJavaCompiler compiler = new MemoryJavaCompiler();
 		compiler.compile(className, srcCode);
-		MemoryClassLoader loader = new MemoryClassLoader();
-		Class<?> proxyClass;
 		Object proxyObject;
-		try {
-			proxyClass = loader.loadClass(className);
-			proxyObject = proxyClass.newInstance();
+		try ( MemoryClassLoader loader = new MemoryClassLoader() ) {
+			proxyObject = loader.loadClass(className).newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		} finally {
-			try {
-				loader.close();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
 		}
 
 		// 设定拦截处理对象
