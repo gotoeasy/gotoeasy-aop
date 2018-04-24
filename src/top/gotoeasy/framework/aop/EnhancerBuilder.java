@@ -2,12 +2,17 @@ package top.gotoeasy.framework.aop;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import top.gotoeasy.framework.aop.annotation.After;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Around;
+import top.gotoeasy.framework.aop.annotation.Before;
+import top.gotoeasy.framework.aop.annotation.Last;
+import top.gotoeasy.framework.aop.annotation.Throwing;
 import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.compiler.MemoryClassLoader;
 import top.gotoeasy.framework.core.compiler.MemoryJavaCompiler;
@@ -27,23 +32,31 @@ import top.gotoeasy.framework.core.util.CmnString;
  */
 public class EnhancerBuilder {
 
-	private static final Log			log						= LoggerFactory.getLogger(EnhancerBuilder.class);
+	private static final Log					log							= LoggerFactory.getLogger(EnhancerBuilder.class);
 
-	private Class<?>					clas;
+	private Class<?>							clas;
 
-	private int							aopObjSeq				= 1;
-	private Map<Object, String>			aopObjFieldMap			= new LinkedHashMap<>();
+	private int									aopObjSeq					= 1;
+	private Map<Object, String>					aopObjFieldMap				= new LinkedHashMap<>();
 
-	private int							methodSeq				= 1;
-	private Map<Method, String>			methodFieldMap			= new LinkedHashMap<>();
+	private int									methodSeq					= 1;
+	private Map<Method, String>					methodFieldMap				= new LinkedHashMap<>();
 
-	private int							superInvokerSeq			= 1;
-	private Map<Method, String>			superInvokerFieldMap	= new LinkedHashMap<>();
+	private int									superInvokerSeq				= 1;
+	private Map<Method, String>					superInvokerFieldMap		= new LinkedHashMap<>();
 
-	private Map<Method, MethodSrcInfo>	methodSrcInfoMap		= new LinkedHashMap<>();
+	private Map<Method, MethodSrcInfo>			methodAroundSrcInfoMap		= new LinkedHashMap<>();
+	private Map<Method, List<MethodSrcInfo>>	methodBeforeSrcInfoMap		= new LinkedHashMap<>();
+	private Map<Method, List<MethodSrcInfo>>	methodAfterSrcInfoMap		= new LinkedHashMap<>();
+	private Map<Method, List<MethodSrcInfo>>	methodThrowingSrcInfoMap	= new LinkedHashMap<>();
+	private Map<Method, List<MethodSrcInfo>>	methodLastSrcInfoMap		= new LinkedHashMap<>();
 
-	private Map<Method, Method>			methodNormalAopMap		= new LinkedHashMap<>();
-	private Map<Method, Method>			methodAroundAopMap		= new LinkedHashMap<>();
+	private Map<Method, Method>					methodNormalAopMap			= new LinkedHashMap<>();
+	private Map<Method, Method>					methodAroundAopMap			= new LinkedHashMap<>();
+
+	private String								TAB1						= "    ";
+	private String								TAB2						= TAB1 + TAB1;
+	private String								TAB3						= TAB2 + TAB1;
 
 	/**
 	 * 生成创建器
@@ -138,46 +151,143 @@ public class EnhancerBuilder {
 		String desc = method.toGenericString();
 		List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass());
 		for ( Method aopMethod : aopMethods ) {
-			if ( !aopMethod.isAnnotationPresent(Around.class) ) {
-				continue;
+			if ( aopMethod.isAnnotationPresent(Around.class) ) {
+				// @Around
+				Around aopAnno = aopMethod.getAnnotation(Around.class);
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					// 拦截检查
+					checkAop(method, aopMethod, true);
+					// 匹配成功，保存匹配结果
+					saveAroundResult(method, aopMethod, aopObj);
+				}
+			} else if ( aopMethod.isAnnotationPresent(Before.class) ) {
+				// @Before
+				Before aopAnno = aopMethod.getAnnotation(Before.class);
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					// 拦截检查
+					checkAop(method, aopMethod, false);
+					// 匹配成功，保存匹配结果
+					saveNormalResult(method, aopMethod, aopObj, methodBeforeSrcInfoMap);
+				}
+			} else if ( aopMethod.isAnnotationPresent(After.class) ) {
+				// @After
+				After aopAnno = aopMethod.getAnnotation(After.class);
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					// 拦截检查
+					checkAop(method, aopMethod, false);
+					// 匹配成功，保存匹配结果
+					saveNormalResult(method, aopMethod, aopObj, methodAfterSrcInfoMap);
+				}
+			} else if ( aopMethod.isAnnotationPresent(Throwing.class) ) {
+				// @Throwing
+				Throwing aopAnno = aopMethod.getAnnotation(Throwing.class);
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					// 拦截检查
+					checkAop(method, aopMethod, false);
+					// 匹配成功，保存匹配结果
+					saveNormalResult(method, aopMethod, aopObj, methodThrowingSrcInfoMap);
+				}
+			} else if ( aopMethod.isAnnotationPresent(Last.class) ) {
+				// @Last
+				Last aopAnno = aopMethod.getAnnotation(Last.class);
+				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
+				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
+						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					// 拦截检查
+					checkAop(method, aopMethod, false);
+					// 匹配成功，保存匹配结果
+					saveNormalResult(method, aopMethod, aopObj, methodLastSrcInfoMap);
+				}
 			}
 
-			// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
-			Around aopAnno = aopMethod.getAnnotation(Around.class);
-			if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
-					&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
-				// 拦截检查
-				checkAop(method, aopMethod, true);
-
-				// 匹配成功，保存匹配结果
-				log.debug("匹配【{}拦截{}】", aopMethod, method);
-				String varAopObj = aopObjFieldMap.get(aopObj);
-				if ( varAopObj == null ) {
-					varAopObj = "aopObj" + aopObjSeq++;
-					aopObjFieldMap.put(aopObj, varAopObj);
-				}
-
-				String varMethod = methodFieldMap.get(method);
-				if ( varMethod == null ) {
-					varMethod = "method" + methodSeq++;
-					methodFieldMap.put(method, varMethod);
-				}
-
-				String varSuperInvoker = superInvokerFieldMap.get(method);
-				if ( varSuperInvoker == null ) {
-					varSuperInvoker = "varSuperInvoker" + superInvokerSeq++;
-					superInvokerFieldMap.put(method, varSuperInvoker);
-				}
-
-				MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
-				methodSrcInfo.method = method;
-				methodSrcInfo.varMethod = varMethod;
-				methodSrcInfo.varSuperInvoker = varSuperInvoker;
-				methodSrcInfo.varAopObj = varAopObj;
-				methodSrcInfo.aopMethodName = aopMethod.getName();
-				methodSrcInfoMap.put(method, methodSrcInfo);
-			}
 		}
+	}
+
+	private String getAopVarName(Object aopObj) {
+		return CmnString.uncapitalize(aopObj.getClass().getSimpleName()) + "$" + aopObjSeq++;
+	}
+
+	private String getMethodVarName(Method method) {
+		return "method" + methodSeq++ + "$" + method.getName();
+	}
+
+	private String getSuperInvokerVarName(Method method) {
+		return "superInvoker" + superInvokerSeq++ + "$" + method.getName();
+	}
+
+	private void saveNormalResult(Method method, Method aopMethod, Object aopObj, Map<Method, List<MethodSrcInfo>> methodInfoMap) {
+		// 匹配成功，保存匹配结果
+		log.debug("匹配【{}拦截{}】", aopMethod, method);
+
+		// aop变量
+		String varAopObj = aopObjFieldMap.get(aopObj);
+		if ( varAopObj == null ) {
+			varAopObj = getAopVarName(aopObj);
+			aopObjFieldMap.put(aopObj, varAopObj);
+		}
+
+		// method变量
+		String varMethod = methodFieldMap.get(method);
+		if ( varMethod == null ) {
+			varMethod = getMethodVarName(method);
+			methodFieldMap.put(method, varMethod);
+		}
+
+		// 方法信息变量
+		MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
+		methodSrcInfo.method = method;
+		methodSrcInfo.varMethod = varMethod;
+		methodSrcInfo.varAopObj = varAopObj;
+		methodSrcInfo.aopMethodName = aopMethod.getName();
+		List<MethodSrcInfo> list = methodInfoMap.get(method);
+		if ( list == null ) {
+			list = new ArrayList<>();
+			methodInfoMap.put(method, list);
+		}
+		list.add(methodSrcInfo);
+	}
+
+	private void saveAroundResult(Method method, Method aopMethod, Object aopObj) {
+		// 匹配成功，保存匹配结果
+		log.debug("匹配【{}拦截{}】", aopMethod, method);
+
+		// aop变量
+		String varAopObj = aopObjFieldMap.get(aopObj);
+		if ( varAopObj == null ) {
+			varAopObj = getAopVarName(aopObj);
+			aopObjFieldMap.put(aopObj, varAopObj);
+		}
+
+		// method变量
+		String varMethod = methodFieldMap.get(method);
+		if ( varMethod == null ) {
+			varMethod = getMethodVarName(method);
+			methodFieldMap.put(method, varMethod);
+		}
+
+		// superInvoker变量
+		String varSuperInvoker = superInvokerFieldMap.get(method);
+		if ( varSuperInvoker == null ) {
+			varSuperInvoker = getSuperInvokerVarName(method);
+			superInvokerFieldMap.put(method, varSuperInvoker);
+		}
+
+		// 方法信息变量
+		MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
+		methodSrcInfo.method = method;
+		methodSrcInfo.varMethod = varMethod;
+		methodSrcInfo.varSuperInvoker = varSuperInvoker;
+		methodSrcInfo.varAopObj = varAopObj;
+		methodSrcInfo.aopMethodName = aopMethod.getName();
+		methodAroundSrcInfoMap.put(method, methodSrcInfo);
 	}
 
 	/**
@@ -188,23 +298,21 @@ public class EnhancerBuilder {
 		StringBuilder sbMethodField = new StringBuilder();
 		StringBuilder sbSuperInvokerField = new StringBuilder();
 		StringBuilder sbAopField = new StringBuilder();
-		String TAB = "    ";
-		String TAB2 = "        ";
-		String TAB4 = "            ";
 
 		for ( Method method : methodFieldMap.keySet() ) {
 			// private Method {varMethod};
-			sbMethodField.append(TAB).append("private Method ").append(methodFieldMap.get(method)).append(";\n");
+			sbMethodField.append(TAB1).append("private Method ").append(methodFieldMap.get(method)).append(";\n");
 		}
 
 		for ( Method method : superInvokerFieldMap.keySet() ) {
 			// private SuperInvoker {varSuperInvoker};
-			sbSuperInvokerField.append(TAB).append("private SuperInvoker ").append(superInvokerFieldMap.get(method)).append(";\n");
+			sbSuperInvokerField.append(TAB1).append("private SuperInvoker ").append(superInvokerFieldMap.get(method)).append(";\n");
 		}
 
 		for ( Object aopObj : aopObjFieldMap.keySet() ) {
 			// public {aopClass} {varAopObj};
-			sbAopField.append(TAB).append("public ").append(aopObj.getClass().getName()).append(" ").append(aopObjFieldMap.get(aopObj)).append(";\n");
+			sbAopField.append(TAB1).append("public ").append(aopObj.getClass().getName()).append(" ").append(aopObjFieldMap.get(aopObj))
+					.append(";\n");
 		}
 
 		// ---------------------------------- --------------------------------------------------
@@ -217,34 +325,105 @@ public class EnhancerBuilder {
 		//		return {varAopObj}.{aopMethodName}(this, {varMethod}, {varSuperInvoker}, {parameterNames});
 		//	}
 		// ---------------------------------- --------------------------------------------------
-		StringBuilder sbMethod = new StringBuilder();
+		StringBuilder sbAroundMethod = new StringBuilder();
 		MethodSrcInfo info;
-		for ( Method method : methodSrcInfoMap.keySet() ) {
-			info = methodSrcInfoMap.get(method);
-			sbMethod.append(TAB).append("@Override").append("\n");
-			sbMethod.append(TAB).append(AopUtil.getMethodDefine(method)).append(" {\n");
-			sbMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
-			sbMethod.append(TAB4).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\", ")
-					.append(AopUtil.getParameterTypes(method)).append(");\n");
+		for ( Method method : methodAroundSrcInfoMap.keySet() ) {
+			info = methodAroundSrcInfoMap.get(method);
+			sbAroundMethod.append(TAB1).append("@Override").append("\n");
+			sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method)).append(" {\n");
+			sbAroundMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
+			sbAroundMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
+					.append("\"");
+
+			String parameterTypes = AopUtil.getParameterTypes(method);
+			if ( CmnString.isNotBlank(parameterTypes) ) {
+				sbAroundMethod.append("\", ").append(parameterTypes);
+			}
+			sbAroundMethod.append(");\n");
 
 			if ( void.class.equals(method.getReturnType()) ) {
 				// 无返回值
-				sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (args) -> {super.").append(method.getName()).append("(")
-						.append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
-				sbMethod.append(TAB2).append("}").append("\n");
-				sbMethod.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod)
-						.append(", ").append(info.varSuperInvoker).append(", ").append(AopUtil.getParameterNames(method)).append(");\n");
+				sbAroundMethod.append(TAB3).append(superInvokerFieldMap.get(method)).append(" = (args) -> {super.").append(method.getName())
+						.append("(").append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
+				sbAroundMethod.append(TAB2).append("}").append("\n");
+				sbAroundMethod.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod)
+						.append(", ").append(info.varSuperInvoker);
 			} else {
 				// 有返回值
-				sbMethod.append(TAB4).append(superInvokerFieldMap.get(method)).append(" = (args) -> super.").append(method.getName()).append("(")
-						.append(AopUtil.getLambdaArgs(method)).append(");\n");
-				sbMethod.append(TAB2).append("}").append("\n");
-				sbMethod.append(TAB2).append("return ").append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ")
-						.append(info.varMethod).append(", ").append(info.varSuperInvoker).append(", ").append(AopUtil.getParameterNames(method))
-						.append(");\n");
+				sbAroundMethod.append(TAB3).append(superInvokerFieldMap.get(method)).append(" = (args) -> super.").append(method.getName())
+						.append("(").append(AopUtil.getLambdaArgs(method)).append(");\n");
+				sbAroundMethod.append(TAB2).append("}").append("\n");
+				sbAroundMethod.append(TAB2).append("return ").append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ")
+						.append(info.varMethod).append(", ").append(info.varSuperInvoker);
 			}
 
-			sbMethod.append(TAB).append("}\n\n");
+			String parameterNames = AopUtil.getParameterNames(method);
+			if ( CmnString.isNotBlank(parameterTypes) ) {
+				sbAroundMethod.append(", ").append(parameterNames);
+			}
+			sbAroundMethod.append(");\n");
+
+			sbAroundMethod.append(TAB1).append("}\n\n");
+		}
+
+		// ---------------------------------- --------------------------------------------------
+		//	@Override
+		//	{methodDefine} {
+		//		if ( {varMethod} == null ) {
+		//			{varMethod} = AopUtil.getMethod(this, "{methodName}", {parameterTypes});
+		//		}
+		//		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames});
+		//		{returnType} rs = super.{methodName}({parameterNames});
+		//		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames});
+		//	    return rs;
+		//	}
+		// ---------------------------------- --------------------------------------------------
+		StringBuilder sbNormalMethod = new StringBuilder();
+		for ( Method method : methodNormalAopMap.keySet() ) {
+			sbNormalMethod.append(TAB1).append("@Override").append("\n");
+			sbNormalMethod.append(TAB1).append(AopUtil.getMethodDefine(method)).append(" {\n");
+			sbNormalMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
+			sbNormalMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
+					.append("\", ").append(AopUtil.getParameterTypes(method)).append(");\n");
+			sbNormalMethod.append(TAB2).append("}").append("\n");
+
+			sbNormalMethod.append(getBeforeSrc(method)); // Before
+
+			boolean hasTry = methodThrowingSrcInfoMap.containsKey(method) || methodLastSrcInfoMap.containsKey(method);
+			if ( hasTry ) {
+				sbNormalMethod.append("try {").append("\n");
+			}
+
+			if ( void.class.equals(method.getReturnType()) ) {
+				// 无返回值
+				sbNormalMethod.append(TAB2).append("super.").append(method.getName()).append("(").append(AopUtil.getParameterNames(method))
+						.append(");\n");
+			} else {
+				// 有返回值
+				sbNormalMethod.append(TAB2).append(method.getReturnType().getName()).append(" rs = super.").append(method.getName()).append("(")
+						.append(AopUtil.getParameterNames(method)).append(");\n");
+			}
+
+			sbNormalMethod.append(getAfterSrc(method)); // After
+
+			if ( !void.class.equals(method.getReturnType()) ) {
+				sbNormalMethod.append(TAB2).append("return rs;").append("\n");
+			}
+
+			if ( methodThrowingSrcInfoMap.containsKey(method) ) {
+				sbNormalMethod.append("} catch (Exception ex) {").append("\n");
+				sbNormalMethod.append(getThrowingSrc(method)); // Throwing
+				sbNormalMethod.append("throw new RuntimeException(ex);").append("\n");
+				sbNormalMethod.append("}");
+			}
+			if ( methodLastSrcInfoMap.containsKey(method) ) {
+				sbNormalMethod.append(" finally {").append("\n");
+				sbNormalMethod.append(getLastSrc(method)); // Last
+				sbNormalMethod.append("}");
+			}
+			sbNormalMethod.append("\n");
+
+			sbNormalMethod.append(TAB1).append("}\n\n");
 		}
 
 		StringBuilder sbClass = new StringBuilder();
@@ -281,13 +460,92 @@ public class EnhancerBuilder {
 		sbClass.append(sbSuperInvokerField);
 		sbClass.append(sbAopField);
 		sbClass.append("\n");
-		sbClass.append(sbMethod);
+		sbClass.append(sbNormalMethod);
+		sbClass.append("\n");
+		sbClass.append(sbAroundMethod);
 		sbClass.append("}").append("\n");
 
 		String srcCode = sbClass.toString();
 
 		log.info("\n{}", srcCode);
 		return srcCode;
+	}
+
+	private StringBuilder getBeforeSrc(Method method) {
+		// ---------------------------------- --------------------------------------------------
+		//		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames});
+		// ---------------------------------- --------------------------------------------------
+		StringBuilder buf = new StringBuilder();
+		List<MethodSrcInfo> list = methodBeforeSrcInfoMap.get(method);
+		if ( list != null ) {
+			for ( MethodSrcInfo info : list ) {
+				buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod);
+				String parameterNames = AopUtil.getParameterNames(method);
+				if ( CmnString.isNotBlank(parameterNames) ) {
+					buf.append(", ").append(parameterNames);
+				}
+				buf.append(");\n");
+			}
+		}
+		return buf;
+	}
+
+	private StringBuilder getAfterSrc(Method method) {
+		// ---------------------------------- --------------------------------------------------
+		//		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames});
+		// ---------------------------------- --------------------------------------------------
+		StringBuilder buf = new StringBuilder();
+		List<MethodSrcInfo> list = methodAfterSrcInfoMap.get(method);
+		if ( list != null ) {
+			for ( MethodSrcInfo info : list ) {
+				buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod);
+				String parameterNames = AopUtil.getParameterNames(method);
+				if ( CmnString.isNotBlank(parameterNames) ) {
+					buf.append(", ").append(parameterNames);
+				}
+				buf.append(");\n");
+			}
+		}
+		return buf;
+	}
+
+	private StringBuilder getThrowingSrc(Method method) {
+		// ---------------------------------- --------------------------------------------------
+		//		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames});
+		//		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames});
+		// ---------------------------------- --------------------------------------------------
+		StringBuilder buf = new StringBuilder();
+		List<MethodSrcInfo> list = methodThrowingSrcInfoMap.get(method);
+		if ( list != null ) {
+			for ( MethodSrcInfo info : list ) {
+				buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod);
+				String parameterNames = AopUtil.getParameterNames(method);
+				if ( CmnString.isNotBlank(parameterNames) ) {
+					buf.append(", ").append(parameterNames);
+				}
+				buf.append(");\n");
+			}
+		}
+		return buf;
+	}
+
+	private StringBuilder getLastSrc(Method method) {
+		// ---------------------------------- --------------------------------------------------
+		//		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames});
+		// ---------------------------------- --------------------------------------------------
+		StringBuilder buf = new StringBuilder();
+		List<MethodSrcInfo> list = methodLastSrcInfoMap.get(method);
+		if ( list != null ) {
+			for ( MethodSrcInfo info : list ) {
+				buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod);
+				String parameterNames = AopUtil.getParameterNames(method);
+				if ( CmnString.isNotBlank(parameterNames) ) {
+					buf.append(", ").append(parameterNames);
+				}
+				buf.append(");\n");
+			}
+		}
+		return buf;
 	}
 
 	/**
@@ -328,5 +586,69 @@ public class EnhancerBuilder {
 		String	aopMethodName;
 
 	}
+
+//	private void saveBeforeResult(Method method, Method aopMethod, Object aopObj) {
+//		// 匹配成功，保存匹配结果
+//		log.debug("匹配【{}拦截{}】", aopMethod, method);
+//
+//		// aop变量
+//		String varAopObj = aopObjFieldMap.get(aopObj);
+//		if ( varAopObj == null ) {
+//			varAopObj = getAopVarName(aopObj);
+//			aopObjFieldMap.put(aopObj, varAopObj);
+//		}
+//
+//		// method变量
+//		String varMethod = methodFieldMap.get(method);
+//		if ( varMethod == null ) {
+//			varMethod = getMethodVarName(method);
+//			methodFieldMap.put(method, varMethod);
+//		}
+//
+//		// 方法信息变量
+//		MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
+//		methodSrcInfo.method = method;
+//		methodSrcInfo.varMethod = varMethod;
+//		methodSrcInfo.varAopObj = varAopObj;
+//		methodSrcInfo.aopMethodName = aopMethod.getName();
+//		List<MethodSrcInfo> list = methodBeforeSrcInfoMap.get(method);
+//		if ( list == null ) {
+//			list = new ArrayList<>();
+//			methodBeforeSrcInfoMap.put(method, list);
+//		}
+//		list.add(methodSrcInfo);
+//	}
+//
+//	private void saveAfterResult(Method method, Method aopMethod, Object aopObj) {
+//		// 匹配成功，保存匹配结果
+//		log.debug("匹配【{}拦截{}】", aopMethod, method);
+//
+//		// aop变量
+//		String varAopObj = aopObjFieldMap.get(aopObj);
+//		if ( varAopObj == null ) {
+//			varAopObj = getAopVarName(aopObj);
+//			aopObjFieldMap.put(aopObj, varAopObj);
+//		}
+//
+//		// method变量
+//		String varMethod = methodFieldMap.get(method);
+//		if ( varMethod == null ) {
+//			varMethod = getMethodVarName(method);
+//			methodFieldMap.put(method, varMethod);
+//		}
+//
+//		// 方法信息变量
+//		MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
+//		methodSrcInfo.method = method;
+//		methodSrcInfo.varMethod = varMethod;
+//		methodSrcInfo.varAopObj = varAopObj;
+//		methodSrcInfo.aopMethodName = aopMethod.getName();
+//		List<MethodSrcInfo> list = methodAfterSrcInfoMap.get(method);
+//		if ( list == null ) {
+//			list = new ArrayList<>();
+//			methodAfterSrcInfoMap.put(method, list);
+//		}
+//		list.add(methodSrcInfo);
+//	}
 
 }
