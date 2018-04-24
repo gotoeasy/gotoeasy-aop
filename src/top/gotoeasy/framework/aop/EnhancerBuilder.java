@@ -86,7 +86,15 @@ public class EnhancerBuilder {
 	 */
 	public EnhancerBuilder matchAop(Object ... aops) {
 		Method[] methods = clas.getMethods();
+		int modifiers;
 		for ( Method method : methods ) {
+			modifiers = method.getModifiers();
+			if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
+				continue;
+			}
+
+			// TODO 排除toSting等方法
+
 			for ( Object aopObj : aops ) {
 				if ( aopObj.getClass().isAnnotationPresent(Aop.class) ) {
 					// 检查@Aop
@@ -249,6 +257,7 @@ public class EnhancerBuilder {
 		methodSrcInfo.method = method;
 		methodSrcInfo.varMethod = varMethod;
 		methodSrcInfo.varAopObj = varAopObj;
+		methodSrcInfo.aopMethodReturnType = aopMethod.getReturnType();
 		methodSrcInfo.aopMethodName = aopMethod.getName();
 		List<MethodSrcInfo> list = methodInfoMap.get(method);
 		if ( list == null ) {
@@ -289,6 +298,7 @@ public class EnhancerBuilder {
 		methodSrcInfo.varMethod = varMethod;
 		methodSrcInfo.varSuperInvoker = varSuperInvoker;
 		methodSrcInfo.varAopObj = varAopObj;
+		methodSrcInfo.aopMethodReturnType = aopMethod.getReturnType();
 		methodSrcInfo.aopMethodName = aopMethod.getName();
 		methodAroundSrcInfoMap.put(method, methodSrcInfo);
 	}
@@ -325,7 +335,7 @@ public class EnhancerBuilder {
 		//			{varMethod} = AopUtil.getMethod(this, "{methodName}", {parameterTypes});
 		//			{varSuperInvoker} = (method, args) -> super.{methodName}({args});
 		//		}
-		//		return {varAopObj}.{aopMethodName}(this, {varMethod}, {varSuperInvoker}, {parameterNames});
+		//		return {returnType}{varAopObj}.{aopMethodName}(this, {varMethod}, {varSuperInvoker}, {parameterNames});
 		//	}
 		// ---------------------------------- --------------------------------------------------
 		StringBuilder sbAroundMethod = new StringBuilder();
@@ -353,11 +363,16 @@ public class EnhancerBuilder {
 						.append(", ").append(info.varSuperInvoker);
 			} else {
 				// 有返回值
+				String returnType = "";
+				if ( !method.getReturnType().equals(info.aopMethodReturnType) ) {
+					// 返回类型不同时需要强制转换
+					returnType = "(" + method.getReturnType().getName() + ")";
+				}
 				sbAroundMethod.append(TAB3).append(superInvokerFieldMap.get(method)).append(" = (args) -> super.").append(method.getName())
 						.append("(").append(AopUtil.getLambdaArgs(method)).append(");\n");
 				sbAroundMethod.append(TAB2).append("}").append("\n");
-				sbAroundMethod.append(TAB2).append("return ").append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ")
-						.append(info.varMethod).append(", ").append(info.varSuperInvoker);
+				sbAroundMethod.append(TAB2).append("return ").append(returnType).append(info.varAopObj).append(".").append(info.aopMethodName)
+						.append("(this, ").append(info.varMethod).append(", ").append(info.varSuperInvoker);
 			}
 
 			String parameterNames = AopUtil.getParameterNames(method);
@@ -582,11 +597,12 @@ public class EnhancerBuilder {
 	@SuppressWarnings("unused")
 	private static class MethodSrcInfo {
 
-		Method	method;
-		String	varMethod;
-		String	varSuperInvoker;
-		String	varAopObj;
-		String	aopMethodName;
+		Method		method;
+		String		varMethod;
+		String		varSuperInvoker;
+		String		varAopObj;
+		String		aopMethodName;
+		Class<?>	aopMethodReturnType;
 
 	}
 
