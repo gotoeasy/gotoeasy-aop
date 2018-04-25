@@ -50,4 +50,23 @@ public @interface Around {
 	 * @return true:仅限于类自己声明的方法/false:包含父类声明的方法
 	 */
 	boolean matchDeclaredMethod() default true;
+
+	/**
+	 * 是否把equals()方法作为拦截匹配对象
+	 * @return true:作为拦截匹配对象/false:不作为拦截匹配对象
+	 */
+	boolean matchEquals() default false;
+
+	/**
+	 * 是否把toString()方法作为拦截匹配对象
+	 * @return true:作为拦截匹配对象/false:不作为拦截匹配对象
+	 */
+	boolean matchToString() default false;
+
+	/**
+	 * 是否把hashCode()方法作为拦截匹配对象
+	 * @return true:作为拦截匹配对象/false:不作为拦截匹配对象
+	 */
+	boolean matchHashCode() default false;
+
 }

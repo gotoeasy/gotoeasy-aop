@@ -186,6 +186,19 @@ public class EnhancerBuilder {
 						continue;
 					}
 
+					if ( !aopAnno.matchEquals() && "equals".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截equals()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchToString() && "toString".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截toString()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchHashCode() && "hashCode".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截hashCode()方法时跳过
+						continue;
+					}
+
 					// 拦截检查
 					checkAop(method, aopMethod, true);
 					// 匹配成功，保存匹配结果
@@ -199,6 +212,19 @@ public class EnhancerBuilder {
 						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
 					if ( aopAnno.matchDeclaredMethod() && !methodDeclaredMap.get(method) ) {
 						// 要求自己声明，实际不是的时候跳过
+						continue;
+					}
+
+					if ( !aopAnno.matchEquals() && "equals".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截equals()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchToString() && "toString".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截toString()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchHashCode() && "hashCode".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截hashCode()方法时跳过
 						continue;
 					}
 
@@ -218,6 +244,19 @@ public class EnhancerBuilder {
 						continue;
 					}
 
+					if ( !aopAnno.matchEquals() && "equals".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截equals()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchToString() && "toString".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截toString()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchHashCode() && "hashCode".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截hashCode()方法时跳过
+						continue;
+					}
+
 					// 拦截检查
 					checkAop(method, aopMethod, false);
 					// 匹配成功，保存匹配结果
@@ -234,6 +273,19 @@ public class EnhancerBuilder {
 						continue;
 					}
 
+					if ( !aopAnno.matchEquals() && "equals".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截equals()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchToString() && "toString".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截toString()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchHashCode() && "hashCode".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截hashCode()方法时跳过
+						continue;
+					}
+
 					// 拦截检查
 					checkAop(method, aopMethod, false);
 					// 匹配成功，保存匹配结果
@@ -247,6 +299,19 @@ public class EnhancerBuilder {
 						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
 					if ( aopAnno.matchDeclaredMethod() && !methodDeclaredMap.get(method) ) {
 						// 要求自己声明，实际不是的时候跳过
+						continue;
+					}
+
+					if ( !aopAnno.matchEquals() && "equals".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截equals()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchToString() && "toString".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截toString()方法时跳过
+						continue;
+					}
+					if ( !aopAnno.matchHashCode() && "hashCode".equals(method.getName()) && method.getParameterTypes().length == 0 ) {
+						// 不拦截hashCode()方法时跳过
 						continue;
 					}
 
