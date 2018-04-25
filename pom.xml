@@ -7,7 +7,7 @@
 	
 	<name>gotoeasy-aop</name>
 	<url>https://github.com/gotoeasy/gotoeasy-aop</url>
-	<description>gotoeasy aop which is base on JavaCompiler.</description>
+	<description>A high performance aop which is base on JavaCompiler.</description>
  
     <licenses>
 		<license>
