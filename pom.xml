@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>top.gotoeasy</groupId>
 	<artifactId>gotoeasy-aop</artifactId>
-	<version>1.1.1</version>
+	<version>1.1.2-SNAPSHOT</version>
 	
 	<name>gotoeasy-aop</name>
 	<url>https://github.com/gotoeasy/gotoeasy-aop</url>
@@ -44,7 +44,7 @@
   		<dependency>
 			<groupId>top.gotoeasy</groupId>
 			<artifactId>gotoeasy-core</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
  
 	</dependencies>
