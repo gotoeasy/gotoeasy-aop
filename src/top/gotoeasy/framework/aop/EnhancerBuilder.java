@@ -85,15 +85,14 @@ public class EnhancerBuilder {
 	 * @return 创建器
 	 */
 	public EnhancerBuilder matchAop(Object ... aops) {
-		Method[] methods = clas.getMethods();
+		// TODO 可选的public方法
+		Method[] methods = clas.getDeclaredMethods();
 		int modifiers;
 		for ( Method method : methods ) {
 			modifiers = method.getModifiers();
 			if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
 				continue;
 			}
-
-			// TODO 排除toSting等方法
 
 			for ( Object aopObj : aops ) {
 				if ( aopObj.getClass().isAnnotationPresent(Aop.class) ) {
@@ -254,7 +253,6 @@ public class EnhancerBuilder {
 
 		// 方法信息变量
 		MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
-		methodSrcInfo.method = method;
 		methodSrcInfo.varMethod = varMethod;
 		methodSrcInfo.varAopObj = varAopObj;
 		methodSrcInfo.aopMethodReturnType = aopMethod.getReturnType();
@@ -294,7 +292,6 @@ public class EnhancerBuilder {
 
 		// 方法信息变量
 		MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
-		methodSrcInfo.method = method;
 		methodSrcInfo.varMethod = varMethod;
 		methodSrcInfo.varSuperInvoker = varSuperInvoker;
 		methodSrcInfo.varAopObj = varAopObj;
@@ -594,10 +591,8 @@ public class EnhancerBuilder {
 		return proxyObject;
 	}
 
-	@SuppressWarnings("unused")
 	private static class MethodSrcInfo {
 
-		Method		method;
 		String		varMethod;
 		String		varSuperInvoker;
 		String		varAopObj;
