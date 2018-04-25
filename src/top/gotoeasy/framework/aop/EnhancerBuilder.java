@@ -58,6 +58,8 @@ public class EnhancerBuilder {
 	private String								TAB2						= TAB1 + TAB1;
 	private String								TAB3						= TAB2 + TAB1;
 
+	private Map<Method, Boolean>				methodDeclaredMap			= new LinkedHashMap<>();
+
 	/**
 	 * 生成创建器
 	 * @return 创建器
@@ -72,6 +74,10 @@ public class EnhancerBuilder {
 	 * @return 创建器
 	 */
 	public EnhancerBuilder setSuperclass(Class<?> clas) {
+		if ( Modifier.isFinal(clas.getModifiers()) ) {
+			throw new UnsupportedOperationException("无法通过继承来增强的final类：" + clas.getName());
+		}
+
 		this.clas = clas;
 		return this;
 	}
@@ -85,10 +91,18 @@ public class EnhancerBuilder {
 	 * @return 创建器
 	 */
 	public EnhancerBuilder matchAop(Object ... aops) {
-		// TODO 可选的public方法
-		Method[] methods = clas.getDeclaredMethods();
-		int modifiers;
+		// 标识方法是否为自己声明
+		Method[] methods = clas.getMethods();
 		for ( Method method : methods ) {
+			methodDeclaredMap.put(method, false);
+		}
+		methods = clas.getDeclaredMethods();
+		for ( Method method : methods ) {
+			methodDeclaredMap.put(method, true);
+		}
+
+		int modifiers;
+		for ( Method method : methodDeclaredMap.keySet() ) {
 			modifiers = method.getModifiers();
 			if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
 				continue;
@@ -97,7 +111,7 @@ public class EnhancerBuilder {
 			for ( Object aopObj : aops ) {
 				if ( aopObj.getClass().isAnnotationPresent(Aop.class) ) {
 					// 检查@Aop
-					matchMethodAround(method, aopObj);
+					matchMethodWithAop(method, aopObj);
 				}
 			}
 		}
@@ -152,7 +166,7 @@ public class EnhancerBuilder {
 
 	}
 
-	private void matchMethodAround(Method method, Object aopObj) {
+	private void matchMethodWithAop(Method method, Object aopObj) {
 		int modifiers = method.getModifiers();
 		if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
 			return;
@@ -167,6 +181,11 @@ public class EnhancerBuilder {
 				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
 				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
 						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					if ( aopAnno.matchDeclaredMethod() && !methodDeclaredMap.get(method) ) {
+						// 要求自己声明，实际不是的时候跳过
+						continue;
+					}
+
 					// 拦截检查
 					checkAop(method, aopMethod, true);
 					// 匹配成功，保存匹配结果
@@ -178,6 +197,11 @@ public class EnhancerBuilder {
 				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
 				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
 						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					if ( aopAnno.matchDeclaredMethod() && !methodDeclaredMap.get(method) ) {
+						// 要求自己声明，实际不是的时候跳过
+						continue;
+					}
+
 					// 拦截检查
 					checkAop(method, aopMethod, false);
 					// 匹配成功，保存匹配结果
@@ -189,6 +213,11 @@ public class EnhancerBuilder {
 				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
 				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
 						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					if ( aopAnno.matchDeclaredMethod() && !methodDeclaredMap.get(method) ) {
+						// 要求自己声明，实际不是的时候跳过
+						continue;
+					}
+
 					// 拦截检查
 					checkAop(method, aopMethod, false);
 					// 匹配成功，保存匹配结果
@@ -200,6 +229,11 @@ public class EnhancerBuilder {
 				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
 				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
 						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					if ( aopAnno.matchDeclaredMethod() && !methodDeclaredMap.get(method) ) {
+						// 要求自己声明，实际不是的时候跳过
+						continue;
+					}
+
 					// 拦截检查
 					checkAop(method, aopMethod, false);
 					// 匹配成功，保存匹配结果
@@ -211,6 +245,11 @@ public class EnhancerBuilder {
 				// 按通配符匹配方法描述，指定注解匹配时还要同时满足注解的匹配
 				if ( CmnString.wildcardsMatch(aopAnno.value(), desc)
 						&& (aopAnno.annotation().equals(Aop.class) || method.isAnnotationPresent(aopAnno.annotation())) ) {
+					if ( aopAnno.matchDeclaredMethod() && !methodDeclaredMap.get(method) ) {
+						// 要求自己声明，实际不是的时候跳过
+						continue;
+					}
+
 					// 拦截检查
 					checkAop(method, aopMethod, false);
 					// 匹配成功，保存匹配结果

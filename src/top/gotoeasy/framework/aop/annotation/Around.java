@@ -19,6 +19,12 @@ import java.lang.annotation.Target;
  * 本拦截模块的初衷之一，是使用注解的方式来提升自由度，接口已经不是必须的了<br>
  * 换言之，在享受方法名参数等书写自由及性能提升的同时，需要自行对方法参数的正确性负责，即使本拦截模块会有必要的检查<br>
  * </p>
+ * <p>
+ * 【Around拦截处理方法中最安全的参数写法】 (Enhancer enhancer, Method method, SuperInvoker superInvoker, Object ... args)<br>
+ * 被拦截方法有返回值时，拦截处理方法若没有返回值将会发生编译异常<br>
+ * 返回类型不一致无法强制转换时，将会发生编译异常<br>
+ * 特别是同时拦截了多个方法，且不同方法的返回类型无法相互转换时，将会发生编译异常<br>
+ * </p>
  * @since 2018/04
  * @author 青松
  */
@@ -38,4 +44,10 @@ public @interface Around {
 	 * @return 要拦截的带指定注解的方法
 	 */
 	Class<? extends Annotation> annotation() default Aop.class;
+
+	/**
+	 * 要拦截的方法是否仅限于类自己声明的方法
+	 * @return true:仅限于类自己声明的方法/false:包含父类声明的方法
+	 */
+	boolean matchDeclaredMethod() default true;
 }
