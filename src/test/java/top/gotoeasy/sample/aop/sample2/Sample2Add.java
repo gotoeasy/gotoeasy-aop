@@ -1,6 +1,6 @@
-package top.gotoeasy.sample.aop.sample3;
+package top.gotoeasy.sample.aop.sample2;
 
-public class Sample3Add {
+public class Sample2Add {
 
     private int total = 0;
 

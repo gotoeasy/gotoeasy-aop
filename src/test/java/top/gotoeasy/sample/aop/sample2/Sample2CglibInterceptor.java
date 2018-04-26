@@ -1,11 +1,11 @@
-package top.gotoeasy.sample.aop.sample3;
+package top.gotoeasy.sample.aop.sample2;
 
 import java.lang.reflect.Method;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-public class Sample3CglibInterceptor implements MethodInterceptor {
+public class Sample2CglibInterceptor implements MethodInterceptor {
 
 	@Override
 	public Object intercept(Object target, Method method, Object[] args, MethodProxy proxy) throws Throwable {

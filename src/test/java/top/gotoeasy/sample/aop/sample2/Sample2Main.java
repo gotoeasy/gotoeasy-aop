@@ -1,11 +1,11 @@
-package top.gotoeasy.sample.aop.sample3;
+package top.gotoeasy.sample.aop.sample2;
 
 import net.sf.cglib.proxy.Enhancer;
 import top.gotoeasy.framework.aop.EnhanceBuilder;
 
-public class Sample3Main {
+public class Sample2Main {
 
-    private static int MAX = 1000 * 10000;
+    private static int MAX = 10000 * 10000;
 
     public static void main(String[] args) {
         gotoeasyAop();
@@ -14,7 +14,7 @@ public class Sample3Main {
     }
 
     private static void noAop() {
-        Sample3Add sample = new Sample3Add();
+        Sample2Add sample = new Sample2Add();
 
         for ( int i = 0; i < 10000; i++ ) {
             sample.add(0);
@@ -32,8 +32,8 @@ public class Sample3Main {
     }
 
     private static void gotoeasyAop() {
-        Sample3Aop aop = new Sample3Aop();
-        Sample3Add sample = (Sample3Add)EnhanceBuilder.get().setSuperclass(Sample3Add.class).matchAop(aop).build();
+        Sample2Aop aop = new Sample2Aop();
+        Sample2Add sample = (Sample2Add)EnhanceBuilder.get().setSuperclass(Sample2Add.class).matchAop(aop).build();
 
         for ( int i = 0; i < 10000; i++ ) {
             sample.add(0);
@@ -53,9 +53,9 @@ public class Sample3Main {
 
     private static void cglibAop() {
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(Sample3Add.class);
-        enhancer.setCallback(new Sample3CglibInterceptor());
-        Sample3Add sample = (Sample3Add)enhancer.create();
+        enhancer.setSuperclass(Sample2Add.class);
+        enhancer.setCallback(new Sample2CglibInterceptor());
+        Sample2Add sample = (Sample2Add)enhancer.create();
 
         for ( int i = 0; i < 10000; i++ ) {
             sample.add(0);

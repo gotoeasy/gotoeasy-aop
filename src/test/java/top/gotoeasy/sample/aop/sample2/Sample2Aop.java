@@ -1,4 +1,4 @@
-package top.gotoeasy.sample.aop.sample3;
+package top.gotoeasy.sample.aop.sample2;
 
 import java.lang.reflect.Method;
 
@@ -8,7 +8,7 @@ import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Around;
 
 @Aop
-public class Sample3Aop {
+public class Sample2Aop {
 
     @Around("*Sample3Add*")
     public int around(Enhance enhance, Method method, SuperInvoker superInvoker, Object ... args) {
