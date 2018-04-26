@@ -5,17 +5,19 @@ package top.gotoeasy.framework.aop;
  * <p>
  * 继承增强时，提供父类相同方法名调用的接口<br>
  * </p>
+ * 
  * @author 青松
  * @since 2018/04
  */
 @FunctionalInterface
 public interface SuperInvoker {
 
-	/**
-	 * 调用原父类方法
-	 * @param args 参数
-	 * @return 结果
-	 */
-	public Object invoke(Object ... args);
+    /**
+     * 调用原父类方法
+     * 
+     * @param args 参数
+     * @return 结果
+     */
+    public Object invoke(Object ... args);
 
 }

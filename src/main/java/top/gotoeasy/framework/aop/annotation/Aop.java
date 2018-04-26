@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  * 本拦截模块的初衷之一，是使用注解的方式来提升自由度，接口已经不是必须的了<br>
  * 换言之，在享受方法名参数等书写自由及性能提升的同时，需要自行对方法参数的正确性负责，即使本拦截模块会有必要的检查<br>
  * </p>
+ * 
  * @since 2018/04
  * @author 青松
  */
@@ -22,9 +23,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 public @interface Aop {
 
-	/**
-	 * 值
-	 * @return 值
-	 */
-	String value() default "";
+    /**
+     * 值
+     * 
+     * @return 值
+     */
+    String value() default "";
 }
