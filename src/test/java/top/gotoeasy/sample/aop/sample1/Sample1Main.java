@@ -12,7 +12,7 @@ public class Sample1Main {
         enhance.add(2);
         enhance.add(3);
 
-        System.err.println("Total: " + enhance.getTotal());
+        System.err.println("Total: " + enhance.getTotal() + ", Count = " + aop.getCount());
     }
 
 }

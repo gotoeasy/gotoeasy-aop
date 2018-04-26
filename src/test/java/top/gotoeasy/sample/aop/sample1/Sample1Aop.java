@@ -13,6 +13,7 @@ public class Sample1Aop {
 
     @Before("*.Sample1Add.add(*)")
     public void before(Enhance enhance, Method method, int val) {
+        System.err.println("[Sample1Aop]Before add " + val);
         count++;
     }
 

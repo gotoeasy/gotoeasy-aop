@@ -9,11 +9,10 @@
 package top.gotoeasy.sample.aop.sample1;
 public class Sample1Add {
 	private int total = 0;
-	public int add(int intVal) { // 拦截目标方法
+	public int add(int intVal) {
 		total += intVal;
 		return total;
 	}
-
 	public int getTotal() {
 		return total;
 	}
@@ -23,48 +22,54 @@ public class Sample1Add {
 ```java
 package top.gotoeasy.sample.aop.sample1;
 import java.lang.reflect.Method;
-import top.gotoeasy.framework.aop.Enhancer;
+import top.gotoeasy.framework.aop.Enhance;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Before;
 
 @Aop
 public class Sample1Aop {
+    private int count;
 
-	@Before("*.Sample1Add.add(*)")
-	public void before(Enhancer enhancer, Method method, int val) {
-		System.err.println("Before add " + val);
-	}
+    @Before("*.Sample1Add.add(*)")
+    public void before(Enhance enhance, Method method, int val) {
+        System.err.println("[Sample1Aop]Before add " + val);
+        count++;
+    }
+
+    public int getCount() {
+        return count;
+    }
 }
 ```
 - 运行测试
 ```java
 package top.gotoeasy.sample.aop.sample1;
-import top.gotoeasy.framework.aop.EnhancerBuilder;
+
+import top.gotoeasy.framework.aop.EnhanceBuilder;
 
 public class Sample1Main {
 
-	public static void main(String[] args) {
-		Sample1Aop aop = new Sample1Aop();
-		Sample1Add enhancer = (Sample1Add)EnhancerBuilder.get()
-					.setSuperclass(Sample1Add.class)
-					.matchAop(aop).build();
+    public static void main(String[] args) {
+        Sample1Aop aop = new Sample1Aop();
+        Sample1Add enhance = (Sample1Add)EnhanceBuilder.get()
+                                .setSuperclass(Sample1Add.class)
+				.matchAop(aop)
+				.build();
 
-		enhancer.add(1);
-		enhancer.add(2);
-		enhancer.add(3);
+        enhance.add(1);
+        enhance.add(2);
+        enhance.add(3);
 
-		System.err.println("Total: " + enhancer.getTotal());
-	}
+        System.err.println("Total: " + enhance.getTotal() + ", Count=" + aop.getCount());
+    }
+
 }
 
 // 输出结果：
-Before add 1
-After add 1
-Before add 2
-After add 2
-Before add 3
-After add 3
-Total: 6
+[Sample1Aop]Before add 1
+[Sample1Aop]Before add 2
+[Sample1Aop]Before add 3
+Total: 6, Count = 3
 ```
 
 ## `gotoeasy-aop特性`
@@ -73,10 +78,28 @@ Total: 6
 - 进一步简化AOP程序的编写实现，拦截程序本身也没有接口的要求
 - 有实用性，经过各种尝试后的一调再调，性能已是越战越勇状态
 
-## `gotoeasy-aop初步成效列举`
-Before拦截（Sample2），性能完全逼近原始调用（测试机环境：win8.1，64位，8G内存，i5-4200U）
+## `gotoeasy-aop性能测试列举`
+Around拦截（Sample2），（测试机环境：win8.1，64位，8G内存，i5-4200U）
+随着调用次数的增多可以被优化，消耗时间并没有直线上升
 
-|No.|调用次数|直接调用|gotoeasy-aop|CGLIB|
+|No.|调用次数|直接调用|gotoeasy-aop|cglib3.2.4|
+|----------|----------|----------|----------|----------|
+|1-1|100,000|5MS|16MS|11MS|
+|1-2|100,000|4MS|20MS|18MS|
+|1-3|100,000|5MS|17MS|19MS|
+|2-1|1,000,000|7MS|26MS|107MS|
+|2-2|1,000,000|7MS|26MS|63MS|
+|2-3|1,000,000|9MS|24MS|61MS|
+|3-1|10,000,000|10MS|100MS|322MS|
+|3-2|10,000,000|9MS|95MS|387MS|
+|3-3|10,000,000|10MS|94MS|369MS|
+|4-1|100,000,000|13MS|684MS|2454MS|
+|4-2|100,000,000|13MS|674MS|2293MS|
+|4-3|100,000,000|14MS|666MS|2306MS|
+
+简单常用的Before拦截（Sample3），性能已经完全逼近原始调用
+
+|No.|调用次数|直接调用|gotoeasy-aop|cglib3.2.4|
 |----------|----------|----------|----------|----------|
 |1-1|100,000|4MS|7MS|14MS|
 |1-2|100,000|5MS|6MS|32MS|
@@ -91,22 +114,6 @@ Before拦截（Sample2），性能完全逼近原始调用（测试机环境：w
 |4-2|100,000,000|14MS|33MS|2438MS|
 |4-3|100,000,000|13MS|17MS|2647MS|
 
-Around拦截（Sample3），随着调用次数的增多可以被优化，表现出越战越勇的状态
-
-|No.|调用次数|直接调用|gotoeasy-aop|CGLIB|
-|----------|----------|----------|----------|----------|
-|1-1|100,000|5MS|16MS|11MS|
-|1-2|100,000|4MS|20MS|18MS|
-|1-3|100,000|5MS|17MS|19MS|
-|2-1|1,000,000|7MS|26MS|107MS|
-|2-2|1,000,000|7MS|26MS|63MS|
-|2-3|1,000,000|9MS|24MS|61MS|
-|3-1|10,000,000|10MS|100MS|322MS|
-|3-2|10,000,000|9MS|95MS|387MS|
-|3-3|10,000,000|10MS|94MS|369MS|
-|4-1|100,000,000|13MS|684MS|2454MS|
-|4-2|100,000,000|13MS|674MS|2293MS|
-|4-3|100,000,000|14MS|666MS|2306MS|
 
 ## GotoEasy系列
 - `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
