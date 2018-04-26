@@ -10,7 +10,7 @@ import top.gotoeasy.framework.aop.annotation.Around;
 @Aop
 public class Sample2Aop {
 
-    @Around("*Sample3Add*")
+    @Around("*Sample2Add*")
     public int around(Enhance enhance, Method method, SuperInvoker superInvoker, Object ... args) {
         return (int)superInvoker.invoke(args) + 1;
     }
