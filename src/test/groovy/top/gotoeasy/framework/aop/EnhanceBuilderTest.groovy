@@ -7,13 +7,18 @@ import org.junit.Test
 import spock.lang.Specification
 import top.gotoeasy.sample.aop.sample1.Sample1Add
 import top.gotoeasy.sample.aop.sample1.Sample1Aop
+import top.gotoeasy.sample.aop.sample4.Sample4Main
 
 
 class EnhanceBuilderTest   extends Specification {
 
+
     @Test
     public void test() {
+        Sample4Main.runSample4();
+
         expect:
+
         Sample1Aop aop = new Sample1Aop();
         Sample1Add enhance = (Sample1Add)EnhanceBuilder.get().setSuperclass(clas).matchAop(aop).build();
 

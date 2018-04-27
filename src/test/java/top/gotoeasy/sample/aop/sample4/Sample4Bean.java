@@ -17,7 +17,7 @@ public class Sample4Bean extends Sample4BaseBean {
         return total == 0;
     }
 
-    public void initTotal() {
+    public final void initTotal() {
         total = 0;
     }
 
@@ -26,6 +26,9 @@ public class Sample4Bean extends Sample4BaseBean {
             total += val;
         }
         return total;
+    }
+
+    public void append(String str) {
     }
 
 }

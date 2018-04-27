@@ -261,7 +261,7 @@ public class AopUtil {
     }
 
     /**
-     * 查找在增强对象的父类中声明的方法
+     * 查找在增强对象的父类方法
      * 
      * @param enhance 增量对象
      * @param methodName 方法名
@@ -270,7 +270,7 @@ public class AopUtil {
      */
     public static Method getMethod(Enhance enhance, String methodName, Class<?> ... classes) {
         try {
-            return enhance.getClass().getSuperclass().getDeclaredMethod(methodName, classes);
+            return enhance.getClass().getSuperclass().getMethod(methodName, classes);
         } catch (Exception e) {
             throw new AopException(e);
         }

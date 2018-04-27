@@ -47,11 +47,11 @@ public @interface Throwing {
     Class<? extends Annotation> annotation() default Aop.class;
 
     /**
-     * 要拦截的方法是否仅限于类自己声明的方法
+     * 是否要拦截父类方法
      * 
-     * @return true:仅限于类自己声明的方法/false:包含父类声明的方法
+     * @return true:包含父类声明的方法/false:仅限于类自己声明的方法
      */
-    boolean matchDeclaredMethod() default true;
+    boolean matchSuperMethod() default false;
 
     /**
      * 是否把equals()方法作为拦截匹配对象

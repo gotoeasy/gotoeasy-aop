@@ -65,8 +65,8 @@ public class EnhanceBuilder {
     private Map<Method, Method>              methodNormalAopMap       = new LinkedHashMap<>();
     private Map<Method, Method>              methodAroundAopMap       = new LinkedHashMap<>();
 
-    // 拦截目标方法是否属于类自己所声明
-    private Map<Method, Boolean>             methodDeclaredMap        = new LinkedHashMap<>();
+    // 拦截目标方法是否属于父类方法
+    private Map<Method, Boolean>             methodSuperMap           = new LinkedHashMap<>();
 
     private static final String              TAB1                     = "    ";
     private static final String              TAB2                     = TAB1 + TAB1;
@@ -109,15 +109,15 @@ public class EnhanceBuilder {
         // 标识方法是否为自己声明
         Method[] methods = clas.getMethods();
         for ( Method method : methods ) {
-            methodDeclaredMap.put(method, false);
+            methodSuperMap.put(method, true);
         }
         methods = clas.getDeclaredMethods();
         for ( Method method : methods ) {
-            methodDeclaredMap.put(method, true);
+            methodSuperMap.put(method, false);
         }
 
         int modifiers;
-        for ( Method method : methodDeclaredMap.keySet() ) {
+        for ( Method method : methodSuperMap.keySet() ) {
             modifiers = method.getModifiers();
             if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
                 continue;
@@ -173,7 +173,7 @@ public class EnhanceBuilder {
         // 拦截冲突检查
         if ( methodAroundAopMap.containsKey(method) || (isAround && methodNormalAopMap.containsKey(method)) ) {
             log.error("拦截冲突，目标方法：{}", method);
-            log.error("   拦截处理1：{}", methodAroundAopMap.get(method));
+            log.error("   拦截处理1：{}", methodAroundAopMap.containsKey(method) ? methodAroundAopMap.get(method) : methodNormalAopMap.get(method));
             log.error("   拦截处理2：{}", aopMethod);
             throw new AopException("Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopMethod + ")");
         }
@@ -203,7 +203,7 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = true;
-                aopData.aopAnnoMatchDeclaredMethod = aopAnno.matchDeclaredMethod();
+                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
@@ -214,7 +214,7 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = false;
-                aopData.aopAnnoMatchDeclaredMethod = aopAnno.matchDeclaredMethod();
+                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
@@ -226,7 +226,7 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = false;
-                aopData.aopAnnoMatchDeclaredMethod = aopAnno.matchDeclaredMethod();
+                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
@@ -238,7 +238,7 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = false;
-                aopData.aopAnnoMatchDeclaredMethod = aopAnno.matchDeclaredMethod();
+                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
@@ -250,7 +250,7 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = false;
-                aopData.aopAnnoMatchDeclaredMethod = aopAnno.matchDeclaredMethod();
+                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
@@ -268,18 +268,13 @@ public class EnhanceBuilder {
 
     private boolean isNotMatchWithAopData(Method method, AopData aopData) {
         String name = method.getName();
-        return aopData.aopAnnoMatchDeclaredMethod && !methodDeclaredMap.get(method)  // 要求匹配自己声明的方法，实际不是的时候跳过
+        return !aopData.aopAnnoMatchSuperMethod && methodSuperMap.get(method)  // 不想匹配父类方法，实际是父类方法的时候跳过
                 || !aopData.aopAnnoMatchEquals && "equals".equals(name) && method.getParameterTypes().length == 0 // 不拦截equals()方法时跳过
                 || !aopData.aopAnnoMatchToString && "toString".equals(name) && method.getParameterTypes().length == 0 // 不拦截toString()方法时跳过
                 || !aopData.aopAnnoMatchHashCode && "hashCode".equals(name) && method.getParameterTypes().length == 0; // 不拦截equals()方法时跳过
     }
 
     private void matchMethodWithAop(Method method, Object aopObj) {
-        int modifiers = method.getModifiers();
-        if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
-            return;
-        }
-
         List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass());
         AopData aopData;
         for ( Method aopMethod : aopMethods ) {
@@ -659,7 +654,7 @@ public class EnhanceBuilder {
     private static class AopData {
 
         boolean                          isAround;
-        boolean                          aopAnnoMatchDeclaredMethod;
+        boolean                          aopAnnoMatchSuperMethod;
         boolean                          aopAnnoMatchEquals;
         boolean                          aopAnnoMatchToString;
         boolean                          aopAnnoMatchHashCode;
