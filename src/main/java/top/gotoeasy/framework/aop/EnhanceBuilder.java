@@ -329,6 +329,7 @@ public class EnhanceBuilder {
         methodSrcInfo.varAopObj = varAopObj;
         methodSrcInfo.aopMethodReturnType = aopMethod.getReturnType();
         methodSrcInfo.aopMethodName = aopMethod.getName();
+        methodSrcInfo.aopMethod = aopMethod;
         List<MethodSrcInfo> list = methodInfoMap.computeIfAbsent(method, val -> new ArrayList<>());
         list.add(methodSrcInfo);
     }
@@ -365,6 +366,7 @@ public class EnhanceBuilder {
         methodSrcInfo.varAopObj = varAopObj;
         methodSrcInfo.aopMethodReturnType = aopMethod.getReturnType();
         methodSrcInfo.aopMethodName = aopMethod.getName();
+        methodSrcInfo.aopMethod = aopMethod;
         methodAroundSrcInfoMap.put(method, methodSrcInfo);
     }
 
@@ -459,13 +461,17 @@ public class EnhanceBuilder {
             }
             sbAroundMethod.append(");\n");
 
+            StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.aopMethod, "null", info.varMethod, info.varSuperInvoker, "null");
+
             if ( void.class.equals(method.getReturnType()) ) {
                 // 无返回值
                 sbAroundMethod.append(TAB3).append(superInvokerFieldMap.get(method)).append(" = (args) -> {super.").append(method.getName())
                         .append("(").append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
                 sbAroundMethod.append(TAB2).append("}").append("\n");
-                sbAroundMethod.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this,").append(info.varMethod)
-                        .append(", ").append(info.varSuperInvoker);
+                sbAroundMethod.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(");
+                sbAroundMethod.append(sbAopMethodParams);
+//                sbAroundMethod  .append("(this,").append(info.varMethod)
+//                        .append(", ").append(info.varSuperInvoker);
             } else {
                 // 有返回值
                 String returnType = "";
@@ -477,12 +483,18 @@ public class EnhanceBuilder {
                         .append("(").append(AopUtil.getLambdaArgs(method)).append(");\n");
                 sbAroundMethod.append(TAB2).append("}").append("\n");
                 sbAroundMethod.append(TAB2).append("return ").append(returnType).append(info.varAopObj).append(".").append(info.aopMethodName)
-                        .append("(this,").append(info.varMethod).append(", ").append(info.varSuperInvoker);
+                        .append("(");
+                sbAroundMethod.append(sbAopMethodParams);
+//                sbAroundMethod.append(TAB2).append("return ").append(returnType).append(info.varAopObj).append(".").append(info.aopMethodName)
+//                .append("(this,").append(info.varMethod).append(", ").append(info.varSuperInvoker);
             }
 
             String parameterNames = AopUtil.getParameterNames(method);
-            if ( CmnString.isNotBlank(parameterTypes) ) {
-                sbAroundMethod.append(", ").append(parameterNames);
+            if ( CmnString.isNotBlank(parameterNames) && info.aopMethod.getParameterCount() > 0 ) {
+                if ( sbAopMethodParams.length() > 0 ) {
+                    sbAroundMethod.append(", ");
+                }
+                sbAroundMethod.append(parameterNames);
             }
             sbAroundMethod.append(");\n");
 
@@ -490,6 +502,46 @@ public class EnhanceBuilder {
         });
 
         return sbAroundMethod;
+    }
+
+    // 自动匹配AOP方法参数并入参
+    private StringBuilder mappingAopMethodParameters(Method aopMethod, String varAopContextName, String varMethodName, String varSuperInvokerName,
+            String varExceptionName) {
+
+        StringBuilder buf = new StringBuilder();
+        Class<?>[] aopParamClass = aopMethod.getParameterTypes();
+        Class<?> paramClass;
+        for ( int i = 0; i < aopParamClass.length && i < 5; i++ ) {
+            paramClass = aopParamClass[i];
+            if ( Enhance.class.isAssignableFrom(paramClass) ) {
+                if ( buf.length() > 0 ) {
+                    buf.append(", ");
+                }
+                buf.append("this");
+            } else if ( paramClass.equals(Method.class) ) {
+                if ( buf.length() > 0 ) {
+                    buf.append(", ");
+                }
+                buf.append(varMethodName);
+            } else if ( paramClass.equals(SuperInvoker.class) ) {
+                if ( buf.length() > 0 ) {
+                    buf.append(", ");
+                }
+                buf.append(varSuperInvokerName);
+            } else if ( paramClass.equals(AopContext.class) ) {
+                if ( buf.length() > 0 ) {
+                    buf.append(", ");
+                }
+                buf.append(varAopContextName);
+            } else if ( Exception.class.isAssignableFrom(paramClass) ) {
+                if ( buf.length() > 0 ) {
+                    buf.append(", ");
+                }
+                buf.append(varExceptionName);
+            }
+        }
+
+        return buf;
     }
 
     /**
@@ -646,6 +698,7 @@ public class EnhanceBuilder {
         String   varSuperInvoker;
         String   varAopObj;
         String   aopMethodName;
+        Method   aopMethod;
         Class<?> aopMethodReturnType;
 
     }
