@@ -15,13 +15,15 @@ public class Sample4Main {
     @SuppressWarnings("deprecation")
     public static void runSample4() {
         Sample4AopBefore aopBefore = new Sample4AopBefore();
+        Sample4AopBefore2 aopBefore2 = new Sample4AopBefore2();
         Sample4AopAfter aopAfter = new Sample4AopAfter();
+        Sample4AopAfter2 aopAfter2 = new Sample4AopAfter2();
         Sample4AopThrowing aopThrowing = new Sample4AopThrowing();
         Sample4AopLast aopLast = new Sample4AopLast();
         Sample4AopAround aopAround = new Sample4AopAround();
 
         Sample4Bean enhance = (Sample4Bean)EnhanceBuilder.get().setSuperclass(Sample4Bean.class)
-                .matchAop(aopBefore, aopAfter, aopThrowing, aopLast, aopAround).build();
+                .matchAop(aopBefore, aopAfter, aopThrowing, aopLast, aopAround, aopBefore2, aopAfter2).build();
 
         enhance.init();
         enhance.initTotal();
@@ -30,6 +32,8 @@ public class Sample4Main {
         enhance.addAll(1, 2, 3, 4, 5);
         enhance.hello("AOP");
         log.info("Total={}", enhance.getTotal());
+        enhance.mod(3);
+        // enhance.mod(0);
 
     }
 

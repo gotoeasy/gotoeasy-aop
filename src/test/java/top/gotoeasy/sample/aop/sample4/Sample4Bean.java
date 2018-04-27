@@ -28,7 +28,8 @@ public class Sample4Bean extends Sample4BaseBean {
         return total;
     }
 
-    public void append(String str) {
+    public int mod(int val) {
+        return total % val;
     }
 
 }
