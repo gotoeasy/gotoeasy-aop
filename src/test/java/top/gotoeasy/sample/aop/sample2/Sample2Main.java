@@ -38,7 +38,6 @@ public class Sample2Main {
         for ( int i = 0; i < 10000; i++ ) {
             sample.add(0);
         }
-        sample.add(-1);
 
         System.err.println("[gotoeasy aop]就绪, Total = " + sample.getTotal());
 
