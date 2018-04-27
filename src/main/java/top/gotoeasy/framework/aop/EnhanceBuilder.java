@@ -390,7 +390,12 @@ public class EnhanceBuilder {
             sbNormalMethod.append(TAB1).append(AopUtil.getMethodDefine(method)).append(" {\n");
             sbNormalMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
             sbNormalMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
-                    .append("\", ").append(AopUtil.getParameterTypes(method)).append(");\n");
+                    .append("\"");
+            if ( AopUtil.hasParameters(method) ) {
+                sbNormalMethod.append(", ");
+            }
+            sbNormalMethod.append(AopUtil.getParameterTypes(method)).append(");\n");
+
             sbNormalMethod.append(TAB2).append("}").append("\n");
 
             sbNormalMethod.append(getBeforeSrc(method)); // Before

@@ -56,6 +56,16 @@ public class AopUtil {
     }
 
     /**
+     * 判断方法是否有参数
+     * 
+     * @param method 方法
+     * @return true:有参数/false:无参数
+     */
+    public static boolean hasParameters(Method method) {
+        return method.getParameterTypes().length > 0;
+    }
+
+    /**
      * 取得方法的返回类型源码
      * 
      * @param method 方法
