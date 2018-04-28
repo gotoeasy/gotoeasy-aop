@@ -1,8 +1,6 @@
 # `gotoeasy-aop`
 基于JavaCompiler的AOP实现，提供另一种折中的AOP实现方式
 
-- depend on `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
-
 
 Maven使用
 ```xml
@@ -17,6 +15,8 @@ Gradle使用
 ```
 compile group: 'top.gotoeasy', name: 'gotoeasy-aop', version: 'x.y.z'
 ```
+
+- depend on `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
 
 ## 青松的姿势
 - 被代理类
