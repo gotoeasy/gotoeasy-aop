@@ -1,4 +1,5 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3919db3635b04ff399228c478bdf2343)](https://www.codacy.com/app/gotoeasy/gotoeasy-aop?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gotoeasy/gotoeasy-aop&amp;utm_campaign=Badge_Grade)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop/badge.svg)](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop)
 
 # `gotoeasy-aop`
 基于JavaCompiler的AOP实现，提供另一种折中的AOP实现方式
@@ -12,7 +13,7 @@ Maven使用
     <version>x.y.z</version>
 </dependency>
 ```
-
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop/badge.svg)](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop)
 Gradle使用
 ```
 compile group: 'top.gotoeasy', name: 'gotoeasy-aop', version: 'x.y.z'
