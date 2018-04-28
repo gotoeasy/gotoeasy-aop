@@ -3,6 +3,21 @@
 
 - depend on `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
 
+
+Maven使用
+```xml
+<dependency>
+    <groupId>top.gotoeasy</groupId>
+    <artifactId>gotoeasy-aop</artifactId>
+    <version>x.y.z</version>
+</dependency>
+```
+
+Gradle使用
+```
+compile group: 'top.gotoeasy', name: 'gotoeasy-aop', version: 'x.y.z'
+```
+
 ## 青松的姿势
 - 被代理类
 ```java
@@ -51,7 +66,7 @@ public class Sample1Main {
 
     public static void main(String[] args) {
         Sample1Aop aop = new Sample1Aop();
-        Sample1Add enhance = (Sample1Add)EnhanceBuilder.get()
+        Sample1Add enhance = EnhanceBuilder.get()
                                 .setSuperclass(Sample1Add.class)
 				.matchAop(aop)
 				.build();
