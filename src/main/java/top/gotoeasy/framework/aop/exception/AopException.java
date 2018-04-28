@@ -1,7 +1,7 @@
 package top.gotoeasy.framework.aop.exception;
 
 /**
- * AOP异常
+ * AOP模块异常
  * 
  * @since 2018/03
  * @author 青松

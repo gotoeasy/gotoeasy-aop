@@ -662,7 +662,7 @@ public class EnhanceBuilder {
 
         String srcCode = sbClass.toString();
 
-        log.debug("\n{}", srcCode);
+        log.trace("\n{}", srcCode);
         return srcCode;
     }
 
