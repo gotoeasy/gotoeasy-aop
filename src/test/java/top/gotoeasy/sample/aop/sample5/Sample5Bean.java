@@ -32,4 +32,8 @@ public class Sample5Bean {
         return list;
     }
 
+    public void doNothing() {
+
+    }
+
 }

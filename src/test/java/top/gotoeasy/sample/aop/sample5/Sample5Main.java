@@ -17,6 +17,8 @@ public class Sample5Main {
 
         List<Map<String, Object>> list = enhance.getData();
         log.info("被AOP拦截修改后的最终结果:{}", list);
+
+        enhance.doNothing();
     }
 
 }
