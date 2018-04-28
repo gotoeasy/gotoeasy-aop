@@ -780,26 +780,26 @@ public class EnhanceBuilder {
     // 存放目标方法和AOP方法的变量关联信息
     private static class MethodSrcInfo {
 
-        Method   method;
-        String   varMethod;
-        String   varSuperInvoker;
-        String   varAopObj;
-        String   aopMethodName;
-        Method   aopMethod;
-        Class<?> aopMethodReturnType;
-        int      aopOrder;
+        private Method   method;
+        private String   varMethod;
+        private String   varSuperInvoker;
+        private String   varAopObj;
+        private String   aopMethodName;
+        private Method   aopMethod;
+        private Class<?> aopMethodReturnType;
+        private int      aopOrder;
 
     }
 
     // 存放AOP注解等信息
     private static class AopData {
 
-        boolean                          isAround;
-        boolean                          aopAnnoMatchSuperMethod;
-        boolean                          aopAnnoMatchEquals;
-        boolean                          aopAnnoMatchToString;
-        boolean                          aopAnnoMatchHashCode;
-        Map<Method, List<MethodSrcInfo>> methodNormalSrcInfoMap = null;
-        int                              aopOrder;
+        private boolean                          isAround;
+        private boolean                          aopAnnoMatchSuperMethod;
+        private boolean                          aopAnnoMatchEquals;
+        private boolean                          aopAnnoMatchToString;
+        private boolean                          aopAnnoMatchHashCode;
+        private Map<Method, List<MethodSrcInfo>> methodNormalSrcInfoMap = null;
+        private int                              aopOrder;
     }
 }
