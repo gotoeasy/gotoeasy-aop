@@ -6,7 +6,7 @@ public class Sample1Main {
 
     public static void main(String[] args) {
         Sample1Aop aop = new Sample1Aop();
-        Sample1Add enhance = (Sample1Add)EnhanceBuilder.get().setSuperclass(Sample1Add.class).matchAop(aop).build();
+        Sample1Add enhance = EnhanceBuilder.get().setSuperclass(Sample1Add.class).matchAop(aop).build();
 
         enhance.add(1);
         enhance.add(2);

@@ -91,7 +91,7 @@ public class EnhanceBuilder {
      * @param clas 被代理类
      * @return 创建器
      */
-    public EnhanceBuilder setSuperclass(Class<?> clas) {
+    public <T> EnhanceBuilder setSuperclass(Class<T> clas) {
         if ( Modifier.isFinal(clas.getModifiers()) ) {
             throw new UnsupportedOperationException("无法通过继承来增强的final类：" + clas.getName());
         }
@@ -143,7 +143,8 @@ public class EnhanceBuilder {
      * 
      * @return 代理对象
      */
-    public Object build() {
+    @SuppressWarnings("unchecked")
+    public <T> T build() {
 
         // 创建代理类源码
         String className = AopUtil.getEnhancerName(clas);
@@ -162,7 +163,7 @@ public class EnhanceBuilder {
         // 设定拦截处理对象
         aopObjFieldMap.keySet().forEach(aopObj -> CmnBean.setFieldValue(proxyObject, aopObjFieldMap.get(aopObj), aopObj));
 
-        return proxyObject;
+        return (T)proxyObject;
     }
 
     /**

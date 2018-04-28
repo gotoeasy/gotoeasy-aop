@@ -13,7 +13,7 @@ public class Sample5Main {
 
     public static void main(String[] args) {
         Sample5AopEdit aop = new Sample5AopEdit();
-        Sample5Bean enhance = (Sample5Bean)EnhanceBuilder.get().setSuperclass(Sample5Bean.class).matchAop(aop).build();
+        Sample5Bean enhance = EnhanceBuilder.get().setSuperclass(Sample5Bean.class).matchAop(aop).build();
 
         List<Map<String, Object>> list = enhance.getData();
         log.info("被AOP拦截修改后的最终结果:{}", list);

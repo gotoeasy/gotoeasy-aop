@@ -33,7 +33,7 @@ public class Sample2Main {
 
     private static void gotoeasyAop() {
         Sample2Aop aop = new Sample2Aop();
-        Sample2Add sample = (Sample2Add)EnhanceBuilder.get().setSuperclass(Sample2Add.class).matchAop(aop).build();
+        Sample2Add sample = EnhanceBuilder.get().setSuperclass(Sample2Add.class).matchAop(aop).build();
 
         for ( int i = 0; i < 10000; i++ ) {
             sample.add(0);

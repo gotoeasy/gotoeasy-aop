@@ -22,7 +22,7 @@ public class Sample4Main {
         Sample4AopLast aopLast = new Sample4AopLast();
         Sample4AopAround aopAround = new Sample4AopAround();
 
-        Sample4Bean enhance = (Sample4Bean)EnhanceBuilder.get().setSuperclass(Sample4Bean.class)
+        Sample4Bean enhance = EnhanceBuilder.get().setSuperclass(Sample4Bean.class)
                 .matchAop(aopBefore, aopAfter, aopThrowing, aopLast, aopAround, aopBefore2, aopAfter2).build();
 
         enhance.init();
