@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,9 @@ public class EnhanceBuilder {
 
     // 拦截目标方法是否属于父类方法
     private Map<Method, Boolean>             methodSuperMap           = new LinkedHashMap<>();
+
+    // 拦截目标方法是否有拦截上下文参数要求
+    private Map<Method, Boolean>             aopContextMap            = new HashMap<>();
 
     private static final String              TAB1                     = "    ";
     private static final String              TAB2                     = TAB1 + TAB1;
@@ -218,6 +222,7 @@ public class EnhanceBuilder {
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
+                aopData.aopOrder = aopAnno.order();
                 aopData.methodNormalSrcInfoMap = methodBeforeSrcInfoMap;
             }
         } else if ( aopMethod.isAnnotationPresent(After.class) ) {
@@ -230,6 +235,7 @@ public class EnhanceBuilder {
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
+                aopData.aopOrder = aopAnno.order();
                 aopData.methodNormalSrcInfoMap = methodAfterSrcInfoMap;
             }
         } else if ( aopMethod.isAnnotationPresent(Throwing.class) ) {
@@ -242,6 +248,7 @@ public class EnhanceBuilder {
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
+                aopData.aopOrder = aopAnno.order();
                 aopData.methodNormalSrcInfoMap = methodThrowingSrcInfoMap;
             }
         } else if ( aopMethod.isAnnotationPresent(Last.class) ) {
@@ -254,6 +261,7 @@ public class EnhanceBuilder {
                 aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
+                aopData.aopOrder = aopAnno.order();
                 aopData.methodNormalSrcInfoMap = methodLastSrcInfoMap;
             }
         }
@@ -286,7 +294,7 @@ public class EnhanceBuilder {
                 if ( aopData.isAround ) {
                     saveAroundResult(method, aopMethod, aopObj);
                 } else {
-                    saveNormalResult(method, aopMethod, aopObj, aopData.methodNormalSrcInfoMap);
+                    saveNormalResult(method, aopMethod, aopObj, aopData.methodNormalSrcInfoMap, aopData.aopOrder);
                 }
             }
 
@@ -305,7 +313,7 @@ public class EnhanceBuilder {
         return "superInvoker" + superInvokerSeq++ + "$" + method.getName();
     }
 
-    private void saveNormalResult(Method method, Method aopMethod, Object aopObj, Map<Method, List<MethodSrcInfo>> methodInfoMap) {
+    private void saveNormalResult(Method method, Method aopMethod, Object aopObj, Map<Method, List<MethodSrcInfo>> methodInfoMap, int aopOrder) {
         // 匹配成功，保存匹配结果
         log.debug("匹配【{}拦截{}】", aopMethod, method);
 
@@ -325,11 +333,13 @@ public class EnhanceBuilder {
 
         // 方法信息变量
         MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
+        methodSrcInfo.method = method;
         methodSrcInfo.varMethod = varMethod;
         methodSrcInfo.varAopObj = varAopObj;
         methodSrcInfo.aopMethodReturnType = aopMethod.getReturnType();
         methodSrcInfo.aopMethodName = aopMethod.getName();
         methodSrcInfo.aopMethod = aopMethod;
+        methodSrcInfo.aopOrder = aopOrder;
         List<MethodSrcInfo> list = methodInfoMap.computeIfAbsent(method, val -> new ArrayList<>());
         list.add(methodSrcInfo);
     }
@@ -361,6 +371,7 @@ public class EnhanceBuilder {
 
         // 方法信息变量
         MethodSrcInfo methodSrcInfo = new MethodSrcInfo();
+        methodSrcInfo.method = method;
         methodSrcInfo.varMethod = varMethod;
         methodSrcInfo.varSuperInvoker = varSuperInvoker;
         methodSrcInfo.varAopObj = varAopObj;
@@ -383,6 +394,7 @@ public class EnhanceBuilder {
         // ---------------------------------- --------------------------------------------------
         StringBuilder sbNormalMethod = new StringBuilder();
         methodNormalAopMap.keySet().forEach(method -> {
+
             sbNormalMethod.append(TAB1).append("@Override").append("\n");
             sbNormalMethod.append(TAB1).append(AopUtil.getMethodDefine(method)).append(" {\n");
             sbNormalMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
@@ -402,6 +414,17 @@ public class EnhanceBuilder {
                 sbNormalMethod.append("try {").append("\n");
             }
 
+            StringBuilder sbAfter = getAfterSrc(method);
+            StringBuilder sbNewAopContext = new StringBuilder();
+            StringBuilder sbAopContextSetRestult = new StringBuilder();
+            if ( aopContextMap.containsKey(method) ) {
+                sbNewAopContext.append(TAB2).append("AopContext context = new AopContext(System.currentTimeMillis());").append("\n");
+                if ( !void.class.equals(method.getReturnType()) ) {
+                    sbAopContextSetRestult.append(TAB2).append("context.setResult(rs);").append("\n");
+                }
+            }
+
+            sbNormalMethod.append(sbNewAopContext); // AopContext context = new AopContext(System.currentTimeMillis())
             if ( void.class.equals(method.getReturnType()) ) {
                 // 无返回值
                 sbNormalMethod.append(TAB2).append("super.").append(method.getName()).append("(").append(AopUtil.getParameterNames(method))
@@ -410,31 +433,56 @@ public class EnhanceBuilder {
                 // 有返回值
                 sbNormalMethod.append(TAB2).append(method.getReturnType().getName()).append(" rs = super.").append(method.getName()).append("(")
                         .append(AopUtil.getParameterNames(method)).append(");\n");
+                sbNormalMethod.append(sbAopContextSetRestult); // context.setResult(rs)
             }
 
-            sbNormalMethod.append(getAfterSrc(method)); // After
+            sbNormalMethod.append(sbAfter); // After
 
-            if ( !void.class.equals(method.getReturnType()) ) {
-                sbNormalMethod.append(TAB2).append("return rs;").append("\n");
-            }
+            // 返回相关语句生成
+            setReturnSrc(method, sbNormalMethod, sbAopContextSetRestult);
 
-            if ( methodThrowingSrcInfoMap.containsKey(method) ) {
-                sbNormalMethod.append("} catch (Exception ex) {").append("\n");
-                sbNormalMethod.append(getThrowingSrc(method)); // Throwing
-                sbNormalMethod.append("throw new RuntimeException(ex);").append("\n");
-                sbNormalMethod.append("}");
-            }
-            if ( methodLastSrcInfoMap.containsKey(method) ) {
-                sbNormalMethod.append(" finally {").append("\n");
-                sbNormalMethod.append(getLastSrc(method)); // Last
-                sbNormalMethod.append("}");
-            }
-            sbNormalMethod.append("\n");
+            // 异常块语句生成
+            setThrowingLastSrc(method, sbNormalMethod);
 
             sbNormalMethod.append(TAB1).append("}\n\n");
         });
 
         return sbNormalMethod;
+    }
+
+    // 异常块语句生成
+    private void setThrowingLastSrc(Method method, StringBuilder sbNormalMethod) {
+        if ( methodThrowingSrcInfoMap.containsKey(method) ) {
+            sbNormalMethod.append("} catch (Exception ex) {").append("\n");
+            sbNormalMethod.append(getThrowingSrc(method)); // Throwing
+            sbNormalMethod.append("throw new RuntimeException(ex);").append("\n");
+        }
+        if ( methodLastSrcInfoMap.containsKey(method) ) {
+            sbNormalMethod.append("} finally {").append("\n");
+            sbNormalMethod.append(getLastSrc(method)); // Last
+        }
+        if ( methodThrowingSrcInfoMap.containsKey(method) || methodLastSrcInfoMap.containsKey(method) ) {
+            sbNormalMethod.append("}").append("\n");
+        }
+        sbNormalMethod.append("\n");
+    }
+
+    // 返回语句生成
+    private void setReturnSrc(Method method, StringBuilder sbNormalMethod, StringBuilder sbAopContextSetRestult) {
+        if ( !void.class.equals(method.getReturnType()) ) {
+            sbNormalMethod.append(TAB2);
+            if ( sbAopContextSetRestult.length() > 0 ) {
+                String returnType = "";
+                if ( !method.getReturnType().equals(Object.class) ) {
+                    // 返回类型不同时需要强制转换
+                    returnType = "(" + method.getReturnType().getName() + ")";
+                }
+                sbNormalMethod.append("return ").append(returnType).append("context.getResult();");
+            } else {
+                sbNormalMethod.append("return rs;");
+            }
+            sbNormalMethod.append("\n");
+        }
     }
 
     private StringBuilder getAroundMethodSrc() {
@@ -461,7 +509,9 @@ public class EnhanceBuilder {
             }
             sbAroundMethod.append(");\n");
 
-            StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.aopMethod, "null", info.varMethod, info.varSuperInvoker, "null");
+            // 前5个参数判断类型自动入参
+            StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.method, info.aopMethod, "null", info.varMethod, info.varSuperInvoker,
+                    "null");
 
             if ( void.class.equals(method.getReturnType()) ) {
                 // 无返回值
@@ -470,8 +520,6 @@ public class EnhanceBuilder {
                 sbAroundMethod.append(TAB2).append("}").append("\n");
                 sbAroundMethod.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(");
                 sbAroundMethod.append(sbAopMethodParams);
-//                sbAroundMethod  .append("(this,").append(info.varMethod)
-//                        .append(", ").append(info.varSuperInvoker);
             } else {
                 // 有返回值
                 String returnType = "";
@@ -485,8 +533,6 @@ public class EnhanceBuilder {
                 sbAroundMethod.append(TAB2).append("return ").append(returnType).append(info.varAopObj).append(".").append(info.aopMethodName)
                         .append("(");
                 sbAroundMethod.append(sbAopMethodParams);
-//                sbAroundMethod.append(TAB2).append("return ").append(returnType).append(info.varAopObj).append(".").append(info.aopMethodName)
-//                .append("(this,").append(info.varMethod).append(", ").append(info.varSuperInvoker);
             }
 
             String parameterNames = AopUtil.getParameterNames(method);
@@ -504,40 +550,44 @@ public class EnhanceBuilder {
         return sbAroundMethod;
     }
 
-    // 自动匹配AOP方法参数并入参
-    private StringBuilder mappingAopMethodParameters(Method aopMethod, String varAopContextName, String varMethodName, String varSuperInvokerName,
-            String varExceptionName) {
+    /**
+     * 针对拦截处理方法的前5个参数，进行自动匹配并入参
+     * 
+     * @param method 被拦截的目标方法
+     * @param aopMethod 拦截处理方法
+     * @param varAopContextName AOP上下文变量名
+     * @param varMethodName 目标方法变量名
+     * @param varSuperInvokerName 原方法调用器变量名
+     * @param varExceptionName 异常对象变量名
+     * @return 入参代码片段StringBuilder
+     */
+    private StringBuilder mappingAopMethodParameters(Method method, Method aopMethod, String varAopContextName, String varMethodName,
+            String varSuperInvokerName, String varExceptionName) {
 
         StringBuilder buf = new StringBuilder();
         Class<?>[] aopParamClass = aopMethod.getParameterTypes();
         Class<?> paramClass;
         for ( int i = 0; i < aopParamClass.length && i < 5; i++ ) {
             paramClass = aopParamClass[i];
+            String var = null;
             if ( Enhance.class.isAssignableFrom(paramClass) ) {
-                if ( buf.length() > 0 ) {
-                    buf.append(", ");
-                }
-                buf.append("this");
+                var = "this";
             } else if ( paramClass.equals(Method.class) ) {
-                if ( buf.length() > 0 ) {
-                    buf.append(", ");
-                }
-                buf.append(varMethodName);
+                var = varMethodName;
             } else if ( paramClass.equals(SuperInvoker.class) ) {
-                if ( buf.length() > 0 ) {
-                    buf.append(", ");
-                }
-                buf.append(varSuperInvokerName);
+                var = varSuperInvokerName;
             } else if ( paramClass.equals(AopContext.class) ) {
-                if ( buf.length() > 0 ) {
-                    buf.append(", ");
-                }
-                buf.append(varAopContextName);
+                var = varAopContextName;
+                aopContextMap.put(method, true); // 有AOP上下文要求
             } else if ( Exception.class.isAssignableFrom(paramClass) ) {
+                var = varExceptionName;
+            }
+
+            if ( var != null ) {
                 if ( buf.length() > 0 ) {
                     buf.append(", ");
                 }
-                buf.append(varExceptionName);
+                buf.append(var);
             }
         }
 
@@ -596,6 +646,7 @@ public class EnhanceBuilder {
         sbClass.append("import top.gotoeasy.framework.aop.util.AopUtil;").append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.Enhance;").append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.SuperInvoker;").append("\n");
+        sbClass.append("import top.gotoeasy.framework.aop.AopContext;").append("\n");
         sbClass.append("\n");
         sbClass.append("public class ").append(AopUtil.getEnhancerSimpleName(clas)).append(" extends ").append(clas.getSimpleName())
                 .append(" implements Enhance {").append("\n");
@@ -619,14 +670,23 @@ public class EnhanceBuilder {
         // ---------------------------------- --------------------------------------------------
         //		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames})
         // ---------------------------------- --------------------------------------------------
+
         StringBuilder buf = new StringBuilder();
         List<MethodSrcInfo> list = methodBeforeSrcInfoMap.get(method);
         if ( list != null ) {
+            list.sort((info1, info2) -> info1.aopOrder - info2.aopOrder);
+
             for ( MethodSrcInfo info : list ) {
-                buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this,  ").append(info.varMethod);
+                // 前5个参数判断类型自动入参
+                StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.method, info.aopMethod, "null", info.varMethod, "null", "null");
+
+                buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(").append(sbAopMethodParams);
                 String parameterNames = AopUtil.getParameterNames(method);
-                if ( CmnString.isNotBlank(parameterNames) ) {
-                    buf.append(", ").append(parameterNames);
+                if ( CmnString.isNotBlank(parameterNames) && info.aopMethod.getParameterCount() > 0 ) {
+                    if ( sbAopMethodParams.length() > 0 ) {
+                        buf.append(", ");
+                    }
+                    buf.append(parameterNames);
                 }
                 buf.append(");\n");
             }
@@ -641,11 +701,20 @@ public class EnhanceBuilder {
         StringBuilder buf = new StringBuilder();
         List<MethodSrcInfo> list = methodAfterSrcInfoMap.get(method);
         if ( list != null ) {
+
+            list.sort((info1, info2) -> info1.aopOrder - info2.aopOrder);
             for ( MethodSrcInfo info : list ) {
-                buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this,  ").append(info.varMethod);
+                // 前5个参数判断类型自动入参
+                StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.method, info.aopMethod, "context", info.varMethod,
+                        info.varSuperInvoker, "null");
+
+                buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(").append(sbAopMethodParams);
                 String parameterNames = AopUtil.getParameterNames(method);
-                if ( CmnString.isNotBlank(parameterNames) ) {
-                    buf.append(", ").append(parameterNames);
+                if ( CmnString.isNotBlank(parameterNames) && info.aopMethod.getParameterCount() > 0 ) {
+                    if ( sbAopMethodParams.length() > 0 ) {
+                        buf.append(", ");
+                    }
+                    buf.append(parameterNames);
                 }
                 buf.append(");\n");
             }
@@ -660,11 +729,19 @@ public class EnhanceBuilder {
         StringBuilder buf = new StringBuilder();
         List<MethodSrcInfo> list = methodThrowingSrcInfoMap.get(method);
         if ( list != null ) {
+
+            list.sort((info1, info2) -> info1.aopOrder - info2.aopOrder);
             for ( MethodSrcInfo info : list ) {
-                buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod);
+                // 前5个参数判断类型自动入参
+                StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.method, info.aopMethod, "null", info.varMethod, "null", "ex");
+
+                buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(").append(sbAopMethodParams);
                 String parameterNames = AopUtil.getParameterNames(method);
-                if ( CmnString.isNotBlank(parameterNames) ) {
-                    buf.append(", ").append(parameterNames);
+                if ( CmnString.isNotBlank(parameterNames) && info.aopMethod.getParameterCount() > 0 ) {
+                    if ( sbAopMethodParams.length() > 0 ) {
+                        buf.append(", ");
+                    }
+                    buf.append(parameterNames);
                 }
                 buf.append(");\n");
             }
@@ -679,11 +756,19 @@ public class EnhanceBuilder {
         StringBuilder buf = new StringBuilder();
         List<MethodSrcInfo> list = methodLastSrcInfoMap.get(method);
         if ( list != null ) {
+
+            list.sort((info1, info2) -> info1.aopOrder - info2.aopOrder);
             for ( MethodSrcInfo info : list ) {
-                buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(this, ").append(info.varMethod);
+                // 前5个参数判断类型自动入参
+                StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.method, info.aopMethod, "null", info.varMethod, "null", "null");
+
+                buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(").append(sbAopMethodParams);
                 String parameterNames = AopUtil.getParameterNames(method);
-                if ( CmnString.isNotBlank(parameterNames) ) {
-                    buf.append(", ").append(parameterNames);
+                if ( CmnString.isNotBlank(parameterNames) && info.aopMethod.getParameterCount() > 0 ) {
+                    if ( sbAopMethodParams.length() > 0 ) {
+                        buf.append(", ");
+                    }
+                    buf.append(parameterNames);
                 }
                 buf.append(");\n");
             }
@@ -694,12 +779,14 @@ public class EnhanceBuilder {
     // 存放目标方法和AOP方法的变量关联信息
     private static class MethodSrcInfo {
 
+        Method   method;
         String   varMethod;
         String   varSuperInvoker;
         String   varAopObj;
         String   aopMethodName;
         Method   aopMethod;
         Class<?> aopMethodReturnType;
+        int      aopOrder;
 
     }
 
@@ -712,5 +799,6 @@ public class EnhanceBuilder {
         boolean                          aopAnnoMatchToString;
         boolean                          aopAnnoMatchHashCode;
         Map<Method, List<MethodSrcInfo>> methodNormalSrcInfoMap = null;
+        int                              aopOrder;
     }
 }

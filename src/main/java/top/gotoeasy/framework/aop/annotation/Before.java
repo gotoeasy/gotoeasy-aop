@@ -40,6 +40,17 @@ public @interface Before {
     String value() default "*";
 
     /**
+     * 前置拦截的执行顺序
+     * <p>
+     * 同一方法有多个前置拦截时，按此排序属性升序执行<br>
+     * 默认为100，不修改则按无序执行，可通过此排序属性调整执行顺序
+     * </p>
+     * 
+     * @return 序号
+     */
+    int order() default 100;
+
+    /**
      * 要拦截的带指定注解的方法，默认Aop类注解即不起作用
      * 
      * @return 要拦截的带指定注解的方法
