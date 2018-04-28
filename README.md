@@ -13,7 +13,7 @@ Maven使用
     <version>x.y.z</version>
 </dependency>
 ```
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop/badge.svg)](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop)
+
 Gradle使用
 ```
 compile group: 'top.gotoeasy', name: 'gotoeasy-aop', version: 'x.y.z'
