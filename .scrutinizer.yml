@@ -2,3 +2,10 @@ build:
     environment:
         sdkman:
             - maven
+    tests:
+        override:
+            -
+                command: mvn clean package
+                coverage:
+                    file: 'src/main/java'
+                    format: 'jacoco'
