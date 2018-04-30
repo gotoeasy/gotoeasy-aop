@@ -1,0 +1,4 @@
+build:
+    environment:
+        sdkman:
+            - maven
