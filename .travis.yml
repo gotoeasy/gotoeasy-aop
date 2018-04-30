@@ -4,4 +4,4 @@ jdk:
   - oraclejdk8
   
 script:
-  - mvn install -Dgpg.skip=true
+  - mvn install -Dgpg.skip=true -Dmaven.javadoc.skip=true
