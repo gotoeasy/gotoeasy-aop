@@ -4,7 +4,7 @@ jdk:
   - oraclejdk8
 
 env:
-   - CODACY_PROJECT_TOKEN=gotoeasy
+   - CODACY_PROJECT_TOKEN=7da78ffb2bc54a4d814f4797cab73013
 
 script:
   - mvn install -Dgpg.skip=true -Dmaven.javadoc.skip=true
