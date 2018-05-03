@@ -1,13 +1,5 @@
 language: java
-sudo: false
-
 jdk:
   - oraclejdk8
 
-script: mvn clean verify
-
-after_success:
-  - mvn clean test
-
-  - mvn jacoco:report
-  - mvn coveralls:report -DrepoToken="${COVERALLS_TOKEN}"
+after_success: gradle cobertura coveralls
