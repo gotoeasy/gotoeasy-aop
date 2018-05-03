@@ -13,9 +13,16 @@ public class Sample4AopLast {
 
     private static final Log log = LoggerFactory.getLogger(Sample4AopLast.class);
 
+    private int              count;
+
     @Last("*.Sample4Bean.*")
     public void last(Enhance enhance, Method method, Object ... args) {
         log.info("  @Last   拦截{}", method.getName());
+        count++;
+    }
+
+    public int getCount() {
+        return count;
     }
 
 }

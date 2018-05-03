@@ -13,9 +13,16 @@ public class Sample4AopAfter {
 
     private static final Log log = LoggerFactory.getLogger(Sample4AopAfter.class);
 
+    private int              count;
+
     @After("*.Sample4Bean.*")
     public void after(Enhance enhance, Method method, Object ... args) {
         log.info(" @After  拦截{}", method.getName());
+        count++;
+    }
+
+    public int getCount() {
+        return count;
     }
 
 }
