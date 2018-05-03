@@ -1,7 +1,13 @@
 language: java
+sudo: false
 
 jdk:
   - oraclejdk8
 
+script:
+  - mvn install -Dgpg.skip=true -Dmaven.javadoc.skip=true
+
 after_success:
-- mvn clean cobertura:cobertura org.eluder.coveralls:coveralls-maven-plugin:report -DrepoTokenCoveralls=$COVERALLS_TOKEN
+  - mvn clean test
+  - mvn jacoco:report
+  - mvn coveralls:report -DrepoToken=$COVERALLS_TOKEN
