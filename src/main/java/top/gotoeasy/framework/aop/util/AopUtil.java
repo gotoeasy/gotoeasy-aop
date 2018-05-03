@@ -1,12 +1,10 @@
 package top.gotoeasy.framework.aop.util;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
+import top.gotoeasy.framework.aop.AopContext;
 import top.gotoeasy.framework.aop.Enhance;
+import top.gotoeasy.framework.aop.SuperInvoker;
 import top.gotoeasy.framework.aop.exception.AopException;
 
 /**
@@ -34,20 +32,7 @@ public class AopUtil {
      */
     public static String getMethodDefine(Method method) {
         StringBuilder sb = new StringBuilder();
-        int modifiers = method.getModifiers();
-        if ( Modifier.isPublic(modifiers) ) {
-            sb.append("public ");
-        } else if ( Modifier.isProtected(modifiers) ) {
-            sb.append("protected ");
-        }
-
-        if ( Modifier.isStatic(modifiers) ) {
-            sb.append("static ");
-        }
-        if ( Modifier.isSynchronized(modifiers) ) {
-            sb.append("synchronized ");
-        }
-        sb.append("final ");
+        sb.append("public final ");
         sb.append(getReturnType(method)).append(" ");
         sb.append(method.getName()).append("(");
         sb.append(getParameterDefines(method)).append(")");
@@ -184,12 +169,13 @@ public class AopUtil {
      * 如：p0, p1, p2
      * </p>
      * 
-     * @param method 方法
+     * @param method 被拦截的目标方法
+     * @param method 拦截处理方法
      * @return 方法的参数名源码
      */
-    public static String getParameterNames(Method method) {
+    public static String getParameterNames(Method method, Method aopMethod) {
         Class<?>[] paramTypes = method.getParameterTypes();
-        if ( paramTypes.length == 0 ) {
+        if ( paramTypes.length == 0 || !hasArgParameter(aopMethod) ) {
             return "";
         }
 
@@ -204,6 +190,22 @@ public class AopUtil {
         return sb.toString();
     }
 
+    private static boolean hasArgParameter(Method aopMethod) {
+        if ( aopMethod == null ) {
+            return true;
+        }
+
+        Class<?>[] paramTypes = aopMethod.getParameterTypes();
+        for ( Class<?> clas : paramTypes ) {
+            if ( !Enhance.class.isAssignableFrom(clas) && !clas.equals(Method.class) && !clas.equals(SuperInvoker.class)
+                    && !clas.equals(AopContext.class) && !Exception.class.isAssignableFrom(clas) ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * 判断是否为void方法
      * 
@@ -212,26 +214,6 @@ public class AopUtil {
      */
     public static boolean isVoid(Method method) {
         return void.class.equals(method.getReturnType());
-    }
-
-    /**
-     * 取得指定方法的方法句柄
-     * <p>
-     * 按方法句柄调用能明显提高性能，但仍需谨慎使用<br>
-     * 在Java8环境，千万次以上调用的实验结果，表现出不稳定性<br>
-     * invoke时而正常时而异常，invokeWithArguments虽没有异常但性能及其不稳定<br>
-     * </p>
-     * 
-     * @param method 方法
-     * @return 方法句柄
-     */
-    public static MethodHandle getMethodHandle(Method method) {
-        try {
-            Lookup lk = MethodHandles.lookup();
-            return lk.unreflect(method);
-        } catch (Exception e) {
-            throw new AopException(e);
-        }
     }
 
     /**

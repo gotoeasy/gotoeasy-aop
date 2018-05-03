@@ -12,28 +12,11 @@ public class AopException extends RuntimeException {
 
     /**
      * 构造方法
-     */
-    public AopException() {
-        super();
-    }
-
-    /**
-     * 构造方法
      * 
      * @param message 消息
      */
     public AopException(String message) {
         super(message);
-    }
-
-    /**
-     * 构造方法
-     * 
-     * @param message 消息
-     * @param cause 异常
-     */
-    public AopException(String message, Throwable cause) {
-        super(message, cause);
     }
 
     /**
