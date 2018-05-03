@@ -1,5 +1,4 @@
 language: java
-sudo: false
 
 jdk:
   - oraclejdk8
@@ -7,7 +6,9 @@ jdk:
 script:
   - mvn install -Dgpg.skip=true -Dmaven.javadoc.skip=true
 
+before_install:
+  - sudo apt-get install jq
+  - wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
+
 after_success:
-  - mvn clean test
-  - mvn jacoco:report
-  - mvn coveralls:report -DrepoToken=$COVERALLS_TOKEN
+  - java -jar ~/codacy-coverage-reporter-assembly-latest.jar report -l Java -r build/reports/jacoco/test/jacocoTestReport.xml
