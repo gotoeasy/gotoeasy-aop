@@ -166,7 +166,16 @@
 		           <check/>
 		        </configuration>
 			</plugin>	
-					
+<plugin>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>2.18.1</version>
+    <configuration>
+        <includes>
+            <include>**/*SpecTest.java</include> <!-- Yes, .java extension -->
+            <include>**/*Test.java</include> <!-- Just in case of having also "normal" JUnit tests -->
+        </includes>
+    </configuration>
+</plugin>	
  		</plugins>
 	</build>
 	
