@@ -181,7 +181,7 @@
 						</goals>
 						<configuration>
 							<destFile>
-								${project.build.directory}/coverage-reports/jacoco.exec
+								${project.build.directory}/reports/jacoco.exec
 							</destFile>
 							<propertyName>surefireArgLine</propertyName>
 						</configuration>
@@ -193,8 +193,8 @@
 							<goal>report</goal>
 						</goals>
 						<configuration>
-							<dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
-							<outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+							<dataFile>${project.build.directory}/reports/jacoco.exec</dataFile>
+							<outputDirectory>${project.build.directory}/reports/jacoco</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
