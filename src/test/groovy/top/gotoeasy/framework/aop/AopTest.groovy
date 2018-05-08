@@ -1,10 +1,11 @@
-package top.gotoeasy.sample.aop.test
+package top.gotoeasy.framework.aop
 
 import static org.junit.Assert.*
 
 import org.junit.Test
 
 import spock.lang.Specification
+import top.gotoeasy.framework.aop.EnhanceBuilder
 import top.gotoeasy.framework.aop.exception.AopException
 import top.gotoeasy.framework.aop.util.AopUtil
 import top.gotoeasy.sample.aop.sample99.Sample99AopAfter
