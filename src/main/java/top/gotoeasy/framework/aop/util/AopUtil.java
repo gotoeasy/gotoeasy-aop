@@ -18,6 +18,9 @@ import top.gotoeasy.framework.aop.exception.AopException;
  */
 public class AopUtil {
 
+    private AopUtil() {
+    }
+
     /**
      * 取得方法的声明代码
      * <p>
