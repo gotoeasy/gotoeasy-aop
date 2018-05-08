@@ -170,7 +170,7 @@ public class AopUtil {
      * </p>
      * 
      * @param method 被拦截的目标方法
-     * @param method 拦截处理方法
+     * @param aopMethod 拦截处理方法
      * @return 方法的参数名源码
      */
     public static String getParameterNames(Method method, Method aopMethod) {

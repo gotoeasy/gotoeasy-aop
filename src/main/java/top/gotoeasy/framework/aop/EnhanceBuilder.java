@@ -88,6 +88,7 @@ public class EnhanceBuilder {
     /**
      * 设定被代理类
      * 
+     * @param <T> 被代理类
      * @param clas 被代理类
      * @return 创建器
      */
@@ -141,6 +142,7 @@ public class EnhanceBuilder {
     /**
      * 创建代理对象
      * 
+     * @param <T> 被代理类
      * @return 代理对象
      */
     @SuppressWarnings("unchecked")
