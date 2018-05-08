@@ -1,4 +1,5 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3919db3635b04ff399228c478bdf2343)](https://www.codacy.com/app/gotoeasy/gotoeasy-aop?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gotoeasy/gotoeasy-aop&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/3919db3635b04ff399228c478bdf2343)](https://www.codacy.com/app/gotoeasy/gotoeasy-aop?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gotoeasy/gotoeasy-aop&amp;utm_campaign=Badge_Coverage)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop/badge.svg)](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop)
 [![Javadocs](https://www.javadoc.io/badge/top.gotoeasy/gotoeasy-aop.svg)](https://www.javadoc.io/doc/top.gotoeasy/gotoeasy-aop)
 
