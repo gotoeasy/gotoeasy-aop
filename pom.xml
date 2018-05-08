@@ -205,6 +205,9 @@
 				<version>2.19.1</version>
 				<configuration>
 					<argLine>${surefireArgLine}</argLine>
+					<includes>
+						<include>**/*Test.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 
