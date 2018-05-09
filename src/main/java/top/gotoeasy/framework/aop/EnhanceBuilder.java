@@ -41,6 +41,9 @@ public class EnhanceBuilder {
     // 拦截目标类
     private Class<?>                         clas                     = null;
 
+    // 拦截处理对象列表
+    private List<Object>                     aopList                  = new ArrayList<>();
+
     // aopObj变量编号
     private int                              aopObjSeq                = 1;
     private Map<Object, String>              aopObjFieldMap           = new LinkedHashMap<>();
@@ -107,10 +110,37 @@ public class EnhanceBuilder {
      * 传入带拦截注解的拦截器对象，自动拦截匹配的public方法
      * </p>
      * 
+     * @param list 拦截处理对象列表
+     * @return 创建器
+     */
+    public EnhanceBuilder matchAopList(List<Object> list) {
+        aopList.addAll(list);
+        return this;
+    }
+
+    /**
+     * 设定拦截
+     * <p>
+     * 传入带拦截注解的拦截器对象，自动拦截匹配的public方法
+     * </p>
+     * 
      * @param aops 拦截处理对象
      * @return 创建器
      */
     public EnhanceBuilder matchAop(Object ... aops) {
+        for ( Object aopObj : aops ) {
+            aopList.add(aopObj);
+        }
+        return this;
+    }
+
+    /**
+     * 设定拦截
+     * <p>
+     * 传入带拦截注解的拦截器对象，自动拦截匹配的public方法
+     * </p>
+     */
+    private void matchAops() {
         // 标识方法是否为自己声明
         Method[] methods = clas.getMethods();
         for ( Method method : methods ) {
@@ -128,7 +158,7 @@ public class EnhanceBuilder {
                 continue;
             }
 
-            for ( Object aopObj : aops ) {
+            for ( Object aopObj : aopList ) {
                 if ( aopObj.getClass().isAnnotationPresent(Aop.class) ) {
                     // 检查@Aop
                     matchMethodWithAop(method, aopObj);
@@ -136,7 +166,6 @@ public class EnhanceBuilder {
             }
         }
 
-        return this;
     }
 
     /**
@@ -147,6 +176,9 @@ public class EnhanceBuilder {
      */
     @SuppressWarnings("unchecked")
     public <T> T build() {
+
+        // 设定拦截
+        matchAops();
 
         // 没有匹配的拦截时，不做增强处理
         if ( aopObjSeq == 1 ) {

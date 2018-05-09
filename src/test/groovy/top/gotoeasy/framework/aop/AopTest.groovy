@@ -130,7 +130,7 @@ class AopTest extends Specification {
         Sample99AopError  aop = new Sample99AopError();
 
         when:
-        def obj = EnhanceBuilder.get().setSuperclass(HashMap.class).matchAop(aop).build();
+        def obj = EnhanceBuilder.get().setSuperclass(HashMap.class).matchAopList(Arrays.asList(aop)).build();
 
         then:
         obj.getClass() == HashMap.class
