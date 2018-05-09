@@ -121,4 +121,26 @@ class AopTest extends Specification {
         Exception ex2 =  thrown(Exception)
         ex2.getClass() == AopException.class
     }
+
+
+    @Test
+    public void "没有匹配的拦截时不做增强处理"() {
+
+        expect:
+        Sample99AopError  aop = new Sample99AopError();
+
+        when:
+        def obj = EnhanceBuilder.get().setSuperclass(HashMap.class).matchAop(aop).build();
+
+        then:
+        obj.getClass() == HashMap.class
+
+
+        when:
+        EnhanceBuilder.get().setSuperclass(Runnable.class).matchAop(aop).build();
+
+        then:
+        Exception ex2 =  thrown(Exception)
+        ex2.getClass() == AopException.class
+    }
 }

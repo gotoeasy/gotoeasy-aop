@@ -148,6 +148,15 @@ public class EnhanceBuilder {
     @SuppressWarnings("unchecked")
     public <T> T build() {
 
+        // 没有匹配的拦截时，不做增强处理
+        if ( aopObjSeq == 1 ) {
+            try {
+                return (T)clas.newInstance();
+            } catch (Exception e) {
+                throw new AopException(e);
+            }
+        }
+
         // 创建代理类源码
         String className = AopUtil.getEnhancerName(clas);
         String srcCode = createClassCode();
