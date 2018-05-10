@@ -27,4 +27,9 @@ public class Sample99AopLast {
     public void last3(Object ... objects) {
     }
 
+    @Last("*.Sample99BeanConstructor*.add(*)")
+    public void last() {
+        log.debug("@Last 拦截成功");
+    }
+
 }

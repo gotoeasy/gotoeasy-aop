@@ -2,6 +2,8 @@ package top.gotoeasy.framework.aop
 
 import static org.junit.Assert.*
 
+import java.lang.reflect.Constructor
+
 import org.junit.Test
 
 import spock.lang.Specification
@@ -17,10 +19,136 @@ import top.gotoeasy.sample.aop.sample99.Sample99AopError
 import top.gotoeasy.sample.aop.sample99.Sample99AopLast
 import top.gotoeasy.sample.aop.sample99.Sample99AopThrowing
 import top.gotoeasy.sample.aop.sample99.Sample99Bean
+import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor
+import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor2
+import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor3
+import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor4
+import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor5
+import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor6
 import top.gotoeasy.sample.aop.sample99.Sample99BeanErr
 
 
 class AopTest extends Specification {
+
+    @Test
+    public void "指定构造方法做增强处理"() {
+
+        expect:
+        Constructor<?> constructor = Sample99BeanConstructor.class.getConstructors()[0]
+
+        when:
+        // 有增强，指定构造方法
+        def obj = EnhanceBuilder.get().setSuperclass(Sample99BeanConstructor.class)
+                .setConstructorArgs(constructor, new Sample99Bean(), new Sample99Bean()).matchAop( new Sample99AopLast()).build();
+
+        then:
+        Enhance.class.isAssignableFrom(obj.getClass()) == true
+
+        when:
+        // 无增强，指定构造方法
+        def obj2 = EnhanceBuilder.get().setSuperclass(Sample99BeanConstructor.class)
+                .setConstructorArgs(constructor, new Sample99Bean(), new Sample99Bean()).build();
+
+        then:
+        Enhance.class.isAssignableFrom(obj2.getClass()) == false
+
+
+        when:
+        // 无增强，指定构造方法
+        def obj3 = EnhanceBuilder.get().setSuperclass(Sample99BeanConstructor.class)
+                .setConstructorArgs(constructor, new Sample99Bean(), new Object()).build();
+
+        then:
+        Exception ex2 =  thrown(Exception)
+        ex2.getClass() == AopException.class
+
+
+        when:
+        // 有增强，指定无参构造方法
+        obj = EnhanceBuilder.get().setSuperclass(Sample99BeanConstructor2.class)
+                .setConstructorArgs(Sample99BeanConstructor2.class.getConstructors()[0])
+                .matchAop( new Sample99AopLast()).build();
+
+        then:
+        Enhance.class.isAssignableFrom(obj.getClass()) == true
+    }
+
+
+    @Test
+    public void "有增强，指定含可变参数构造方法"() {
+
+        expect:
+
+        when:
+        // 有增强，指定可变参数构造方法
+        String [] args =  new String[2];
+        args[0]= "1";
+        args[1]= "2";
+        def obj = EnhanceBuilder.get().setSuperclass(Sample99BeanConstructor3.class)
+                .setConstructorArgs(Sample99BeanConstructor3.class.getConstructors()[0], 4, args)
+                .matchAop( new Sample99AopLast()).build();
+
+        then:
+        Enhance.class.isAssignableFrom(obj.getClass()) == true
+
+    }
+
+    @Test
+    public void "有增强，指定单一变参数构造方法"() {
+
+        expect:
+
+        when:
+        // 有增强，指定可变参数构造方法
+        String [] args =  new String[2];
+        args[0]= "1";
+        args[1]= "2";
+        def obj = EnhanceBuilder.get().setSuperclass(Sample99BeanConstructor4.class)
+                .setConstructorArgs(Sample99BeanConstructor4.class.getConstructors()[0],  args)
+                .matchAop( new Sample99AopLast()).build();
+
+        then:
+        Enhance.class.isAssignableFrom(obj.getClass()) == true
+
+    }
+
+    @Test
+    public void "有增强，指定含数组参数构造方法"() {
+
+        expect:
+
+        when:
+        // 有增强，指定数组参数构造方法
+        String [] args =  new String[2];
+        args[0]= "1";
+        args[1]= "2";
+        def obj = EnhanceBuilder.get().setSuperclass(Sample99BeanConstructor5.class)
+                .setConstructorArgs(Sample99BeanConstructor5.class.getConstructors()[0], args, 1)
+                .matchAop( new Sample99AopLast()).build();
+
+        then:
+        Enhance.class.isAssignableFrom(obj.getClass()) == true
+
+    }
+
+    @Test
+    public void "有增强，指定单一数组参数构造方法"() {
+
+        expect:
+
+        when:
+        // 有增强，指定数组参数构造方法
+        String [] args =  new String[2];
+        args[0]= "1";
+        args[1]= "2";
+        def obj = EnhanceBuilder.get().setSuperclass(Sample99BeanConstructor6.class)
+                .setConstructorArgs(Sample99BeanConstructor6.class.getConstructors()[0], args)
+                .matchAop( new Sample99AopLast()).build();
+
+        then:
+        Enhance.class.isAssignableFrom(obj.getClass()) == true
+
+    }
 
     @Test
     public void "前置拦截"() {
@@ -142,5 +270,19 @@ class AopTest extends Specification {
         then:
         Exception ex2 =  thrown(Exception)
         ex2.getClass() == AopException.class
+    }
+
+    @Test
+    public void "AopUtil私有构造方法调用"() {
+
+        expect:
+        Constructor<?> constructor = AopUtil.class.getDeclaredConstructors()[0]
+
+        when:
+        constructor.newInstance()
+
+        then:
+        Exception ex =  thrown(Exception)
+        ex != null
     }
 }
