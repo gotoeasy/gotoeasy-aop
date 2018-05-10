@@ -276,13 +276,13 @@ class AopTest extends Specification {
     public void "AopUtil私有构造方法调用"() {
 
         expect:
-        Constructor<?> constructor = AopUtil.class.getDeclaredConstructors()[0]
+        Constructor<?> constructor = AopUtil.class.getDeclaredConstructor()
+        constructor.setAccessible(true)
 
         when:
         constructor.newInstance()
 
         then:
-        Exception ex =  thrown(Exception)
-        ex != null
+        notThrown(Exception)
     }
 }
