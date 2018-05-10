@@ -225,7 +225,18 @@ public class EnhanceBuilder {
         compiler.compile(className, srcCode);
         Object proxyObject;
         try ( MemoryClassLoader loader = new MemoryClassLoader() ) {
-            proxyObject = loader.loadClass(className).getConstructors()[0].newInstance(initargs);
+            if ( constructor != null && constructor.getParameterCount() == 1
+                    && (constructor.isVarArgs() || constructor.getParameterTypes()[0].isArray()) ) {
+                proxyObject = loader.loadClass(className).getDeclaredConstructors()[0].newInstance((Object)initargs);
+            } else {
+                proxyObject = loader.loadClass(className).getDeclaredConstructors()[0].newInstance(initargs);
+            }
+
+//            if ( constructor != null &&  constructor.isVarArgs() ) {
+//                proxyObject = loader.loadClass(className).getDeclaredConstructors()[0].newInstance((Object)initargs);
+//            } else {
+//                proxyObject = loader.loadClass(className).getDeclaredConstructors()[0].newInstance(initargs);
+//            }
         } catch (Exception e) {
             throw new AopException(e);
         }
