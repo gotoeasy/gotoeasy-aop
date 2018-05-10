@@ -42,7 +42,7 @@ public class EnhanceBuilder {
     // 拦截目标类
     private Class<?>                         clas                     = null;
     // 构造方法
-    Constructor<?>                           constructor              = null;
+    private Constructor<?>                   constructor              = null;
     // 构造方法参数
     private Object[]                         initargs                 = new Object[0];
 
@@ -227,16 +227,11 @@ public class EnhanceBuilder {
         try ( MemoryClassLoader loader = new MemoryClassLoader() ) {
             if ( constructor != null && constructor.getParameterCount() == 1
                     && (constructor.isVarArgs() || constructor.getParameterTypes()[0].isArray()) ) {
+                // 单个可变参数或数组参数时要特殊处理
                 proxyObject = loader.loadClass(className).getDeclaredConstructors()[0].newInstance((Object)initargs);
             } else {
                 proxyObject = loader.loadClass(className).getDeclaredConstructors()[0].newInstance(initargs);
             }
-
-//            if ( constructor != null &&  constructor.isVarArgs() ) {
-//                proxyObject = loader.loadClass(className).getDeclaredConstructors()[0].newInstance((Object)initargs);
-//            } else {
-//                proxyObject = loader.loadClass(className).getDeclaredConstructors()[0].newInstance(initargs);
-//            }
         } catch (Exception e) {
             throw new AopException(e);
         }
