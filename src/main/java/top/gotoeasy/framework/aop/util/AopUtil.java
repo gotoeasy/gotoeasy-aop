@@ -20,6 +20,7 @@ import top.gotoeasy.framework.aop.exception.AopException;
 public class AopUtil {
 
     private AopUtil() {
+        throw new UnsupportedOperationException();
     }
 
     /**
