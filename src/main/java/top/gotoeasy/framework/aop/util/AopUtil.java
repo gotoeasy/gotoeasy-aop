@@ -1,5 +1,6 @@
 package top.gotoeasy.framework.aop.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import top.gotoeasy.framework.aop.AopContext;
@@ -164,6 +165,41 @@ public class AopUtil {
     }
 
     /**
+     * 取得方法的参数定义源码
+     * <p>
+     * 如：String p0, String p1, String p2
+     * </p>
+     * 
+     * @param constructor 构造方法
+     * @return 方法的参数定义源码
+     */
+    public static String getParameterDefines(Constructor<?> constructor) {
+        Class<?>[] paramTypes = constructor.getParameterTypes();
+        if ( paramTypes.length == 0 ) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for ( int i = 0; i < paramTypes.length; i++ ) {
+            if ( i > 0 ) {
+                sb.append(", ");
+            }
+            if ( paramTypes[i].isArray() ) {
+                sb.append(paramTypes[i].getComponentType().getName());
+                if ( constructor.isVarArgs() && i == paramTypes.length - 1 ) {
+                    sb.append(" ... p" + i);
+                } else {
+                    sb.append("[] p" + i);
+                }
+            } else {
+                sb.append(paramTypes[i].getName()).append(" p" + i);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
      * 取得方法的参数名源码
      * <p>
      * 如：p0, p1, p2
@@ -181,6 +217,28 @@ public class AopUtil {
 
         StringBuilder sb = new StringBuilder();
         for ( int i = 0; i < paramTypes.length; i++ ) {
+            if ( i > 0 ) {
+                sb.append(", ");
+            }
+            sb.append("p" + i);
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * 取得构造方法的参数名源码
+     * <p>
+     * 如：p0, p1, p2
+     * </p>
+     * 
+     * @param constructor 构造方法
+     * @return 方法的参数名源码
+     */
+    public static String getParameterNames(Constructor<?> constructor) {
+
+        StringBuilder sb = new StringBuilder();
+        for ( int i = 0; i < constructor.getParameterCount(); i++ ) {
             if ( i > 0 ) {
                 sb.append(", ");
             }

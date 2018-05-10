@@ -1,6 +1,7 @@
 package top.gotoeasy.framework.aop;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -40,6 +41,10 @@ public class EnhanceBuilder {
 
     // 拦截目标类
     private Class<?>                         clas                     = null;
+    // 构造方法
+    Constructor<?>                           constructor              = null;
+    // 构造方法参数
+    private Object[]                         initargs                 = new Object[0];
 
     // 拦截处理对象列表
     private List<Object>                     aopList                  = new ArrayList<>();
@@ -169,6 +174,19 @@ public class EnhanceBuilder {
     }
 
     /**
+     * 指定构造方法
+     * 
+     * @param constructor 构造方法
+     * @param initargs 构造方法参数
+     * @return 创建器
+     */
+    public EnhanceBuilder setConstructorArgs(Constructor<?> constructor, Object ... initargs) {
+        this.constructor = constructor;
+        this.initargs = initargs;
+        return this;
+    }
+
+    /**
      * 创建代理对象
      * 
      * @param <T> 被代理类
@@ -182,11 +200,20 @@ public class EnhanceBuilder {
 
         // 没有匹配的拦截时，不做增强处理
         if ( aopObjSeq == 1 ) {
-            try {
-                return (T)clas.newInstance();
-            } catch (Exception e) {
-                throw new AopException(e);
+            if ( constructor == null ) {
+                try {
+                    return (T)clas.newInstance();
+                } catch (Exception e) {
+                    throw new AopException(e);
+                }
+            } else {
+                try {
+                    return (T)constructor.newInstance(initargs);
+                } catch (Exception e) {
+                    throw new AopException(e);
+                }
             }
+
         }
 
         // 创建代理类源码
@@ -198,7 +225,7 @@ public class EnhanceBuilder {
         compiler.compile(className, srcCode);
         Object proxyObject;
         try ( MemoryClassLoader loader = new MemoryClassLoader() ) {
-            proxyObject = loader.loadClass(className).newInstance();
+            proxyObject = loader.loadClass(className).getConstructors()[0].newInstance(initargs);
         } catch (Exception e) {
             throw new AopException(e);
         }
@@ -712,6 +739,8 @@ public class EnhanceBuilder {
         sbClass.append(sbSuperInvokerField);
         sbClass.append(sbAopField);
         sbClass.append("\n");
+        sbClass.append(getConstructorSrc());
+        sbClass.append("\n");
         sbClass.append(sbNormalMethod);
         sbClass.append("\n");
         sbClass.append(sbAroundMethod);
@@ -721,6 +750,20 @@ public class EnhanceBuilder {
 
         log.trace("\n{}", srcCode);
         return srcCode;
+    }
+
+    private StringBuilder getConstructorSrc() {
+        StringBuilder buf = new StringBuilder();
+        if ( constructor == null ) {
+            return buf;
+        }
+
+        buf.append(TAB1).append("public ").append(AopUtil.getEnhancerSimpleName(clas)).append("(").append(AopUtil.getParameterDefines(constructor))
+                .append("){").append("\n");
+        buf.append(TAB2).append("super(").append(AopUtil.getParameterNames(constructor)).append(");").append("\n");
+        buf.append(TAB1).append("}").append("\n");
+
+        return buf;
     }
 
     private StringBuilder getBeforeSrc(Method method) {
