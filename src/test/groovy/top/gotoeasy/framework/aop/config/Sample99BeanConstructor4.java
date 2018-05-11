@@ -10,7 +10,7 @@ public class Sample99BeanConstructor4 {
     private int              total = 0;
 
     public Sample99BeanConstructor4(String ... strings) {
-        log.debug("Sample99BeanConstructor4");
+        log.debug("Sample99BeanConstructor4 {}", strings, "");
     }
 
     public int add(int intVal) {
