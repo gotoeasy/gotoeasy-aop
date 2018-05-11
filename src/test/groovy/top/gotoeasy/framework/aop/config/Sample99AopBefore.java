@@ -1,4 +1,4 @@
-package top.gotoeasy.sample.aop.sample99;
+package top.gotoeasy.framework.aop.config;
 
 import java.lang.reflect.Method;
 

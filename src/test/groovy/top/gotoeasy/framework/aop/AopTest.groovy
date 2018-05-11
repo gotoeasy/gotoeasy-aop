@@ -7,25 +7,25 @@ import java.lang.reflect.Constructor
 import org.junit.Test
 
 import spock.lang.Specification
+import top.gotoeasy.framework.aop.config.Sample99AopAfter
+import top.gotoeasy.framework.aop.config.Sample99AopAround
+import top.gotoeasy.framework.aop.config.Sample99AopBefore
+import top.gotoeasy.framework.aop.config.Sample99AopCheck
+import top.gotoeasy.framework.aop.config.Sample99AopCheck2
+import top.gotoeasy.framework.aop.config.Sample99AopCheck3
+import top.gotoeasy.framework.aop.config.Sample99AopError
+import top.gotoeasy.framework.aop.config.Sample99AopLast
+import top.gotoeasy.framework.aop.config.Sample99AopThrowing
+import top.gotoeasy.framework.aop.config.Sample99Bean
+import top.gotoeasy.framework.aop.config.Sample99BeanConstructor
+import top.gotoeasy.framework.aop.config.Sample99BeanConstructor2
+import top.gotoeasy.framework.aop.config.Sample99BeanConstructor3
+import top.gotoeasy.framework.aop.config.Sample99BeanConstructor4
+import top.gotoeasy.framework.aop.config.Sample99BeanConstructor5
+import top.gotoeasy.framework.aop.config.Sample99BeanConstructor6
+import top.gotoeasy.framework.aop.config.Sample99BeanErr
 import top.gotoeasy.framework.aop.exception.AopException
 import top.gotoeasy.framework.aop.util.AopUtil
-import top.gotoeasy.sample.aop.sample99.Sample99AopAfter
-import top.gotoeasy.sample.aop.sample99.Sample99AopAround
-import top.gotoeasy.sample.aop.sample99.Sample99AopBefore
-import top.gotoeasy.sample.aop.sample99.Sample99AopCheck
-import top.gotoeasy.sample.aop.sample99.Sample99AopCheck2
-import top.gotoeasy.sample.aop.sample99.Sample99AopCheck3
-import top.gotoeasy.sample.aop.sample99.Sample99AopError
-import top.gotoeasy.sample.aop.sample99.Sample99AopLast
-import top.gotoeasy.sample.aop.sample99.Sample99AopThrowing
-import top.gotoeasy.sample.aop.sample99.Sample99Bean
-import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor
-import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor2
-import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor3
-import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor4
-import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor5
-import top.gotoeasy.sample.aop.sample99.Sample99BeanConstructor6
-import top.gotoeasy.sample.aop.sample99.Sample99BeanErr
 
 
 class AopTest extends Specification {

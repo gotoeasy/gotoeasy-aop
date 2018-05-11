@@ -1,4 +1,4 @@
-package top.gotoeasy.sample.aop.sample99;
+package top.gotoeasy.framework.aop.config;
 
 import top.gotoeasy.framework.aop.exception.AopException;
 
