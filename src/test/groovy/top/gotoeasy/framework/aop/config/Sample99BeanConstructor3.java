@@ -1,10 +1,16 @@
 package top.gotoeasy.framework.aop.config;
 
+import top.gotoeasy.framework.core.log.Log;
+import top.gotoeasy.framework.core.log.LoggerFactory;
+
 public class Sample99BeanConstructor3 {
 
-    private int total = 0;
+    private static final Log log   = LoggerFactory.getLogger(Sample99BeanConstructor3.class);
+
+    private int              total = 0;
 
     public Sample99BeanConstructor3(int val, String ... strings) {
+        log.debug("Sample99BeanConstructor3");
     }
 
     public int add(int intVal) {

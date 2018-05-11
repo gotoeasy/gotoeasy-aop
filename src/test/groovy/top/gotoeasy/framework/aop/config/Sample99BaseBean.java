@@ -1,6 +1,11 @@
 package top.gotoeasy.framework.aop.config;
 
+import top.gotoeasy.framework.core.log.Log;
+import top.gotoeasy.framework.core.log.LoggerFactory;
+
 public class Sample99BaseBean {
+
+    private static final Log log = LoggerFactory.getLogger(Sample99BaseBean.class);
 
     public String hello(String name) {
         return "Hello " + name;
@@ -12,10 +17,12 @@ public class Sample99BaseBean {
 
     @Deprecated
     public void init() {
+        log.debug("@Deprecated");
     }
 
     @Deprecated
     public void arount(String val) {
+        log.debug("@Deprecated");
     }
 
     public int count(String val1, String val2) {
@@ -27,6 +34,6 @@ public class Sample99BaseBean {
     }
 
     public void arountVoid(String val) {
-
+        log.debug("arountVoid");
     }
 }

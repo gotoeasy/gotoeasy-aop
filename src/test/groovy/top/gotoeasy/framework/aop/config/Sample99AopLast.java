@@ -25,6 +25,7 @@ public class Sample99AopLast {
 
     @Last(value = "*Sample99BaseBean.count2(*)", matchSuperMethod = true, matchToString = true)
     public void last3(Object ... objects) {
+        log.debug("@Last");
     }
 
     @Last("*.Sample99BeanConstructor*.add(*)")
