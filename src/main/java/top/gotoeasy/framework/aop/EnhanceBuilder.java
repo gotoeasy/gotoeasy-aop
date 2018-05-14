@@ -80,6 +80,9 @@ public class EnhanceBuilder {
     // 拦截目标方法是否有拦截上下文参数要求
     private Map<Method, Boolean>             aopContextMap            = new HashMap<>();
 
+    // 中间类所需实现的环绕拦截方法
+    private List<Method>                     methodAroundSuperList    = new ArrayList<>();
+
     private static final String              TAB1                     = "    ";
     private static final String              TAB2                     = TAB1 + TAB1;
     private static final String              TAB3                     = TAB2 + TAB1;
@@ -217,12 +220,18 @@ public class EnhanceBuilder {
         }
 
         // 创建代理类源码
-        String className = AopUtil.getEnhancerName(clas);
-        String srcCode = createClassCode();
+        String className = AopUtil.getEnhanceName(clas);
+        Map<String, String> map = new HashMap<>();
+        map.put(className, createEnhanceClassCode());
+        // 创建中间类源码
+        if ( !methodAroundSuperList.isEmpty() ) {
+            map.put(AopUtil.getAroundMiddleClassName(clas), createAroundMiddleClassCode());
+        }
 
         // 动态编译、创建代理对象
         MemoryJavaCompiler compiler = new MemoryJavaCompiler();
-        compiler.compile(className, srcCode);
+        compiler.compile(map);
+
         Object proxyObject;
         try ( MemoryClassLoader loader = new MemoryClassLoader() ) {
             if ( constructor != null && constructor.getParameterCount() == 1
@@ -252,11 +261,11 @@ public class EnhanceBuilder {
     private void checkAop(Method method, Method aopMethod, boolean isAround) {
 
         // 拦截冲突检查
-        if ( methodAroundAopMap.containsKey(method) || (isAround && methodNormalAopMap.containsKey(method)) ) {
-            log.error("拦截冲突，目标方法：{}", method);
-            log.error("   拦截处理1：{}", methodAroundAopMap.containsKey(method) ? methodAroundAopMap.get(method) : methodNormalAopMap.get(method));
-            log.error("   拦截处理2：{}", aopMethod);
-            throw new AopException("Around拦截必须独占，不能和其他拦截共同拦截同一方法 (" + aopMethod + ")");
+        if ( isAround && methodAroundAopMap.containsKey(method) ) {
+            log.error("Around拦截冲突，目标方法：{}", method);
+            log.error("   Around拦截处理1：{}", methodAroundAopMap.get(method));
+            log.error("   Around拦截处理2：{}", aopMethod);
+            throw new AopException("Around拦截必须独占，不能和其他Around拦截共同拦截同一方法 (" + aopMethod + ")");
         }
 
         // 方法返回类型检查
@@ -272,6 +281,11 @@ public class EnhanceBuilder {
             methodAroundAopMap.put(method, aopMethod);
         } else {
             methodNormalAopMap.put(method, aopMethod);
+        }
+
+        // Around拦截和普通拦截冲突时，创建中间类实现Around拦截处理，普通拦截继承中间类实现
+        if ( methodNormalAopMap.containsKey(method) && methodAroundAopMap.containsKey(method) ) {
+            methodAroundSuperList.add(method);
         }
 
     }
@@ -575,7 +589,13 @@ public class EnhanceBuilder {
         }
     }
 
-    private StringBuilder getAroundMethodSrc() {
+    /**
+     * Around拦截源码
+     * 
+     * @param isMiddleClass 是否中间类
+     * @return StringBuilder
+     */
+    private StringBuilder getAroundMethodSrc(boolean isMiddleClass) {
         // ---------------------------------- --------------------------------------------------
         //  @Override
         //  public .....
@@ -586,10 +606,14 @@ public class EnhanceBuilder {
         // ---------------------------------- --------------------------------------------------
         StringBuilder sbAroundMethod = new StringBuilder();
         methodAroundSrcInfoMap.keySet().forEach(method -> {
+            if ( isMiddleClass && !methodAroundSuperList.contains(method) || !isMiddleClass && methodAroundSuperList.contains(method) ) {
+                return;
+            }
+
             MethodSrcInfo info = methodAroundSrcInfoMap.get(method);
             sbAroundMethod.append(TAB1).append("@Override").append("\n");
             sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method)).append(" {\n");
-            sbAroundMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
+            sbAroundMethod.append(TAB2).append("if (").append(superInvokerFieldMap.get(method)).append(" == null ) {").append("\n");
             sbAroundMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
                     .append("\"");
 
@@ -685,29 +709,101 @@ public class EnhanceBuilder {
     }
 
     /**
-     * 创建代理类源码
+     * 创建环绕拦截中间类源码
      * 
-     * @return 代理类源码
+     * @return 环绕拦截中间类源码
      */
-    private String createClassCode() {
+    private String createAroundMiddleClassCode() {
         StringBuilder sbMethodField = new StringBuilder();
         StringBuilder sbSuperInvokerField = new StringBuilder();
         StringBuilder sbAopField = new StringBuilder();
 
         // private Method varMethod
         methodFieldMap.keySet()
-                .forEach(method -> sbMethodField.append(TAB1).append("private Method ").append(methodFieldMap.get(method)).append(";\n"));
+                .forEach(method -> sbMethodField.append(TAB1).append("protected Method ").append(methodFieldMap.get(method)).append(";\n"));
 
         // private SuperInvoker varSuperInvoker
         superInvokerFieldMap.keySet().forEach(
-                method -> sbSuperInvokerField.append(TAB1).append("private SuperInvoker ").append(superInvokerFieldMap.get(method)).append(";\n"));
+                method -> sbSuperInvokerField.append(TAB1).append("protected SuperInvoker ").append(superInvokerFieldMap.get(method)).append(";\n"));
 
         // public {aopClass} varAopObj
         aopObjFieldMap.keySet().forEach(aopObj -> sbAopField.append(TAB1).append("public ").append(aopObj.getClass().getName()).append(" ")
                 .append(aopObjFieldMap.get(aopObj)).append(";\n"));
 
         // AroundMethod
-        StringBuilder sbAroundMethod = getAroundMethodSrc();
+        StringBuilder sbAroundMethod = getAroundMethodSrc(true);
+
+        // Class
+        StringBuilder sbClass = new StringBuilder();
+        // -------------------------------------------------------------------------
+        //  package ....
+
+        //  import ....
+        //  import ....
+        //
+        //  public class superClass$$gotoeasy$$AroundBase extends superClass implements Enhance ...
+        //
+        //      methodField...
+        //      superInvokerField...
+        //      aopObjField...
+        //
+        //      method...
+        //  
+        // -------------------------------------------------------------------------
+        sbClass.append("package ").append(clas.getPackage().getName()).append(";\n");
+        sbClass.append("\n");
+        sbClass.append("import java.lang.reflect.Method;").append("\n");
+        sbClass.append("\n");
+        sbClass.append("import top.gotoeasy.framework.aop.util.AopUtil;").append("\n");
+        sbClass.append("import top.gotoeasy.framework.aop.Enhance;").append("\n");
+        sbClass.append("import top.gotoeasy.framework.aop.SuperInvoker;").append("\n");
+        sbClass.append("import top.gotoeasy.framework.aop.AopContext;").append("\n");
+        sbClass.append("\n");
+        sbClass.append("public class ").append(AopUtil.getAroundMiddleClassSimpleName(clas)).append(" extends ").append(clas.getSimpleName())
+                .append(" implements Enhance {").append("\n");
+        sbClass.append("\n");
+        sbClass.append(sbMethodField);
+        sbClass.append(sbSuperInvokerField);
+        sbClass.append(sbAopField);
+        sbClass.append("\n");
+        sbClass.append(getConstructorSrc());
+        sbClass.append("\n");
+        sbClass.append(sbAroundMethod);
+        sbClass.append("}").append("\n");
+
+        String srcCode = sbClass.toString();
+
+        log.trace("\n{}", srcCode);
+        return srcCode;
+    }
+
+    /**
+     * 创建代理类源码
+     * 
+     * @return 代理类源码
+     */
+    private String createEnhanceClassCode() {
+        StringBuilder sbMethodField = new StringBuilder();
+        StringBuilder sbSuperInvokerField = new StringBuilder();
+        StringBuilder sbAopField = new StringBuilder();
+
+        // 没有中间类的时候添加全局变量，否则全局变量全部放在中间类中
+        if ( methodAroundSuperList.isEmpty() ) {
+            // private Method varMethod
+            methodFieldMap.keySet()
+                    .forEach(method -> sbMethodField.append(TAB1).append("private Method ").append(methodFieldMap.get(method)).append(";\n"));
+
+            // private SuperInvoker varSuperInvoker
+            superInvokerFieldMap.keySet().forEach(method -> sbSuperInvokerField.append(TAB1).append("private SuperInvoker ")
+                    .append(superInvokerFieldMap.get(method)).append(";\n"));
+
+            // public {aopClass} varAopObj
+            aopObjFieldMap.keySet().forEach(aopObj -> sbAopField.append(TAB1).append("public ").append(aopObj.getClass().getName()).append(" ")
+                    .append(aopObjFieldMap.get(aopObj)).append(";\n"));
+        }
+
+        // AroundMethod
+        StringBuilder sbAroundMethod = getAroundMethodSrc(false);
 
         // NormalMethod
         StringBuilder sbNormalMethod = getNormalMethodSrc();
@@ -738,8 +834,12 @@ public class EnhanceBuilder {
         sbClass.append("import top.gotoeasy.framework.aop.SuperInvoker;").append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.AopContext;").append("\n");
         sbClass.append("\n");
-        sbClass.append("public class ").append(AopUtil.getEnhancerSimpleName(clas)).append(" extends ").append(clas.getSimpleName())
-                .append(" implements Enhance {").append("\n");
+        sbClass.append("public class ").append(AopUtil.getEnhanceSimpleName(clas)).append(" extends ");
+        if ( methodAroundSuperList.isEmpty() ) {
+            sbClass.append(clas.getSimpleName()).append(" implements Enhance {");
+        } else {
+            sbClass.append(AopUtil.getAroundMiddleClassSimpleName(clas)).append(" {");
+        }
         sbClass.append("\n");
         sbClass.append(sbMethodField);
         sbClass.append(sbSuperInvokerField);
@@ -764,7 +864,7 @@ public class EnhanceBuilder {
             return buf;
         }
 
-        buf.append(TAB1).append("public ").append(AopUtil.getEnhancerSimpleName(clas)).append("(").append(AopUtil.getParameterDefines(constructor))
+        buf.append(TAB1).append("public ").append(AopUtil.getEnhanceSimpleName(clas)).append("(").append(AopUtil.getParameterDefines(constructor))
                 .append("){").append("\n");
         buf.append(TAB2).append("super(").append(AopUtil.getParameterNames(constructor)).append(");").append("\n");
         buf.append(TAB1).append("}").append("\n");

@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
  * 换言之，在享受方法名参数等书写自由及性能提升的同时，需要自行对方法参数的正确性负责，即使本拦截模块会有必要的检查<br>
  * </p>
  * <p>
- * 【拦截处理方法中最安全的参数写法】 (Enhancer enhancer, Method method, Object ... args)<br>
+ * 【拦截处理方法中最安全的参数写法】 (Enhance enhance, Method method, Object ... args)<br>
  * Last拦截处理方法不应该有返回值，即便写了也不会出错<br>
  * </p>
  * 

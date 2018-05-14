@@ -211,8 +211,7 @@ class AopTest extends Specification {
         EnhanceBuilder.get().setSuperclass(Sample99Bean.class).matchAop(new Sample99AopCheck2()).build();
 
         then:
-        Exception ex2 =  thrown(Exception)
-        ex2.getClass() == AopException.class
+        noExceptionThrown()
 
         when:
         EnhanceBuilder.get().setSuperclass(Sample99Bean.class).matchAop(new Sample99AopCheck3()).build();

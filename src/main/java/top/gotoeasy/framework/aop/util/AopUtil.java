@@ -33,7 +33,7 @@ public class AopUtil {
      */
     public static String getMethodDefine(Method method) {
         StringBuilder sb = new StringBuilder();
-        sb.append("public final ");
+        sb.append("public ");
         sb.append(getReturnType(method)).append(" ");
         sb.append(method.getName()).append("(");
         sb.append(getParameterDefines(method)).append(")");
@@ -281,9 +281,9 @@ public class AopUtil {
      * </p>
      * 
      * @param clas 被代理类
-     * @return 代理类的类名
+     * @return 代理类的类名(含包名)
      */
-    public static String getEnhancerName(Class<?> clas) {
+    public static String getEnhanceName(Class<?> clas) {
         return clas.getName() + "$$gotoeasy$$";
     }
 
@@ -296,8 +296,34 @@ public class AopUtil {
      * @param clas 被代理类
      * @return 代理类的类名
      */
-    public static String getEnhancerSimpleName(Class<?> clas) {
+    public static String getEnhanceSimpleName(Class<?> clas) {
         return clas.getSimpleName() + "$$gotoeasy$$";
+    }
+
+    /**
+     * 取得中间类的类名(含包名)
+     * <p>
+     * 中间类的类名 = 被代理类的类名 + "$$gotoeasy$$AroundBase"
+     * </p>
+     * 
+     * @param clas 被代理类
+     * @return 中间类的类名(含包名)
+     */
+    public static String getAroundMiddleClassName(Class<?> clas) {
+        return clas.getName() + "$$gotoeasy$$AroundBase";
+    }
+
+    /**
+     * 取得中间类的类名(不含包名)
+     * <p>
+     * 中间类的类名 = 被代理类的类名 + "$$gotoeasy$$AroundBase"
+     * </p>
+     * 
+     * @param clas 被代理类
+     * @return 中间类的类名(不含包名)
+     */
+    public static String getAroundMiddleClassSimpleName(Class<?> clas) {
+        return clas.getSimpleName() + "$$gotoeasy$$AroundBase";
     }
 
     /**
@@ -310,7 +336,11 @@ public class AopUtil {
      */
     public static Method getMethod(Enhance enhance, String methodName, Class<?> ... classes) {
         try {
-            return enhance.getClass().getSuperclass().getMethod(methodName, classes);
+            Class<?> targetClass = enhance.getClass();
+            while ( Enhance.class.isAssignableFrom(targetClass) ) {
+                targetClass = targetClass.getSuperclass();
+            }
+            return targetClass.getMethod(methodName, classes);
         } catch (Exception e) {
             throw new AopException(e);
         }
