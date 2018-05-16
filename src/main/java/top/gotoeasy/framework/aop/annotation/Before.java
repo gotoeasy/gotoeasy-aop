@@ -3,6 +3,7 @@ package top.gotoeasy.framework.aop.annotation;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -12,6 +13,10 @@ import java.lang.annotation.Target;
  * <p>
  * 相应类必须同时有@Aop声明<br>
  * 仅对类自身定义的public方法有效
+ * </p>
+ * <p>
+ * 【注】<br>
+ * 同一方法上可用多个@Before声明拦截对象，相互之间为“或”的关系<br>
  * </p>
  * <p>
  * 【注】<br>
@@ -27,6 +32,7 @@ import java.lang.annotation.Target;
  * @since 2018/04
  * @author 青松
  */
+@Repeatable(Befores.class)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})

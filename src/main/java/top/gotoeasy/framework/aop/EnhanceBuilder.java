@@ -14,6 +14,7 @@ import top.gotoeasy.framework.aop.annotation.After;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Around;
 import top.gotoeasy.framework.aop.annotation.Before;
+import top.gotoeasy.framework.aop.annotation.Befores;
 import top.gotoeasy.framework.aop.annotation.Last;
 import top.gotoeasy.framework.aop.annotation.Throwing;
 import top.gotoeasy.framework.aop.exception.AopException;
@@ -292,7 +293,41 @@ public class EnhanceBuilder {
 
     }
 
-    private AopData getAopData(Method method, Method aopMethod) {
+    private AopData getBeforeAopData(Method method, Method aopMethod) {
+
+        String name = method.getName();
+        Before[] aopAnnos = aopMethod.getAnnotationsByType(Before.class);
+        for ( Before aopAnno : aopAnnos ) {
+            if ( !aopAnno.matchSuperMethod() && methodSuperMap.get(method)
+                    || "equals".equals(name) && method.getParameterCount() == 1 && !aopAnno.matchEquals()
+                    || "toString".equals(name) && method.getParameterCount() == 0 && !aopAnno.matchToString()
+                    || "hashCode".equals(name) && method.getParameterCount() == 0 && !aopAnno.matchHashCode()
+                    || !isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
+                // 当前是父类方法，声明不匹配父类方法，跳过
+                // 当前是equals方法，声明不匹配equals方法，跳过
+                // 当前是toString方法，声明不匹配toString方法，跳过
+                // 当前是hashCode方法，声明不匹配hashCode方法，跳过
+                // 方法不匹配时，跳过
+                continue;
+            }
+
+            AopData aopData = new AopData();
+            aopData.isAround = false;
+            aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
+            aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
+            aopData.aopAnnoMatchToString = aopAnno.matchToString();
+            aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
+            aopData.aopOrder = aopAnno.order();
+            aopData.methodNormalSrcInfoMap = methodBeforeSrcInfoMap;
+
+            return aopData;
+        }
+
+        return null;
+    }
+
+    // 取得匹配的拦截信息，没有匹配时返回null
+    private AopData getMatchAopData(Method method, Method aopMethod) {
         AopData aopData = null;
         if ( aopMethod.isAnnotationPresent(Around.class) ) {
             // @Around
@@ -305,19 +340,8 @@ public class EnhanceBuilder {
                 aopData.aopAnnoMatchToString = aopAnno.matchToString();
                 aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
             }
-        } else if ( aopMethod.isAnnotationPresent(Before.class) ) {
-            // @Before
-            Before aopAnno = aopMethod.getAnnotation(Before.class);
-            if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
-                aopData = new AopData();
-                aopData.isAround = false;
-                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
-                aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
-                aopData.aopAnnoMatchToString = aopAnno.matchToString();
-                aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
-                aopData.aopOrder = aopAnno.order();
-                aopData.methodNormalSrcInfoMap = methodBeforeSrcInfoMap;
-            }
+        } else if ( aopMethod.isAnnotationPresent(Before.class) || aopMethod.isAnnotationPresent(Befores.class) ) {
+            aopData = getBeforeAopData(method, aopMethod);
         } else if ( aopMethod.isAnnotationPresent(After.class) ) {
             // @After
             After aopAnno = aopMethod.getAnnotation(After.class);
@@ -367,36 +391,18 @@ public class EnhanceBuilder {
                 && (aopAnnoAnnotation.equals(Aop.class) || method.isAnnotationPresent(aopAnnoAnnotation));
     }
 
-    private boolean isMatchWithAopData(Method method, AopData aopData) {
-        String name = method.getName();
-        if ( aopData.aopAnnoMatchSuperMethod ) {
-            // 匹配父类方法时，检查匹配equals、toString、hashCode
-            if ( "equals".equals(name) && method.getParameterCount() == 1 ) {
-                return aopData.aopAnnoMatchEquals; // 自定义是否拦截equals(java.lang.Object)方法
-            } else if ( "toString".equals(name) && method.getParameterCount() == 0 ) {
-                return aopData.aopAnnoMatchToString; // 自定义是否拦截toString()方法
-            } else if ( "hashCode".equals(name) && method.getParameterCount() == 0 ) {
-                return aopData.aopAnnoMatchHashCode; // 自定义是否拦截hashCode()方法
-            }
-        } else {
-            // 不匹配父类方法
-            if ( methodSuperMap.get(method) ) {
-                return false; // 父类方法
-            }
-        }
-
-        return true;
-    }
-
     private void matchMethodWithAop(Method method, Object aopObj) {
-        List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass());
+        List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass()); // AOP仅支持本类方法的拦截声明
         AopData aopData;
         for ( Method aopMethod : aopMethods ) {
-            aopData = getAopData(method, aopMethod);
-            if ( aopData != null && isMatchWithAopData(method, aopData) ) {
-                // 拦截检查
+            // 取得匹配的拦截信息，没有匹配时返回null
+            aopData = getMatchAopData(method, aopMethod);
+
+            if ( aopData != null ) {
+                // 有匹配时，进一步检查是否存在拦截冲突
                 checkAop(method, aopMethod, aopData.isAround);
-                // 匹配成功，保存匹配结果
+
+                // 终于匹配成功，保存匹配结果
                 if ( aopData.isAround ) {
                     saveAroundResult(method, aopMethod, aopObj);
                 } else {
