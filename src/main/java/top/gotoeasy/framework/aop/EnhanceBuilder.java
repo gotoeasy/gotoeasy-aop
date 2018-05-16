@@ -184,8 +184,10 @@ public class EnhanceBuilder {
      * @return 创建器
      */
     public EnhanceBuilder setConstructorArgs(Constructor<?> constructor, Object ... initargs) {
-        this.constructor = constructor;
-        this.initargs = initargs;
+        if ( constructor != null ) {
+            this.constructor = constructor;
+            this.initargs = initargs;
+        }
         return this;
     }
 
