@@ -29,11 +29,12 @@ public class AopUtil {
      * </p>
      * 
      * @param method 方法
+     * @param strFinal final关键字（""/"final"）
      * @return 方法的声明代码
      */
-    public static String getMethodDefine(Method method) {
+    public static String getMethodDefine(Method method, String strFinal) {
         StringBuilder sb = new StringBuilder();
-        sb.append("public ");
+        sb.append("public ").append(strFinal).append(" ");
         sb.append(getReturnType(method)).append(" ");
         sb.append(method.getName()).append("(");
         sb.append(getParameterDefines(method)).append(")");
