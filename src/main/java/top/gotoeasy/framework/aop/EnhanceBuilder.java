@@ -209,21 +209,16 @@ public class EnhanceBuilder {
         matchAops();
 
         // 没有匹配的拦截时，不做增强处理
-        if ( aopObjSeq == 1 ) {
-            if ( constructor == null ) {
-                try {
+        try {
+            if ( aopObjSeq == 1 ) {
+                if ( constructor == null ) {
                     return (T)clas.newInstance();
-                } catch (Exception e) {
-                    throw new AopException(e);
-                }
-            } else {
-                try {
+                } else {
                     return (T)constructor.newInstance(initargs);
-                } catch (Exception e) {
-                    throw new AopException(e);
                 }
             }
-
+        } catch (Exception e) {
+            throw new AopException(e);
         }
 
         // 创建代理类源码
@@ -254,7 +249,6 @@ public class EnhanceBuilder {
 
         // 设定拦截处理对象
         aopObjFieldMap.keySet().forEach(aopObj -> CmnBean.setFieldValue(proxyObject, aopObjFieldMap.get(aopObj), aopObj));
-
         return (T)proxyObject;
     }
 
@@ -266,7 +260,6 @@ public class EnhanceBuilder {
      * @param isAround 是否环绕拦截
      */
     private void checkAop(Method method, Method aopMethod, boolean isAround) {
-
         // 拦截冲突检查
         if ( isAround && methodAroundAopMap.containsKey(method) ) {
             log.error("Around拦截冲突，目标方法：{}", method);
@@ -294,13 +287,11 @@ public class EnhanceBuilder {
         if ( methodNormalAopMap.containsKey(method) && methodAroundAopMap.containsKey(method) ) {
             methodAroundSuperList.add(method);
         }
-
     }
 
     // 取得匹配的拦截信息：目标方法 & 拦截处理方法
     private List<AopData> getMatchAopDataList(Method method, Method aopMethod) {
         List<AopData> list = new ArrayList<>();
-
         // @Before
         if ( aopMethod.isAnnotationPresent(Before.class) || aopMethod.isAnnotationPresent(Befores.class) ) {
             list.add(getBeforeAopData(method, aopMethod));
@@ -326,7 +317,6 @@ public class EnhanceBuilder {
 
     // 取得匹配的拦截信息：目标方法 & Before拦截处理方法
     private AopData getBeforeAopData(Method method, Method aopMethod) {
-
         Before[] aopAnnos = aopMethod.getAnnotationsByType(Before.class);
         for ( Before before : aopAnnos ) {
             AopData aopData = new AopData();
@@ -351,7 +341,6 @@ public class EnhanceBuilder {
 
     // 取得匹配的拦截信息：目标方法 & After拦截处理方法
     private AopData getAfterAopData(Method method, Method aopMethod) {
-
         After[] aopAnnos = aopMethod.getAnnotationsByType(After.class);
         for ( After after : aopAnnos ) {
             AopData aopData = new AopData();
@@ -370,13 +359,11 @@ public class EnhanceBuilder {
                 return aopData;
             }
         }
-
         return null;
     }
 
     // 取得匹配的拦截信息：目标方法 & Around拦截处理方法
     private AopData getAroundAopData(Method method, Method aopMethod) {
-
         Around[] aopAnnos = aopMethod.getAnnotationsByType(Around.class);
         for ( Around around : aopAnnos ) {
             AopData aopData = new AopData();
@@ -394,13 +381,11 @@ public class EnhanceBuilder {
                 return aopData;
             }
         }
-
         return null;
     }
 
     // 取得匹配的拦截信息：目标方法 & Throwing拦截处理方法
     private AopData getThrowingAopData(Method method, Method aopMethod) {
-
         Throwing[] aopAnnos = aopMethod.getAnnotationsByType(Throwing.class);
         for ( Throwing throwing : aopAnnos ) {
             AopData aopData = new AopData();
@@ -419,13 +404,11 @@ public class EnhanceBuilder {
                 return aopData;
             }
         }
-
         return null;
     }
 
     // 取得匹配的拦截信息：目标方法 & Last拦截处理方法
     private AopData getLastAopData(Method method, Method aopMethod) {
-
         Last[] aopAnnos = aopMethod.getAnnotationsByType(Last.class);
         for ( Last last : aopAnnos ) {
             AopData aopData = new AopData();
@@ -444,7 +427,6 @@ public class EnhanceBuilder {
                 return aopData;
             }
         }
-
         return null;
     }
 
@@ -820,23 +802,20 @@ public class EnhanceBuilder {
         // private Method varMethod
         methodFieldMap.keySet()
                 .forEach(method -> sbMethodField.append(TAB1).append("protected Method ").append(methodFieldMap.get(method)).append(";\n"));
-
         // private SuperInvoker varSuperInvoker
         superInvokerFieldMap.keySet().forEach(
                 method -> sbSuperInvokerField.append(TAB1).append("protected SuperInvoker ").append(superInvokerFieldMap.get(method)).append(";\n"));
-
         // public {aopClass} varAopObj
-        aopObjFieldMap.keySet().forEach(aopObj -> sbAopField.append(TAB1).append("public ").append(aopObj.getClass().getName()).append(" ")
+        aopObjFieldMap.keySet().forEach(aopObj -> sbAopField.append(TAB1).append("public").append(" ").append(aopObj.getClass().getName()).append(" ")
                 .append(aopObjFieldMap.get(aopObj)).append(";\n"));
 
         // AroundMethod
         StringBuilder sbAroundMethod = getAroundMethodSrc(true);
-
         // Class
         StringBuilder sbClass = new StringBuilder();
         // -------------------------------------------------------------------------
         //  package ....
-
+        //
         //  import ....
         //  import ....
         //
@@ -847,7 +826,6 @@ public class EnhanceBuilder {
         //      aopObjField...
         //
         //      method...
-        //  
         // -------------------------------------------------------------------------
         sbClass.append("package ").append(clas.getPackage().getName()).append(";\n");
         sbClass.append("\n");
@@ -871,7 +849,6 @@ public class EnhanceBuilder {
         sbClass.append("}").append("\n");
 
         String srcCode = sbClass.toString();
-
         log.trace("\n{}", srcCode);
         return srcCode;
     }
@@ -891,11 +868,9 @@ public class EnhanceBuilder {
             // private Method varMethod
             methodFieldMap.keySet()
                     .forEach(method -> sbMethodField.append(TAB1).append("private Method ").append(methodFieldMap.get(method)).append(";\n"));
-
             // private SuperInvoker varSuperInvoker
             superInvokerFieldMap.keySet().forEach(method -> sbSuperInvokerField.append(TAB1).append("private SuperInvoker ")
                     .append(superInvokerFieldMap.get(method)).append(";\n"));
-
             // public {aopClass} varAopObj
             aopObjFieldMap.keySet().forEach(aopObj -> sbAopField.append(TAB1).append("public ").append(aopObj.getClass().getName()).append(" ")
                     .append(aopObjFieldMap.get(aopObj)).append(";\n"));
@@ -903,10 +878,8 @@ public class EnhanceBuilder {
 
         // AroundMethod
         StringBuilder sbAroundMethod = getAroundMethodSrc(false);
-
         // NormalMethod
         StringBuilder sbNormalMethod = getNormalMethodSrc();
-
         // Class
         StringBuilder sbClass = new StringBuilder();
         // -------------------------------------------------------------------------
@@ -922,7 +895,6 @@ public class EnhanceBuilder {
         //		aopObjField...
         //
         //		method...
-        //	
         // -------------------------------------------------------------------------
         sbClass.append("package ").append(clas.getPackage().getName()).append(";\n");
         sbClass.append("\n");
@@ -952,7 +924,6 @@ public class EnhanceBuilder {
         sbClass.append("}").append("\n");
 
         String srcCode = sbClass.toString();
-
         log.trace("\n{}", srcCode);
         return srcCode;
     }
@@ -967,7 +938,6 @@ public class EnhanceBuilder {
                 .append("){").append("\n");
         buf.append(TAB2).append("super(").append(AopUtil.getParameterNames(constructor)).append(");").append("\n");
         buf.append(TAB1).append("}").append("\n");
-
         return buf;
     }
 
@@ -975,7 +945,6 @@ public class EnhanceBuilder {
         // ---------------------------------- --------------------------------------------------
         //		{varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames})
         // ---------------------------------- --------------------------------------------------
-
         StringBuilder buf = new StringBuilder();
         List<MethodSrcInfo> list = methodBeforeSrcInfoMap.get(method);
         if ( list != null ) {
@@ -1048,7 +1017,6 @@ public class EnhanceBuilder {
             }
             buf.append(");\n");
         }
-
         return buf;
     }
 
@@ -1074,7 +1042,6 @@ public class EnhanceBuilder {
             }
             buf.append(");\n");
         }
-
         return buf;
     }
 
@@ -1089,7 +1056,6 @@ public class EnhanceBuilder {
         private Method   aopMethod;
         private Class<?> aopMethodReturnType;
         private int      aopOrder;
-
     }
 
     // 仅存放AOP注解信息
@@ -1102,7 +1068,6 @@ public class EnhanceBuilder {
         protected boolean                       annoMatchToString;
         protected boolean                       annoMatchHashCode;
         protected int                           annoOrder;
-
     }
 
     // 存放AOP注解信息+补充信息
