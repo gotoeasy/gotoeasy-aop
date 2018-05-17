@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.aop.config;
+package top.gotoeasy.testconfig;
 
 public class Sample99Bean extends Sample99BaseBean {
 

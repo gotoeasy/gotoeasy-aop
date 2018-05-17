@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.aop.config;
+package top.gotoeasy.testconfig;
 
 import top.gotoeasy.framework.aop.SuperInvoker;
 import top.gotoeasy.framework.aop.annotation.Aop;
