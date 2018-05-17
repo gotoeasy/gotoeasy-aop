@@ -40,6 +40,44 @@ public @interface Throwing {
     String value() default "*";
 
     /**
+     * 指定拦截目标所属类的包名范围
+     * <p>
+     * 默认空白不限定包名范围<br>
+     * 多个包时用逗号分隔
+     * </p>
+     * 
+     * @return 包名范围
+     */
+    String packages() default "";
+
+    /**
+     * 指定拦截目标的类注解
+     * <p>
+     * 默认Annotation注解，即不限定类注解
+     * </p>
+     * 
+     * @return 类注解
+     */
+    Class<? extends Annotation>[] typeAnnotations() default Annotation.class;
+
+    /**
+     * 指定拦截目标的类
+     * <p>
+     * 默认void即指定类
+     * </p>
+     * 
+     * @return 类
+     */
+    Class<?>[] classes() default void.class;
+
+    /**
+     * 指定目标方法需带的注解，默认Annotation注解，即不指定
+     * 
+     * @return 指定目标方法需带的注解
+     */
+    Class<? extends Annotation>[] annotations() default Annotation.class;
+
+    /**
      * 异常拦截的执行顺序
      * <p>
      * 同一方法有多个异常拦截时，按此排序属性升序执行<br>
@@ -49,13 +87,6 @@ public @interface Throwing {
      * @return 序号
      */
     int order() default 100;
-
-    /**
-     * 要拦截的带指定注解的方法，默认Aop类注解即不起作用
-     * 
-     * @return 要拦截的带指定注解的方法
-     */
-    Class<? extends Annotation>[] annotations() default Annotation.class;
 
     /**
      * 是否要拦截父类方法
