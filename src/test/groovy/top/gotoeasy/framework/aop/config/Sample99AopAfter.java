@@ -26,12 +26,12 @@ public class Sample99AopAfter {
         log.debug("@After {}", "拦截参数之最少");
     }
 
-    @After(value = "*.Sample99BaseBean.init()", annotation = Deprecated.class)
+    @After(value = "*.Sample99BaseBean.init()", annotations = Deprecated.class)
     public void after3(Enhance enhance, Method method) {
         log.warn("父类方法默认拦不到的");
     }
 
-    @After(value = "*.Sample99BaseBean.init()", annotation = Deprecated.class, matchSuperMethod = true)
+    @After(value = "*.Sample99BaseBean.init()", annotations = Deprecated.class, matchSuperMethod = true)
     public void after4(Enhance enhance) {
         log.debug("拦截父类方法要指定matchSuperMethod=true");
     }

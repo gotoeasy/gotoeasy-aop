@@ -14,7 +14,7 @@ public class Sample4AopAround {
 
     private static final Log log = LoggerFactory.getLogger(Sample4AopThrowing.class);
 
-    @Around(annotation = Deprecated.class, matchSuperMethod = true)
+    @Around(annotations = Deprecated.class, matchSuperMethod = true)
     public void around(Enhance enhance, Method method, SuperInvoker superInvoker, Object ... args) {
         log.info("@Around 拦截{}", method.getName());
         superInvoker.invoke(args);

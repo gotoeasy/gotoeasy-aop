@@ -55,7 +55,7 @@ public @interface Last {
      * 
      * @return 要拦截的带指定注解的方法
      */
-    Class<? extends Annotation> annotation() default Aop.class;
+    Class<? extends Annotation>[] annotations() default Annotation.class;
 
     /**
      * 是否要拦截父类方法

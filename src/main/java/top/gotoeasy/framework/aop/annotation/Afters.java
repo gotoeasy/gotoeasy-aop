@@ -3,20 +3,15 @@ package top.gotoeasy.framework.aop.annotation;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 用于声明一个前置拦截处理，在调用指定方法前执行
+ * 用于声明一个后置拦截处理，在调用指定方法完成后尚未返回结果时执行
  * <p>
  * 相应类必须同时有@Aop声明<br>
  * 仅对类自身定义的public方法有效
- * </p>
- * <p>
- * 【注】<br>
- * 同一方法上可用多个@Before声明拦截对象，相互之间为“或”的关系<br>
  * </p>
  * <p>
  * 【注】<br>
@@ -26,17 +21,16 @@ import java.lang.annotation.Target;
  * </p>
  * <p>
  * 【拦截处理方法中最安全的参数写法】 (Enhance enhance, Method method, Object ... args)<br>
- * Before拦截处理方法不应该有返回值，即便写了也不会出错<br>
+ * After拦截处理方法不应该有返回值，即便写了也不会出错<br>
  * </p>
  * 
  * @since 2018/04
  * @author 青松
  */
-@Repeatable(Befores.class)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-public @interface Before {
+public @interface Afters {
 
     /**
      * 要拦截的方法名，支持通配符(*代表0或多个任意字符，?代表1个任意字符)，默认为*全部
@@ -46,40 +40,9 @@ public @interface Before {
     String value() default "*";
 
     /**
-     * 指定拦截目标的包名范围
+     * 后置拦截的执行顺序
      * <p>
-     * 默认空白不限定包名范围<br>
-     * 多个包时用逗号分隔
-     * </p>
-     * 
-     * @return 包名范围
-     */
-    String packages() default "";
-
-    /**
-     * 指定拦截目标的类注解
-     * <p>
-     * 默认空白不限定类注解
-     * </p>
-     * 
-     * @return 类注解
-     */
-    Class<? extends Annotation>[] typeAnnotations() default Annotation.class;
-
-    /**
-     * 指定拦截目标的类
-     * <p>
-     * 默认空白不限定类
-     * </p>
-     * 
-     * @return 类
-     */
-    Class<?>[] classes() default void.class;
-
-    /**
-     * 前置拦截的执行顺序
-     * <p>
-     * 同一方法有多个前置拦截时，按此排序属性升序执行<br>
+     * 同一方法有多个后置拦截时，按此排序属性升序执行<br>
      * 默认为100，不修改则按无序执行，可通过此排序属性调整执行顺序
      * </p>
      * 
@@ -92,7 +55,7 @@ public @interface Before {
      * 
      * @return 要拦截的带指定注解的方法
      */
-    Class<? extends Annotation>[] annotations() default Annotation.class;
+    Class<? extends Annotation> annotation() default Aop.class;
 
     /**
      * 是否要拦截父类方法
