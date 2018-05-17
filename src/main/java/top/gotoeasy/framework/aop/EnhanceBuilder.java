@@ -14,6 +14,7 @@ import top.gotoeasy.framework.aop.annotation.After;
 import top.gotoeasy.framework.aop.annotation.Afters;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Around;
+import top.gotoeasy.framework.aop.annotation.Arounds;
 import top.gotoeasy.framework.aop.annotation.Before;
 import top.gotoeasy.framework.aop.annotation.Befores;
 import top.gotoeasy.framework.aop.annotation.Last;
@@ -300,41 +301,25 @@ public class EnhanceBuilder {
     private List<AopData> getMatchAopDataList(Method method, Method aopMethod) {
         List<AopData> list = new ArrayList<>();
 
-        AopData aopData = null;
         // @Before
         if ( aopMethod.isAnnotationPresent(Before.class) || aopMethod.isAnnotationPresent(Befores.class) ) {
-            aopData = getBeforeAopData(method, aopMethod);
-            if ( aopData != null ) {
-                list.add(aopData);
-            }
+            list.add(getBeforeAopData(method, aopMethod));
         }
         // @After
         if ( aopMethod.isAnnotationPresent(After.class) || aopMethod.isAnnotationPresent(Afters.class) ) {
-            aopData = getAfterAopData(method, aopMethod);
-            if ( aopData != null ) {
-                list.add(aopData);
-            }
+            list.add(getAfterAopData(method, aopMethod));
         }
         // @Around
-        if ( aopMethod.isAnnotationPresent(Around.class) ) {
-            aopData = getAroundAopData(method, aopMethod);
-            if ( aopData != null ) {
-                list.add(aopData);
-            }
+        if ( aopMethod.isAnnotationPresent(Around.class) || aopMethod.isAnnotationPresent(Arounds.class) ) {
+            list.add(getAroundAopData(method, aopMethod));
         }
         // @Throwing
         if ( aopMethod.isAnnotationPresent(Throwing.class) || aopMethod.isAnnotationPresent(Throwings.class) ) {
-            aopData = getThrowingAopData(method, aopMethod);
-            if ( aopData != null ) {
-                list.add(aopData);
-            }
+            list.add(getThrowingAopData(method, aopMethod));
         }
         // @Last
         if ( aopMethod.isAnnotationPresent(Last.class) || aopMethod.isAnnotationPresent(Lasts.class) ) {
-            aopData = getLastAopData(method, aopMethod);
-            if ( aopData != null ) {
-                list.add(aopData);
-            }
+            list.add(getLastAopData(method, aopMethod));
         }
         return list;
     }
@@ -500,6 +485,10 @@ public class EnhanceBuilder {
             // 取得匹配的拦截信息
             List<AopData> list = getMatchAopDataList(method, aopMethod);
             list.forEach(aopData -> {
+                if ( aopData == null ) {
+                    return;
+                }
+
                 // 有匹配时，进一步检查是否存在拦截冲突
                 checkAop(method, aopMethod, aopData.isAround);
 
