@@ -589,7 +589,7 @@ public class EnhanceBuilder {
         methodNormalAopMap.keySet().forEach(method -> {
 
             sbNormalMethod.append(TAB1).append("@Override").append("\n");
-            sbNormalMethod.append(TAB1).append(AopUtil.getMethodDefine(method)).append(" {\n");
+            sbNormalMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "final")).append(" {\n");
             sbNormalMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
             sbNormalMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
                     .append("\"");
@@ -701,7 +701,7 @@ public class EnhanceBuilder {
 
             MethodSrcInfo info = methodAroundSrcInfoMap.get(method);
             sbAroundMethod.append(TAB1).append("@Override").append("\n");
-            sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method)).append(" {\n");
+            sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "")).append(" {\n");
             sbAroundMethod.append(TAB2).append("if (").append(superInvokerFieldMap.get(method)).append(" == null ) {").append("\n");
             sbAroundMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
                     .append("\"");
