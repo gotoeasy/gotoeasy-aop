@@ -293,34 +293,47 @@ public class EnhanceBuilder {
 
     }
 
+    /**
+     * 检查目标方法和拦截处理注解是否匹配
+     * 
+     * @param method 目标方法
+     * @param annoData 和拦截处理注解信息
+     * @return true:匹配/false:不匹配
+     */
+    private boolean isMatch(Method method, AnnoData annoData) {
+        String name = method.getName();
+        return !(!CmnString.wildcardsMatch(annoData.annoValue, method.toGenericString())  // 按通配符匹配方法描述失败：结果为不匹配(false)
+                // 指定了目标方法需带的注解，但实际没有：结果为不匹配(false)
+                || !annoData.annoMethodAnnotation.equals(Aop.class) && !method.isAnnotationPresent((annoData.annoMethodAnnotation))
+                // 当前是父类方法，但声明的匹配范围不含父类方法：结果为不匹配(false)
+                || !annoData.annoMatchSuperMethod && methodSuperMap.get(method)
+                // 当前是equals方法，但声明的匹配范围不含equals方法：结果为不匹配(false)
+                || "equals".equals(name) && method.getParameterCount() == 1 && !annoData.annoMatchEquals
+                // 当前是toString方法，但声明的匹配范围不含toString方法：结果为不匹配(false)
+                || "toString".equals(name) && method.getParameterCount() == 0 && !annoData.annoMatchToString
+                // 当前是hashCode方法，但声明的匹配范围不含hashCode方法：结果为不匹配(false)
+                || "hashCode".equals(name) && method.getParameterCount() == 0 && !annoData.annoMatchHashCode);
+    }
+
     private AopData getBeforeAopData(Method method, Method aopMethod) {
 
-        String name = method.getName();
         Before[] aopAnnos = aopMethod.getAnnotationsByType(Before.class);
-        for ( Before aopAnno : aopAnnos ) {
-            if ( !aopAnno.matchSuperMethod() && methodSuperMap.get(method)
-                    || "equals".equals(name) && method.getParameterCount() == 1 && !aopAnno.matchEquals()
-                    || "toString".equals(name) && method.getParameterCount() == 0 && !aopAnno.matchToString()
-                    || "hashCode".equals(name) && method.getParameterCount() == 0 && !aopAnno.matchHashCode()
-                    || !isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
-                // 当前是父类方法，声明不匹配父类方法，跳过
-                // 当前是equals方法，声明不匹配equals方法，跳过
-                // 当前是toString方法，声明不匹配toString方法，跳过
-                // 当前是hashCode方法，声明不匹配hashCode方法，跳过
-                // 方法不匹配时，跳过
-                continue;
-            }
-
+        for ( Before before : aopAnnos ) {
             AopData aopData = new AopData();
-            aopData.isAround = false;
-            aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
-            aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
-            aopData.aopAnnoMatchToString = aopAnno.matchToString();
-            aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
-            aopData.aopOrder = aopAnno.order();
-            aopData.methodNormalSrcInfoMap = methodBeforeSrcInfoMap;
+            aopData.annoValue = before.value();
+            aopData.annoMethodAnnotation = before.annotation();
+            aopData.annoMatchSuperMethod = before.matchSuperMethod();
+            aopData.annoMatchEquals = before.matchEquals();
+            aopData.annoMatchToString = before.matchToString();
+            aopData.annoMatchHashCode = before.matchHashCode();
+            aopData.annoOrder = before.order();
 
-            return aopData;
+            if ( isMatch(method, aopData) ) {
+                // 目标方法匹配成功，拦截
+                aopData.isAround = false;
+                aopData.methodNormalSrcInfoMap = methodBeforeSrcInfoMap;
+                return aopData;
+            }
         }
 
         return null;
@@ -335,10 +348,10 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = true;
-                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
-                aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
-                aopData.aopAnnoMatchToString = aopAnno.matchToString();
-                aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
+                aopData.annoMatchSuperMethod = aopAnno.matchSuperMethod();
+                aopData.annoMatchEquals = aopAnno.matchEquals();
+                aopData.annoMatchToString = aopAnno.matchToString();
+                aopData.annoMatchHashCode = aopAnno.matchHashCode();
             }
         } else if ( aopMethod.isAnnotationPresent(Before.class) || aopMethod.isAnnotationPresent(Befores.class) ) {
             aopData = getBeforeAopData(method, aopMethod);
@@ -348,11 +361,11 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = false;
-                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
-                aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
-                aopData.aopAnnoMatchToString = aopAnno.matchToString();
-                aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
-                aopData.aopOrder = aopAnno.order();
+                aopData.annoMatchSuperMethod = aopAnno.matchSuperMethod();
+                aopData.annoMatchEquals = aopAnno.matchEquals();
+                aopData.annoMatchToString = aopAnno.matchToString();
+                aopData.annoMatchHashCode = aopAnno.matchHashCode();
+                aopData.annoOrder = aopAnno.order();
                 aopData.methodNormalSrcInfoMap = methodAfterSrcInfoMap;
             }
         } else if ( aopMethod.isAnnotationPresent(Throwing.class) ) {
@@ -361,11 +374,11 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = false;
-                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
-                aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
-                aopData.aopAnnoMatchToString = aopAnno.matchToString();
-                aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
-                aopData.aopOrder = aopAnno.order();
+                aopData.annoMatchSuperMethod = aopAnno.matchSuperMethod();
+                aopData.annoMatchEquals = aopAnno.matchEquals();
+                aopData.annoMatchToString = aopAnno.matchToString();
+                aopData.annoMatchHashCode = aopAnno.matchHashCode();
+                aopData.annoOrder = aopAnno.order();
                 aopData.methodNormalSrcInfoMap = methodThrowingSrcInfoMap;
             }
         } else if ( aopMethod.isAnnotationPresent(Last.class) ) {
@@ -374,11 +387,11 @@ public class EnhanceBuilder {
             if ( isMatchDescAndAnnotation(method, aopAnno.value(), aopAnno.annotation()) ) {
                 aopData = new AopData();
                 aopData.isAround = false;
-                aopData.aopAnnoMatchSuperMethod = aopAnno.matchSuperMethod();
-                aopData.aopAnnoMatchEquals = aopAnno.matchEquals();
-                aopData.aopAnnoMatchToString = aopAnno.matchToString();
-                aopData.aopAnnoMatchHashCode = aopAnno.matchHashCode();
-                aopData.aopOrder = aopAnno.order();
+                aopData.annoMatchSuperMethod = aopAnno.matchSuperMethod();
+                aopData.annoMatchEquals = aopAnno.matchEquals();
+                aopData.annoMatchToString = aopAnno.matchToString();
+                aopData.annoMatchHashCode = aopAnno.matchHashCode();
+                aopData.annoOrder = aopAnno.order();
                 aopData.methodNormalSrcInfoMap = methodLastSrcInfoMap;
             }
         }
@@ -406,7 +419,7 @@ public class EnhanceBuilder {
                 if ( aopData.isAround ) {
                     saveAroundResult(method, aopMethod, aopObj);
                 } else {
-                    saveNormalResult(method, aopMethod, aopObj, aopData.methodNormalSrcInfoMap, aopData.aopOrder);
+                    saveNormalResult(method, aopMethod, aopObj, aopData.methodNormalSrcInfoMap, aopData.annoOrder);
                 }
             }
 
@@ -1001,15 +1014,23 @@ public class EnhanceBuilder {
 
     }
 
-    // 存放AOP注解等信息
-    private static class AopData {
+    // 仅存放AOP注解信息
+    private static class AnnoData {
+
+        protected String                      annoValue;
+        protected Class<? extends Annotation> annoMethodAnnotation;
+        protected boolean                     annoMatchSuperMethod;
+        protected boolean                     annoMatchEquals;
+        protected boolean                     annoMatchToString;
+        protected boolean                     annoMatchHashCode;
+        protected int                         annoOrder;
+
+    }
+
+    // 存放AOP注解信息+补充信息
+    private static class AopData extends AnnoData {
 
         private boolean                          isAround;
-        private boolean                          aopAnnoMatchSuperMethod;
-        private boolean                          aopAnnoMatchEquals;
-        private boolean                          aopAnnoMatchToString;
-        private boolean                          aopAnnoMatchHashCode;
         private Map<Method, List<MethodSrcInfo>> methodNormalSrcInfoMap = null;
-        private int                              aopOrder;
     }
 }
