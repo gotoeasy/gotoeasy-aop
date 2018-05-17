@@ -2,8 +2,11 @@ package top.gotoeasy.sample.aop.sample9;
 
 import java.lang.reflect.Method;
 
+import top.gotoeasy.framework.aop.annotation.After;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Before;
+import top.gotoeasy.framework.aop.annotation.Last;
+import top.gotoeasy.framework.aop.annotation.Throwing;
 import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
 
@@ -31,6 +34,9 @@ public class Sample99RepeatAopBefore {
     }
 
     @Before(annotations = MyDeprecated.class)
+    @After(annotations = MyDeprecated.class)
+    @Last(annotations = MyDeprecated.class)
+    @Throwing(annotations = MyDeprecated.class)
     public void before4(Method method) {
         log.warn("正在调用不推荐的方法:{}", method);
     }

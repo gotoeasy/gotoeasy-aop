@@ -297,25 +297,46 @@ public class EnhanceBuilder {
     }
 
     // 取得匹配的拦截信息：目标方法 & 拦截处理方法
-    private AopData getMatchAopData(Method method, Method aopMethod) {
+    private List<AopData> getMatchAopDataList(Method method, Method aopMethod) {
+        List<AopData> list = new ArrayList<>();
+
         AopData aopData = null;
+        // @Before
         if ( aopMethod.isAnnotationPresent(Before.class) || aopMethod.isAnnotationPresent(Befores.class) ) {
-            // @Before
             aopData = getBeforeAopData(method, aopMethod);
-        } else if ( aopMethod.isAnnotationPresent(After.class) || aopMethod.isAnnotationPresent(Afters.class) ) {
-            // @After
-            aopData = getAfterAopData(method, aopMethod);
-        } else if ( aopMethod.isAnnotationPresent(Around.class) ) {
-            // @Around
-            aopData = getAroundAopData(method, aopMethod);
-        } else if ( aopMethod.isAnnotationPresent(Throwing.class) || aopMethod.isAnnotationPresent(Throwings.class) ) {
-            // @Throwing
-            aopData = getThrowingAopData(method, aopMethod);
-        } else if ( aopMethod.isAnnotationPresent(Last.class) || aopMethod.isAnnotationPresent(Lasts.class) ) {
-            // @Last
-            aopData = getLastAopData(method, aopMethod);
+            if ( aopData != null ) {
+                list.add(aopData);
+            }
         }
-        return aopData;
+        // @After
+        if ( aopMethod.isAnnotationPresent(After.class) || aopMethod.isAnnotationPresent(Afters.class) ) {
+            aopData = getAfterAopData(method, aopMethod);
+            if ( aopData != null ) {
+                list.add(aopData);
+            }
+        }
+        // @Around
+        if ( aopMethod.isAnnotationPresent(Around.class) ) {
+            aopData = getAroundAopData(method, aopMethod);
+            if ( aopData != null ) {
+                list.add(aopData);
+            }
+        }
+        // @Throwing
+        if ( aopMethod.isAnnotationPresent(Throwing.class) || aopMethod.isAnnotationPresent(Throwings.class) ) {
+            aopData = getThrowingAopData(method, aopMethod);
+            if ( aopData != null ) {
+                list.add(aopData);
+            }
+        }
+        // @Last
+        if ( aopMethod.isAnnotationPresent(Last.class) || aopMethod.isAnnotationPresent(Lasts.class) ) {
+            aopData = getLastAopData(method, aopMethod);
+            if ( aopData != null ) {
+                list.add(aopData);
+            }
+        }
+        return list;
     }
 
     // 取得匹配的拦截信息：目标方法 & Before拦截处理方法
@@ -474,12 +495,11 @@ public class EnhanceBuilder {
     // 匹配：目标方法 & AOP对象
     private void matchMethodWithAopObject(Method method, Object aopObj) {
         List<Method> aopMethods = MethodScaner.getDeclaredPublicMethods(aopObj.getClass()); // AOP仅支持本类方法的拦截声明
-        AopData aopData;
         for ( Method aopMethod : aopMethods ) {
-            // 取得匹配的拦截信息，没有匹配时返回null
-            aopData = getMatchAopData(method, aopMethod);
 
-            if ( aopData != null ) {
+            // 取得匹配的拦截信息
+            List<AopData> list = getMatchAopDataList(method, aopMethod);
+            list.forEach(aopData -> {
                 // 有匹配时，进一步检查是否存在拦截冲突
                 checkAop(method, aopMethod, aopData.isAround);
 
@@ -489,9 +509,10 @@ public class EnhanceBuilder {
                 } else {
                     saveNormalResult(method, aopMethod, aopObj, aopData.methodNormalSrcInfoMap, aopData.annoOrder);
                 }
-            }
+            });
 
         }
+
     }
 
     private String getAopVarName(Object aopObj) {
