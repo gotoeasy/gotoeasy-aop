@@ -9,6 +9,7 @@ import org.junit.Test
 import spock.lang.Specification
 import top.gotoeasy.framework.aop.annotation.Around
 import top.gotoeasy.framework.aop.exception.AopException
+import top.gotoeasy.framework.aop.testclass.TestAop1
 import top.gotoeasy.framework.aop.testconfig.Sample99AopAfter
 import top.gotoeasy.framework.aop.testconfig.Sample99AopAround
 import top.gotoeasy.framework.aop.testconfig.Sample99AopBefore
@@ -324,6 +325,21 @@ class AopTest extends Specification {
 
         expect:
         def testAop = new TestAop();
+        TestBeanP1 obj1 = EnhanceBuilder.get().setSuperclass(TestBeanP1.class).matchAop( testAop).build();
+        TestBeanP2 obj2 = EnhanceBuilder.get().setSuperclass(TestBeanP2.class).matchAop( testAop).build();
+
+        obj1.hello("aop")
+        obj2.hello("aop")
+
+        testAop.getCnt() == 5
+    }
+
+
+    @Test
+    public void "16测试指定类名范围"() {
+
+        expect:
+        def testAop = new TestAop1();
         TestBeanP1 obj1 = EnhanceBuilder.get().setSuperclass(TestBeanP1.class).matchAop( testAop).build();
         TestBeanP2 obj2 = EnhanceBuilder.get().setSuperclass(TestBeanP2.class).matchAop( testAop).build();
 
