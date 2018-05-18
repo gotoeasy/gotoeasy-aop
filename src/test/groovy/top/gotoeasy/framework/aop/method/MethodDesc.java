@@ -106,6 +106,16 @@ public class MethodDesc {
         return rs;
     }
 
+    public int sumIntAry2(int[][] valss) {
+        int rs = 0;
+        for ( int[] vals : valss ) {
+            for ( int i : vals ) {
+                rs += i;
+            }
+        }
+        return rs;
+    }
+
     public static void main(String[] args) {
 
         Method[] methods = MethodDesc.class.getMethods();

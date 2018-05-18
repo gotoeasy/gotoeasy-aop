@@ -312,5 +312,7 @@ class AopTest extends Specification {
 
         obj.sumIntVars(1, 2, 3) == 6
         obj.sumLongAry(1, 2, 3, 4) == 10
+        int[][] intss = [[1, 2, 3], [4, 5, 6]]
+        obj.sumIntAry2(intss) == 21
     }
 }
