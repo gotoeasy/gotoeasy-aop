@@ -9,8 +9,6 @@ import org.junit.Test
 import spock.lang.Specification
 import top.gotoeasy.framework.aop.annotation.Around
 import top.gotoeasy.framework.aop.exception.AopException
-import top.gotoeasy.framework.aop.method.MethodAopAround
-import top.gotoeasy.framework.aop.method.MethodDesc
 import top.gotoeasy.framework.aop.testconfig.Sample99AopAfter
 import top.gotoeasy.framework.aop.testconfig.Sample99AopAround
 import top.gotoeasy.framework.aop.testconfig.Sample99AopBefore
@@ -28,6 +26,8 @@ import top.gotoeasy.framework.aop.testconfig.Sample99BeanConstructor4
 import top.gotoeasy.framework.aop.testconfig.Sample99BeanConstructor5
 import top.gotoeasy.framework.aop.testconfig.Sample99BeanConstructor6
 import top.gotoeasy.framework.aop.testconfig.Sample99BeanErr
+import top.gotoeasy.framework.aop.testmethod.MethodAopAround
+import top.gotoeasy.framework.aop.testmethod.MethodDesc
 import top.gotoeasy.framework.aop.util.AopUtil
 
 class AopTest extends Specification {

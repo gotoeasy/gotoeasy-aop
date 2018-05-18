@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.aop.method;
+package top.gotoeasy.framework.aop.testmethod;
 
 import top.gotoeasy.framework.aop.SuperInvoker;
 import top.gotoeasy.framework.aop.annotation.Aop;
