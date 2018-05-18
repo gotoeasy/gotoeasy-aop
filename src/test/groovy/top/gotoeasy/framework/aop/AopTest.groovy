@@ -28,6 +28,9 @@ import top.gotoeasy.framework.aop.testconfig.Sample99BeanConstructor6
 import top.gotoeasy.framework.aop.testconfig.Sample99BeanErr
 import top.gotoeasy.framework.aop.testmethod.MethodAopAround
 import top.gotoeasy.framework.aop.testmethod.MethodDesc
+import top.gotoeasy.framework.aop.testpackages.TestAop
+import top.gotoeasy.framework.aop.testpackages.p1.TestBeanP1
+import top.gotoeasy.framework.aop.testpackages.p2.TestBeanP2
 import top.gotoeasy.framework.aop.util.AopUtil
 
 class AopTest extends Specification {
@@ -314,5 +317,19 @@ class AopTest extends Specification {
         obj.sumLongAry(1, 2, 3, 4) == 10
         int[][] intss = [[1, 2, 3], [4, 5, 6]]
         obj.sumIntAry2(intss) == 21
+    }
+
+    @Test
+    public void "15测试指定包名范围"() {
+
+        expect:
+        def testAop = new TestAop();
+        TestBeanP1 obj1 = EnhanceBuilder.get().setSuperclass(TestBeanP1.class).matchAop( testAop).build();
+        TestBeanP2 obj2 = EnhanceBuilder.get().setSuperclass(TestBeanP2.class).matchAop( testAop).build();
+
+        obj1.hello("aop")
+        obj2.hello("aop")
+
+        testAop.getCnt() == 5
     }
 }
