@@ -7,7 +7,10 @@ import java.lang.reflect.Constructor
 import org.junit.Test
 
 import spock.lang.Specification
+import top.gotoeasy.framework.aop.annotation.Around
 import top.gotoeasy.framework.aop.exception.AopException
+import top.gotoeasy.framework.aop.method.MethodAopAround
+import top.gotoeasy.framework.aop.method.MethodDesc
 import top.gotoeasy.framework.aop.util.AopUtil
 import top.gotoeasy.testconfig.Sample99AopAfter
 import top.gotoeasy.testconfig.Sample99AopAround
@@ -30,7 +33,7 @@ import top.gotoeasy.testconfig.Sample99BeanErr
 class AopTest extends Specification {
 
     @Test
-    public void "指定构造方法做增强处理"() {
+    public void "01指定构造方法做增强处理"() {
 
         expect:
         Constructor<?> constructor = Sample99BeanConstructor.class.getConstructors()[0]
@@ -74,7 +77,7 @@ class AopTest extends Specification {
 
 
     @Test
-    public void "有增强，指定含可变参数构造方法"() {
+    public void "02有增强，指定含可变参数构造方法"() {
 
         expect:
 
@@ -93,7 +96,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "有增强，指定单一变参数构造方法"() {
+    public void "03有增强，指定单一变参数构造方法"() {
 
         expect:
 
@@ -112,7 +115,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "有增强，指定含数组参数构造方法"() {
+    public void "04有增强，指定含数组参数构造方法"() {
 
         expect:
 
@@ -131,7 +134,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "有增强，指定单一数组参数构造方法"() {
+    public void "05有增强，指定单一数组参数构造方法"() {
 
         expect:
 
@@ -150,7 +153,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "前置拦截"() {
+    public void "06前置拦截"() {
 
         expect:
 
@@ -166,7 +169,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "异常拦截"() {
+    public void "07异常拦截"() {
 
         expect:
 
@@ -182,7 +185,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "final class异常"() {
+    public void "08final class异常"() {
 
         expect:
 
@@ -195,7 +198,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "环绕拦截独占检查"() {
+    public void "09环绕拦截独占检查"() {
 
         expect:
 
@@ -221,7 +224,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "创建增强对象失败"() {
+    public void "10创建增强对象失败"() {
 
         expect:
 
@@ -230,13 +233,12 @@ class AopTest extends Specification {
         EnhanceBuilder.get().setSuperclass(Sample99BeanErr.class).matchAop(aop).build();
 
         then:
-        Exception ex =  thrown(Exception)
-        ex.getClass() == AopException.class
+        thrown(Exception)
     }
 
 
     @Test
-    public void "AopUtil静态查找方法异常"() {
+    public void "11AopUtil静态查找方法异常"() {
 
         expect:
 
@@ -250,7 +252,7 @@ class AopTest extends Specification {
 
 
     @Test
-    public void "没有匹配的拦截时不做增强处理"() {
+    public void "12没有匹配的拦截时不做增强处理"() {
 
         expect:
         Sample99AopError  aop = new Sample99AopError();
@@ -271,7 +273,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "AopUtil私有构造方法调用"() {
+    public void "13AopUtil私有构造方法调用"() {
 
         expect:
         Constructor<?> constructor = AopUtil.class.getDeclaredConstructor()
@@ -282,5 +284,26 @@ class AopTest extends Specification {
 
         then:
         notThrown(Exception)
+    }
+
+
+    @Test
+    public void "14各种方法参数类型测试"() {
+
+        expect:
+        MethodDesc obj = EnhanceBuilder.get().setSuperclass(MethodDesc.class).matchAop( new MethodAopAround()).build();
+
+        obj.add(1, 2) == 3
+        obj.sum(1, 2, 3) == 6
+        obj.sum("sum", 1, 2, 3) == "sum=6"
+        obj.sum2("sum", 1, 2, 3) == "sum=6"
+        obj.hello("1") == "Hello 1"
+        String[] arrStr = ['a', 'b', 'c']
+        obj.join(arrStr) == "abc"
+        obj.join("join=", arrStr) == "join=abc"
+        String[][] strss = [['a', 'b', 'c'], ['d', 'e', 'f']]
+        obj.writeLog(strss) == 2
+        obj.writeLog(Around.class, 1, "a")
+        obj.writeLog(new HashMap(), Around.class)
     }
 }
