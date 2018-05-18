@@ -7,6 +7,7 @@ import top.gotoeasy.framework.aop.AopContext;
 import top.gotoeasy.framework.aop.Enhance;
 import top.gotoeasy.framework.aop.SuperInvoker;
 import top.gotoeasy.framework.aop.exception.AopException;
+import top.gotoeasy.framework.core.converter.ConvertUtil;
 
 /**
  * AOP工具类
@@ -82,11 +83,7 @@ public class AopUtil {
             if ( i > 0 ) {
                 sb.append(", ");
             }
-            if ( paramTypes[i].isArray() ) {
-                sb.append(paramTypes[i].getComponentType().getName()).append("[]").append(".class");
-            } else {
-                sb.append(paramTypes[i].getName()).append(".class");
-            }
+            sb.append(paramTypes[i].getCanonicalName()).append(".class");
         }
 
         return sb.toString();
@@ -113,21 +110,23 @@ public class AopUtil {
                 sb.append(", ");
             }
 
-            if ( method.isVarArgs() && i == paramTypes.length - 1 ) {
-                // 可变参数
-                sb.append("(").append(paramTypes[i].getComponentType().getName()).append(")").append("args[").append(i).append("]");
+            String canonicalName = paramTypes[i].getCanonicalName();
+            if ( method.isVarArgs() && paramTypes.length == 1 ) {
+                sb.append("(").append(canonicalName).append(")args");
             } else {
-                if ( paramTypes[i].isArray() ) {
-                    // 数组
-                    sb.append("(").append(paramTypes[i].getComponentType().getName()).append("[]").append(")args[").append(i).append("]");
-                } else {
-                    // 普通参数
-                    sb.append("(").append(paramTypes[i].getName()).append(")args[").append(i).append("]");
-                }
+                sb.append("(").append(canonicalName).append(")args[").append(i).append("]");
             }
         }
 
         return sb.toString();
+    }
+
+    public static Object[] convertArray(Object[] objs, Class<?> clas) {
+        Integer[] ary = new Integer[objs.length];
+        for ( int i = 0; i < objs.length; i++ ) {
+            ary[i] = (int)ConvertUtil.convert(objs[i], clas);
+        }
+        return ary;
     }
 
     /**
@@ -150,16 +149,14 @@ public class AopUtil {
             if ( i > 0 ) {
                 sb.append(", ");
             }
-            if ( paramTypes[i].isArray() ) {
-                sb.append(paramTypes[i].getComponentType().getName());
-                if ( method.isVarArgs() && i == paramTypes.length - 1 ) {
-                    sb.append(" ... p" + i);
-                } else {
-                    sb.append("[] p" + i);
-                }
+
+            String canonicalName = paramTypes[i].getCanonicalName();
+            if ( method.isVarArgs() && i == paramTypes.length - 1 ) {
+                sb.append(canonicalName.substring(0, canonicalName.length() - 2)).append(" ...");
             } else {
-                sb.append(paramTypes[i].getName()).append(" p" + i);
+                sb.append(canonicalName);
             }
+            sb.append(" p" + i);
         }
 
         return sb.toString();
@@ -345,6 +342,39 @@ public class AopUtil {
         } catch (Exception e) {
             throw new AopException(e);
         }
+    }
+
+    /**
+     * 取得方法描述
+     * <p>
+     * 【方法描述】
+     * 包名.类名.方法名(参数类型)<br>
+     * 如：top.gotoeasy.framework.aop.util.AopUtil.getMethodDesc(java.lang.Class,java.lang.reflect.Method)<br>
+     * 数组及可变参数类似：top.gotoeasy.sample.check(int[],java.lang.String...)<br>
+     * 父类方法也会使用指定类：top.gotoeasy.framework.aop.util.AopUtil.hashCode()
+     * </p>
+     * 
+     * @param clas 类
+     * @param method 方法
+     * @return 方法描述
+     */
+    public static String getMethodDesc(Class<?> clas, Method method) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(clas.getCanonicalName()).append('.').append(method.getName()).append("(");
+        Class<?>[] paramTypes = method.getParameterTypes();
+
+        for ( int i = 0; i < paramTypes.length; i++ ) {
+            if ( i > 0 ) {
+                buf.append(",");
+            }
+            if ( method.isVarArgs() && paramTypes[i].isArray() && i == paramTypes.length - 1 ) {
+                buf.append(paramTypes[i].getCanonicalName()).append("...");
+            } else {
+                buf.append(paramTypes[i].getCanonicalName());
+            }
+        }
+        buf.append(")");
+        return buf.toString();
     }
 
 }
