@@ -44,7 +44,7 @@ public class Sample99Bean extends Sample99BaseBean {
         return sum;
     }
 
-    public int sum2(Integer[] vals) {
+    public int sum2(int[] vals) {
         int sum = 0;
         for ( int i : vals ) {
             sum += i;

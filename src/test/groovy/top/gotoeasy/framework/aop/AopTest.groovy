@@ -303,7 +303,14 @@ class AopTest extends Specification {
         obj.join("join=", arrStr) == "join=abc"
         String[][] strss = [['a', 'b', 'c'], ['d', 'e', 'f']]
         obj.writeLog(strss) == 2
+        Class<?>[] classes = [EnhanceBuilder.class, MethodDesc.class]
+        obj.testParam(classes) == true
+        obj.testParam2(classes) == true
+        obj.testParam3("test", classes) == true
         obj.writeLog(Around.class, 1, "a")
         obj.writeLog(new HashMap(), Around.class)
+
+        obj.sumIntVars(1, 2, 3) == 6
+        obj.sumLongAry(1, 2, 3, 4) == 10
     }
 }

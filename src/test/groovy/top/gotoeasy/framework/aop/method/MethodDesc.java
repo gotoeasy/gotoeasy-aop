@@ -75,6 +75,37 @@ public class MethodDesc {
         log.debug(map.toString() + clas);
     }
 
+    public boolean testParam(Class<?>[] clas) {
+        log.debug("{}", Arrays.asList(clas));
+        return true;
+    }
+
+    public boolean testParam2(Class<?> ... clas) {
+        log.debug("{}", Arrays.asList(clas));
+        return true;
+    }
+
+    public boolean testParam3(String name, Class<?> ... clas) {
+        log.debug("{}:{}", name, Arrays.asList(clas));
+        return true;
+    }
+
+    public int sumIntVars(int ... vals) {
+        int rs = 0;
+        for ( int integer : vals ) {
+            rs += integer;
+        }
+        return rs;
+    }
+
+    public long sumLongAry(long[] vals) {
+        long rs = 0;
+        for ( long integer : vals ) {
+            rs += integer;
+        }
+        return rs;
+    }
+
     public static void main(String[] args) {
 
         Method[] methods = MethodDesc.class.getMethods();
