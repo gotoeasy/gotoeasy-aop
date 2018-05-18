@@ -7,7 +7,6 @@ import top.gotoeasy.framework.aop.AopContext;
 import top.gotoeasy.framework.aop.Enhance;
 import top.gotoeasy.framework.aop.SuperInvoker;
 import top.gotoeasy.framework.aop.exception.AopException;
-import top.gotoeasy.framework.core.converter.ConvertUtil;
 
 /**
  * AOP工具类
@@ -111,23 +110,15 @@ public class AopUtil {
             }
 
             String canonicalName = paramTypes[i].getCanonicalName();
-            if ( paramTypes.length == 1 && (method.isVarArgs() || paramTypes[i].isArray()) ) {
+            if ( paramTypes.length == 1 && paramTypes[i].isArray() && !paramTypes[i].getComponentType().isPrimitive() ) {
+                // 仅一个参数，且参数为数组时(可变参数也是数组)，直接转换
                 sb.append("(").append(canonicalName).append(")args");
             } else {
                 sb.append("(").append(canonicalName).append(")args[").append(i).append("]");
             }
-
         }
 
         return sb.toString();
-    }
-
-    public static Object[] convertArray(Object[] objs, Class<?> clas) {
-        Integer[] ary = new Integer[objs.length];
-        for ( int i = 0; i < objs.length; i++ ) {
-            ary[i] = (int)ConvertUtil.convert(objs[i], clas);
-        }
-        return ary;
     }
 
     /**
