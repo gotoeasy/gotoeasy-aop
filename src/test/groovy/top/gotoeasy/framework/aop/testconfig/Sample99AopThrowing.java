@@ -1,4 +1,4 @@
-package top.gotoeasy.testconfig;
+package top.gotoeasy.framework.aop.testconfig;
 
 import top.gotoeasy.framework.aop.SuperInvoker;
 import top.gotoeasy.framework.aop.annotation.Aop;
@@ -19,12 +19,12 @@ public class Sample99AopThrowing {
         this.ex = ex;
     }
 
-    @Throwing(value = "*Sample99BaseBean.count2(*)", matchSuperMethod = true, matchToString = true)
+    @Throwing(value = "*Sample99Bean.count2(*)", matchSuperMethod = true, matchToString = true)
     public void last2(SuperInvoker superInvoker, Exception ex, Object ... objects) {
         log.debug("@Throwing 拦截成功:{}", ex);
     }
 
-    @Throwing(value = "*Sample99BaseBean.count2(*)", matchSuperMethod = true, matchToString = true)
+    @Throwing(value = "*Sample99Bean.count2(*)", matchSuperMethod = true, matchToString = true)
     public void last2(Object ... objects) {
         log.debug("@Throwing 拦截成功");
     }

@@ -1,4 +1,4 @@
-package top.gotoeasy.testconfig;
+package top.gotoeasy.framework.aop.testconfig;
 
 import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;

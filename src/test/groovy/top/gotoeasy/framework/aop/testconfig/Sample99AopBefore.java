@@ -1,4 +1,4 @@
-package top.gotoeasy.testconfig;
+package top.gotoeasy.framework.aop.testconfig;
 
 import java.lang.reflect.Method;
 
@@ -26,32 +26,32 @@ public class Sample99AopBefore {
         log.debug("@Before {}", "拦截参数之最少");
     }
 
-    @Before(value = "*.Sample99BaseBean.init()", annotations = Deprecated.class)
+    @Before(value = "*.Sample99Bean.init()", annotations = Deprecated.class)
     public void before3(Enhance enhance, Method method) {
         log.warn("父类方法默认拦不到的");
     }
 
-    @Before(value = "*.Sample99BaseBean.init()", annotations = Deprecated.class, matchSuperMethod = true)
+    @Before(value = "*.Sample99Bean.init()", annotations = Deprecated.class, matchSuperMethod = true)
     public void before4(Enhance enhance) {
         log.debug("拦截父类方法要指定matchSuperMethod=true");
     }
 
-    @Before(value = "*.Object.toString()", matchSuperMethod = true, matchToString = true, order = 1)
+    @Before(value = "*.Sample99Bean.toString()", matchSuperMethod = true, matchToString = true, order = 1)
     public void before5(Method method) {
         log.debug("拦截toString()");
     }
 
-    @Before(value = "*.Object.equals(java.lang.Object)", matchSuperMethod = true, matchEquals = true, order = 2)
+    @Before(value = "*.Sample99Bean.equals(java.lang.Object)", matchSuperMethod = true, matchEquals = true, order = 2)
     public void before6(Method method, AopContext aopContext, Object ... args) {
         log.debug("拦截equals(java.lang.Object)");
     }
 
-    @Before(value = "*.Object.hashCode()", matchSuperMethod = true, matchHashCode = true, order = 3)
+    @Before(value = "*.Sample99Bean.hashCode()", matchSuperMethod = true, matchHashCode = true, order = 3)
     public void before7(AopContext aopContext, SuperInvoker superInvoker, Exception ex, Method method, Enhance enhance, Object ... args) {
         log.debug("拦截hashCode()");
     }
 
-    @Before(value = "*.Sample99*Bean.add(*)", matchSuperMethod = true)
+    @Before(value = "*.Sample99Bean.add(*)", matchSuperMethod = true)
     public void before8(Object ... args) {
         log.debug("@Before {}, 子类父类方法一起拦截");
     }

@@ -1,4 +1,4 @@
-package top.gotoeasy.testconfig;
+package top.gotoeasy.framework.aop.testconfig;
 
 import java.lang.reflect.Method;
 

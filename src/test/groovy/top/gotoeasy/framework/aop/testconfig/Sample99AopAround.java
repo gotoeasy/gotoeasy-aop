@@ -1,4 +1,4 @@
-package top.gotoeasy.testconfig;
+package top.gotoeasy.framework.aop.testconfig;
 
 import java.lang.reflect.Method;
 
@@ -14,19 +14,19 @@ public class Sample99AopAround {
 
     private static final Log log = LoggerFactory.getLogger(Sample99AopAround.class);
 
-    @Around(value = "*Sample99BaseBean.arount()", annotations = Deprecated.class, matchSuperMethod = true)
+    @Around(value = "*Sample99Bean.arount()", annotations = Deprecated.class, matchSuperMethod = true)
     public void around(Enhance enhance, Method method, SuperInvoker superInvoker, Object ... args) {
         log.info("@Around 拦截{}", method.getName());
         superInvoker.invoke(args);
     }
 
-    @Around(value = "*Sample99BaseBean.hello(*)", matchSuperMethod = true, matchToString = true)
+    @Around(value = "*Sample99Bean.hello(*)", matchSuperMethod = true, matchToString = true)
     public Object aroundHello(Enhance enhance, Method method, SuperInvoker superInvoker, Object ... args) {
         log.info("@Around 拦截{}", method.getName());
         return superInvoker.invoke(args);
     }
 
-    @Around(value = "*Sample99BaseBean.arountVoid(*)", matchSuperMethod = true, matchToString = true)
+    @Around(value = "*Sample99Bean.arountVoid(*)", matchSuperMethod = true, matchToString = true)
     public Object arountVoid(Enhance enhance, Method method, SuperInvoker superInvoker, Object ... args) {
         log.info("@Around 拦截{}", method.getName());
         return superInvoker.invoke(args);
