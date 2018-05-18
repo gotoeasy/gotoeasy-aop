@@ -88,6 +88,9 @@ public class EnhanceBuilder {
     // 中间类所需实现的环绕拦截方法
     private List<Method>                     methodAroundSuperList    = new ArrayList<>();
 
+    // method描述
+    private Map<Method, String>              methodDesc               = new HashMap<>();
+
     private static final String              TAB1                     = "    ";
     private static final String              TAB2                     = TAB1 + TAB1;
     private static final String              TAB3                     = TAB2 + TAB1;
@@ -154,7 +157,7 @@ public class EnhanceBuilder {
      * </p>
      */
     private void matchAops() {
-        // 标识方法是否为自己声明
+        // 取得待匹配的目标方法，并标识方法是否为自己声明
         Method[] methods = clas.getMethods();
         for ( Method method : methods ) {
             methodSuperMap.put(method, true);
@@ -164,10 +167,13 @@ public class EnhanceBuilder {
             methodSuperMap.put(method, false);
         }
 
+        methodSuperMap.keySet().forEach(method -> methodDesc.put(method, AopUtil.getMethodDesc(clas, method)));
+
         int modifiers;
         for ( Method method : methodSuperMap.keySet() ) {
             modifiers = method.getModifiers();
-            if ( Modifier.isFinal(modifiers) || !Modifier.isPublic(modifiers) ) {
+            if ( Modifier.isFinal(modifiers) || Modifier.isStatic(modifiers) || !Modifier.isPublic(modifiers) ) {
+                // 不拦截指定标识的方法：final、static、private、protected
                 continue;
             }
 
@@ -435,7 +441,7 @@ public class EnhanceBuilder {
         String name = method.getName();
 
         // 方法描述必须匹配，最常用，只要不匹配就直接返回
-        if ( !CmnString.wildcardsMatch(annoData.annoValue, method.toGenericString()) ) {
+        if ( !CmnString.wildcardsMatch(annoData.annoValue, methodDesc.get(method)) ) {
             return false; // 按通配符匹配方法描述失败：结果为不匹配(false)
         }
 
