@@ -36,7 +36,7 @@ public class Sample99Bean extends Sample99BaseBean {
         return total % val;
     }
 
-    public int sum(int ... vals) {
+    public int sum(Integer ... vals) {
         int sum = 0;
         for ( int i : vals ) {
             sum += i;

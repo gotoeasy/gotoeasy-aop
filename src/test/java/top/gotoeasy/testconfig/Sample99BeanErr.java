@@ -8,7 +8,7 @@ public class Sample99BeanErr {
         throw new AopException("test");
     }
 
-    public int sum(int ... vals) {
+    public int sum(Integer ... vals) {
         int sum = 0;
         for ( int i : vals ) {
             sum += i;
