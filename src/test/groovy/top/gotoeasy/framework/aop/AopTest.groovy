@@ -32,6 +32,9 @@ import top.gotoeasy.framework.aop.testmethod.MethodDesc
 import top.gotoeasy.framework.aop.testpackages.TestAop
 import top.gotoeasy.framework.aop.testpackages.p1.TestBeanP1
 import top.gotoeasy.framework.aop.testpackages.p2.TestBeanP2
+import top.gotoeasy.framework.aop.testtypeanno.TestAopAnno
+import top.gotoeasy.framework.aop.testtypeanno.TestBeanAnno1
+import top.gotoeasy.framework.aop.testtypeanno.TestBeanAnno2
 import top.gotoeasy.framework.aop.util.AopUtil
 
 class AopTest extends Specification {
@@ -347,5 +350,20 @@ class AopTest extends Specification {
         obj2.hello("aop")
 
         testAop.getCnt() == 5
+    }
+
+    @Test
+    public void "17测试指定类注解范围"() {
+
+        expect:
+        def testAop = new TestAopAnno();
+        TestBeanAnno1 obj1 = EnhanceBuilder.get().setSuperclass(TestBeanAnno1.class).matchAop( testAop).build();
+        TestBeanAnno2 obj2 = EnhanceBuilder.get().setSuperclass(TestBeanAnno2.class).matchAop( testAop).build();
+
+        obj1.hello("aop")
+        obj2.hello("aop")
+        obj2.hello("aop", 1)
+
+        testAop.getCnt() == 11
     }
 }
