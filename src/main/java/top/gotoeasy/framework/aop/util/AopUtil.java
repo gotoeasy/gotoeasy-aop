@@ -111,11 +111,12 @@ public class AopUtil {
             }
 
             String canonicalName = paramTypes[i].getCanonicalName();
-            if ( method.isVarArgs() && paramTypes.length == 1 ) {
+            if ( paramTypes.length == 1 && (method.isVarArgs() || paramTypes[i].isArray()) ) {
                 sb.append("(").append(canonicalName).append(")args");
             } else {
                 sb.append("(").append(canonicalName).append(")args[").append(i).append("]");
             }
+
         }
 
         return sb.toString();
