@@ -327,6 +327,9 @@ public class EnhanceBuilder {
         for ( Before before : aopAnnos ) {
             AopData aopData = new AopData();
             aopData.annoValue = before.value();
+            aopData.annoPackages = CmnString.isBlank(before.packages()) ? new String[0] : before.packages().split(",");
+            aopData.annoTypeAnnotations = before.typeAnnotations();
+            aopData.annoClasses = before.classes();
             aopData.annoMethodAnnotations = before.annotations();
             aopData.annoMatchSuperMethod = before.matchSuperMethod();
             aopData.annoMatchEquals = before.matchEquals();
@@ -351,6 +354,9 @@ public class EnhanceBuilder {
         for ( After after : aopAnnos ) {
             AopData aopData = new AopData();
             aopData.annoValue = after.value();
+            aopData.annoPackages = CmnString.isBlank(after.packages()) ? new String[0] : after.packages().split(",");
+            aopData.annoTypeAnnotations = after.typeAnnotations();
+            aopData.annoClasses = after.classes();
             aopData.annoMethodAnnotations = after.annotations();
             aopData.annoMatchSuperMethod = after.matchSuperMethod();
             aopData.annoMatchEquals = after.matchEquals();
@@ -374,6 +380,9 @@ public class EnhanceBuilder {
         for ( Around around : aopAnnos ) {
             AopData aopData = new AopData();
             aopData.annoValue = around.value();
+            aopData.annoPackages = CmnString.isBlank(around.packages()) ? new String[0] : around.packages().split(",");
+            aopData.annoTypeAnnotations = around.typeAnnotations();
+            aopData.annoClasses = around.classes();
             aopData.annoMethodAnnotations = around.annotations();
             aopData.annoMatchSuperMethod = around.matchSuperMethod();
             aopData.annoMatchEquals = around.matchEquals();
@@ -396,6 +405,9 @@ public class EnhanceBuilder {
         for ( Throwing throwing : aopAnnos ) {
             AopData aopData = new AopData();
             aopData.annoValue = throwing.value();
+            aopData.annoPackages = CmnString.isBlank(throwing.packages()) ? new String[0] : throwing.packages().split(",");
+            aopData.annoTypeAnnotations = throwing.typeAnnotations();
+            aopData.annoClasses = throwing.classes();
             aopData.annoMethodAnnotations = throwing.annotations();
             aopData.annoMatchSuperMethod = throwing.matchSuperMethod();
             aopData.annoMatchEquals = throwing.matchEquals();
@@ -419,6 +431,9 @@ public class EnhanceBuilder {
         for ( Last last : aopAnnos ) {
             AopData aopData = new AopData();
             aopData.annoValue = last.value();
+            aopData.annoPackages = CmnString.isBlank(last.packages()) ? new String[0] : last.packages().split(",");
+            aopData.annoTypeAnnotations = last.typeAnnotations();
+            aopData.annoClasses = last.classes();
             aopData.annoMethodAnnotations = last.annotations();
             aopData.annoMatchSuperMethod = last.matchSuperMethod();
             aopData.annoMatchEquals = last.matchEquals();
@@ -455,6 +470,12 @@ public class EnhanceBuilder {
         }
 
         return !(!matchMethodAnno // 指定了目标方法需带的注解，但实际没有：结果为不匹配(false)
+                // 指定目标类的包名范围，但本类不在包名范围内：结果为不匹配(false)
+                || !matchPackage(annoData)
+                // 指定目标类的类注解范围，但本类不带相关注解：结果为不匹配(false)
+                || !matchTypeAnnotation(annoData)
+                // 指定目标类的范围，但本类不在指定类范围内：结果为不匹配(false)
+                || !matchClass(annoData)
                 // 当前是父类方法，但声明的匹配范围不含父类方法：结果为不匹配(false)
                 || !annoData.annoMatchSuperMethod && methodSuperMap.get(method)
                 // 当前是equals方法，但声明的匹配范围不含equals方法：结果为不匹配(false)
@@ -463,6 +484,49 @@ public class EnhanceBuilder {
                 || "toString".equals(name) && method.getParameterCount() == 0 && !annoData.annoMatchToString
                 // 当前是hashCode方法，但声明的匹配范围不含hashCode方法：结果为不匹配(false)
                 || "hashCode".equals(name) && method.getParameterCount() == 0 && !annoData.annoMatchHashCode);
+    }
+
+    // 目标类范围检查
+    private boolean matchClass(AnnoData annoData) {
+        if ( void.class.equals(annoData.annoClasses[0]) ) {
+            return true;
+        }
+
+        for ( Class<?> cls : annoData.annoClasses ) {
+            if ( clas.equals(cls) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 目标类所带注解检查
+    private boolean matchTypeAnnotation(AnnoData annoData) {
+        if ( Annotation.class.equals(annoData.annoTypeAnnotations[0]) ) {
+            return true;
+        }
+
+        for ( Class<? extends Annotation> annotationClass : annoData.annoTypeAnnotations ) {
+            if ( clas.isAnnotationPresent(annotationClass) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 目标类包名检查
+    private boolean matchPackage(AnnoData annoData) {
+        if ( annoData.annoPackages.length == 0 ) {
+            return true;
+        }
+
+        String classPackage = clas.getPackage().getName();
+        for ( String pack : annoData.annoPackages ) {
+            if ( classPackage.startsWith(pack.trim()) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // 匹配：目标方法 & AOP对象
@@ -1068,6 +1132,9 @@ public class EnhanceBuilder {
     private static class AnnoData {
 
         protected String                        annoValue;
+        protected String[]                      annoPackages;
+        protected Class<? extends Annotation>[] annoTypeAnnotations;
+        protected Class<?>[]                    annoClasses;
         protected Class<? extends Annotation>[] annoMethodAnnotations;
         protected boolean                       annoMatchSuperMethod;
         protected boolean                       annoMatchEquals;
