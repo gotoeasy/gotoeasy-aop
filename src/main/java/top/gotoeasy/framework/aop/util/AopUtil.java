@@ -317,6 +317,36 @@ public class AopUtil {
     }
 
     /**
+     * 取得中间类的类名(含包名)
+     * <p>
+     * 中间类的类名 = 被代理类的类名 + "$$gotoeasy$$AroundBase"
+     * </p>
+     * 
+     * @param clas 被代理类
+     * @param max 中间类最大数
+     * @param order 中间类序号
+     * @return 中间类的类名(含包名)
+     */
+    public static String getAroundMiddleClassName(Class<?> clas, int max, int order) {
+        return clas.getName() + "$$gotoeasy$$Base" + max + "$" + (order + 1);
+    }
+
+    /**
+     * 取得中间类的类名(含包名)
+     * <p>
+     * 中间类的类名 = 被代理类的类名 + "$$gotoeasy$$AroundBase"
+     * </p>
+     * 
+     * @param clas 被代理类
+     * @param max 中间类最大数
+     * @param order 中间类序号
+     * @return 中间类的类名(含包名)
+     */
+    public static String getAroundMiddleClassSimpleName(Class<?> clas, int max, int order) {
+        return clas.getSimpleName() + "$$gotoeasy$$Base" + max + "$" + (order + 1);
+    }
+
+    /**
      * 查找在增强对象的父类方法
      * 
      * @param enhance 增量对象

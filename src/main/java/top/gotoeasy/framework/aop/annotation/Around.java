@@ -87,6 +87,17 @@ public @interface Around {
     Class<? extends Annotation>[] annotations() default Annotation.class;
 
     /**
+     * 环绕拦截的执行顺序
+     * <p>
+     * 同一方法有多个环绕拦截时，按此排序属性升序执行<br>
+     * 默认为100，不修改则按无序执行，可通过此排序属性调整执行顺序
+     * </p>
+     * 
+     * @return 序号
+     */
+    int order() default 100;
+
+    /**
      * 是否要拦截父类方法
      * 
      * @return true:包含父类声明的方法/false:仅限于类自己声明的方法
