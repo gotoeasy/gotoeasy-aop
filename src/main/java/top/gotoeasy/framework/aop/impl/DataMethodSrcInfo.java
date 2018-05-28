@@ -2,6 +2,12 @@ package top.gotoeasy.framework.aop.impl;
 
 import java.lang.reflect.Method;
 
+/**
+ * 方法代码信息类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
 public class DataMethodSrcInfo {
 
     protected Method   method;

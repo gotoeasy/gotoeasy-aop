@@ -24,13 +24,18 @@ import top.gotoeasy.framework.core.util.CmnBean;
  */
 public class ProxyObjectCreater {
 
-    private static final Log         log = LoggerFactory.getLogger(ProxyObjectCreater.class);
+    private static final Log              log = LoggerFactory.getLogger(ProxyObjectCreater.class);
 
-    private DataBuilderVars          dataBuilderVars;
-    private AopMatcher               aopMatcher;
-    private Src91EnhanceClassCreater src91EnhanceClassCreater;
-    private Src92EnhanceSuperClassCreater   src92EnhanceSuperClassCreater;
+    private DataBuilderVars               dataBuilderVars;
+    private AopMatcher                    aopMatcher;
+    private Src91EnhanceClassCreater      src91EnhanceClassCreater;
+    private Src92EnhanceSuperClassCreater src92EnhanceSuperClassCreater;
 
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
     public ProxyObjectCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.aopMatcher = new AopMatcher(dataBuilderVars);

@@ -7,7 +7,7 @@ import top.gotoeasy.framework.aop.annotation.Last;
 import top.gotoeasy.framework.aop.annotation.Throwing;
 import top.gotoeasy.framework.aop.util.AopUtil;
 
-public class Src21NormalMethodCreater {
+public class Src22NormalMethodCreater {
 
     private String               TAB1 = "    ";
     private String               TAB2 = TAB1 + TAB1;
@@ -15,7 +15,7 @@ public class Src21NormalMethodCreater {
     private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;
 
-    public Src21NormalMethodCreater(DataBuilderVars dataBuilderVars) {
+    public Src22NormalMethodCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
     }
@@ -34,7 +34,7 @@ public class Src21NormalMethodCreater {
         StringBuilder sbNormalMethod = new StringBuilder();
         dataBuilderVars.methodNormalAopMap.keySet().forEach(method -> {
 
-            StringBuilder sbBeforeSrc = new Src10BeforeCreater(dataBuilderVars).getBeforeSrc(method);
+            StringBuilder sbBeforeSrc = new Src11BeforeCreater(dataBuilderVars).getBeforeSrc(method);
             StringBuilder sbAfterSrc = new Src12AfterCreater(dataBuilderVars).getAfterSrc(method);
             StringBuilder sbThrowingSrc = new Src13ThrowingCreater(dataBuilderVars).getThrowingSrc(method);
             StringBuilder sbLastSrc = new Src14LastCreater(dataBuilderVars).getLastSrc(method);

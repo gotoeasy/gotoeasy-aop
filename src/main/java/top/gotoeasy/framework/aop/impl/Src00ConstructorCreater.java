@@ -2,17 +2,33 @@ package top.gotoeasy.framework.aop.impl;
 
 import top.gotoeasy.framework.aop.util.AopUtil;
 
+/**
+ * 构造方法代码生成类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
 public class Src00ConstructorCreater {
 
-    private String      TAB1 = "    ";
-    private String      TAB2 = TAB1 + TAB1;
+    private static final String TAB1 = "    ";
+    private static final String TAB2 = TAB1 + TAB1;
 
-    private DataBuilderVars dataBuilderVars;
+    private DataBuilderVars     dataBuilderVars;
 
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
     public Src00ConstructorCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
     }
 
+    /**
+     * 构造方法代码生成
+     * 
+     * @return 构造方法代码
+     */
     public StringBuilder getConstructorSrc() {
         StringBuilder buf = new StringBuilder();
         if ( dataBuilderVars.constructor == null ) {

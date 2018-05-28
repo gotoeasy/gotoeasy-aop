@@ -2,6 +2,12 @@ package top.gotoeasy.framework.aop.impl;
 
 import java.lang.annotation.Annotation;
 
+/**
+ * AOP拦截处理的注解信息类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
 public class DataAnnoInfo {
 
     protected String                        annoValue;

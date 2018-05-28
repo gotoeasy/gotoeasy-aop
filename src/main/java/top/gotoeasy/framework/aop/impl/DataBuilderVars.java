@@ -17,14 +17,14 @@ import java.util.Map;
 public class DataBuilderVars {
 
     // 拦截目标类
-    public Class<?>                                clas                     = null;
+    protected Class<?>                             clas                     = null;
     // 构造方法
-    public Constructor<?>                          constructor              = null;
+    protected Constructor<?>                       constructor              = null;
     // 构造方法参数
-    public Object[]                                initargs                 = new Object[0];
+    protected Object[]                             initargs                 = new Object[0];
 
     // 拦截处理对象列表
-    public List<Object>                            aopList                  = new ArrayList<>();
+    protected List<Object>                         aopList                  = new ArrayList<>();
 
     // aopObj变量编号
     protected int                                  aopObjSeq                = 1;
@@ -102,7 +102,7 @@ public class DataBuilderVars {
      * 
      * @return 拦截目标类
      */
-    public Class<?> getClas() {
+    public Class<?> getTargetClass() {
         return clas;
     }
 
@@ -111,7 +111,7 @@ public class DataBuilderVars {
      * 
      * @param clas 拦截目标类
      */
-    public void setClas(Class<?> clas) {
+    public void setTargetClass(Class<?> clas) {
         this.clas = clas;
     }
 

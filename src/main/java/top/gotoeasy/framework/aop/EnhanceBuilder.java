@@ -45,7 +45,7 @@ public class EnhanceBuilder {
             log.warn("无法通过继承来增强的final类：{}" + clas);
         }
 
-        dataBuilderVars.clas = clas;
+        dataBuilderVars.setTargetClass(clas);
         return this;
     }
 
@@ -59,7 +59,7 @@ public class EnhanceBuilder {
      * @return 创建器
      */
     public EnhanceBuilder matchAopList(List<Object> list) {
-        dataBuilderVars.aopList.addAll(list);
+        dataBuilderVars.getAopList().addAll(list);
         return this;
     }
 
@@ -74,7 +74,7 @@ public class EnhanceBuilder {
      */
     public EnhanceBuilder matchAop(Object ... aops) {
         for ( Object aopObj : aops ) {
-            dataBuilderVars.aopList.add(aopObj);
+            dataBuilderVars.getAopList().add(aopObj);
         }
         return this;
     }
@@ -88,8 +88,8 @@ public class EnhanceBuilder {
      */
     public EnhanceBuilder setConstructorArgs(Constructor<?> constructor, Object ... initargs) {
         if ( constructor != null ) {
-            dataBuilderVars.constructor = constructor;
-            dataBuilderVars.initargs = initargs;
+            dataBuilderVars.setConstructor(constructor);
+            dataBuilderVars.setInitargs(initargs);
         }
         return this;
     }

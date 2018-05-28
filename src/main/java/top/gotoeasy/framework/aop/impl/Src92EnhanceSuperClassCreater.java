@@ -12,12 +12,12 @@ public class Src92EnhanceSuperClassCreater {
 
     private DataBuilderVars          dataBuilderVars;
     private Src00ConstructorCreater  src00ConstructorCreater;
-    private Src11AroundMethodCreater src11AroundMethodCreater;
+    private Src21AroundMethodCreater src21AroundMethodCreater;
 
     public Src92EnhanceSuperClassCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.src00ConstructorCreater = new Src00ConstructorCreater(dataBuilderVars);
-        this.src11AroundMethodCreater = new Src11AroundMethodCreater(dataBuilderVars);
+        this.src21AroundMethodCreater = new Src21AroundMethodCreater(dataBuilderVars);
     }
 
     /**
@@ -45,7 +45,7 @@ public class Src92EnhanceSuperClassCreater {
         }
 
         // AroundMethod
-        StringBuilder sbAroundMethod = src11AroundMethodCreater.getAroundMethodSrc(seq);
+        StringBuilder sbAroundMethod = src21AroundMethodCreater.getAroundMethodSrc(seq);
         // Class
         StringBuilder sbClass = new StringBuilder();
         // -------------------------------------------------------------------------

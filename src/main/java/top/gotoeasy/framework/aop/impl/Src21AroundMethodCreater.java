@@ -7,7 +7,13 @@ import top.gotoeasy.framework.aop.annotation.Around;
 import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.util.CmnString;
 
-public class Src11AroundMethodCreater {
+/**
+ * Around拦截代码块生成类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
+public class Src21AroundMethodCreater {
 
     private String               TAB1 = "    ";
     private String               TAB2 = TAB1 + TAB1;
@@ -15,7 +21,7 @@ public class Src11AroundMethodCreater {
     private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;
 
-    public Src11AroundMethodCreater(DataBuilderVars dataBuilderVars) {
+    public Src21AroundMethodCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
     }
