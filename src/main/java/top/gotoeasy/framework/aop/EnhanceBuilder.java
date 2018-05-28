@@ -95,7 +95,6 @@ public class EnhanceBuilder {
 
     private static final String              TAB1                     = "    ";
     private static final String              TAB2                     = TAB1 + TAB1;
-    private static final String              TAB3                     = TAB2 + TAB1;
 
     /**
      * 生成创建器
@@ -687,14 +686,12 @@ public class EnhanceBuilder {
 
             sbNormalMethod.append(TAB1).append("@Override").append("\n");
             sbNormalMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "final")).append(" {\n");
-            sbNormalMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) {").append("\n");
-            sbNormalMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
-                    .append("\"");
+            sbNormalMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) ");
+            sbNormalMethod.append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\"");
             if ( AopUtil.hasParameters(method) ) {
                 sbNormalMethod.append(", ");
             }
-            sbNormalMethod.append(AopUtil.getParameterTypes(method)).append(");\n");
-            sbNormalMethod.append(TAB2).append("}").append("\n");
+            sbNormalMethod.append(AopUtil.getParameterTypes(method)).append(");\n").append("\n");
 
             // AopContext context = new AopContext(System.currentTimeMillis())
             if ( hasAopContext ) {
@@ -814,28 +811,36 @@ public class EnhanceBuilder {
                 return;
             }
 
+            boolean hasReturn = !void.class.equals(method.getReturnType());
             MethodSrcInfo info = methodAroundSrcInfoMap1.get(method);
             sbAroundMethod.append(TAB1).append("@Override").append("\n");
             sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "")).append(" {\n");
-            sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) {").append("\n");
-            sbAroundMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
-                    .append("\"");
-
+            // method$abc变量初始化
+            sbAroundMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) ");
+            sbAroundMethod.append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\"");
             String parameterTypes = AopUtil.getParameterTypes(method);
             if ( CmnString.isNotBlank(parameterTypes) ) {
                 sbAroundMethod.append(", ").append(parameterTypes);
             }
             sbAroundMethod.append(");\n");
+            // superInvoker$abc变量初始化
+            if ( hasReturn ) {
+                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
+                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append(");").append("\n");
+            } else {
+                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
+                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
+            }
+            sbAroundMethod.append("\n");
 
             // 前5个参数判断类型自动入参
             StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.method, info.aopMethod, Around.class.getSimpleName(), info.varMethod,
                     info.varSuperInvoker, "null");
 
-            if ( void.class.equals(method.getReturnType()) ) {
+            if ( !hasReturn ) {
                 // 无返回值
-                sbAroundMethod.append(TAB3).append(info.varSuperInvoker).append(" = (args) -> {super.").append(method.getName()).append("(")
-                        .append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
-                sbAroundMethod.append(TAB2).append("}").append("\n");
                 sbAroundMethod.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(");
                 sbAroundMethod.append(sbAopMethodParams);
             } else {
@@ -845,9 +850,6 @@ public class EnhanceBuilder {
                     // 返回类型不同时需要强制转换
                     returnType = "(" + method.getReturnType().getName() + ")";
                 }
-                sbAroundMethod.append(TAB3).append(info.varSuperInvoker).append(" = (args) -> super.").append(method.getName()).append("(")
-                        .append(AopUtil.getLambdaArgs(method)).append(");\n");
-                sbAroundMethod.append(TAB2).append("}").append("\n");
                 sbAroundMethod.append(TAB2).append("return ").append(returnType).append(info.varAopObj).append(".").append(info.aopMethodName)
                         .append("(");
                 sbAroundMethod.append(sbAopMethodParams);
@@ -953,23 +955,25 @@ public class EnhanceBuilder {
 
         sbAroundMethod.append(TAB1).append("@Override").append("\n");
         sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "")).append(" {\n");
-        sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) {").append("\n");
-        sbAroundMethod.append(TAB3).append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\"");
-
+        // superInvoker$abc变量初始化
+        sbAroundMethod.append(TAB2).append("if (").append(methodFieldMap.get(method)).append(" == null ) ");
+        sbAroundMethod.append(methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\"");
         String parameterTypes = AopUtil.getParameterTypes(method);
         if ( CmnString.isNotBlank(parameterTypes) ) {
             sbAroundMethod.append(", ").append(parameterTypes);
         }
         sbAroundMethod.append(");\n");
-
+        // superInvoker$abc变量初始化
         if ( hasReturn ) {
-            sbAroundMethod.append(TAB3).append(info.varSuperInvoker).append(" = (args) -> super.").append(method.getName()).append("(")
+            sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
+            sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> super.").append(method.getName()).append("(")
                     .append(AopUtil.getLambdaArgs(method)).append(");").append("\n");
         } else {
-            sbAroundMethod.append(TAB3).append(info.varSuperInvoker).append(" = (args) -> {super.").append(method.getName()).append("(")
+            sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
+            sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {super.").append(method.getName()).append("(")
                     .append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
         }
-        sbAroundMethod.append(TAB2).append("}").append("\n");
+        sbAroundMethod.append("\n");
 
         // 前5个参数判断类型自动入参
         StringBuilder sbAopMethodParams = mappingAopMethodParameters(info.method, info.aopMethod, Around.class.getSimpleName(), info.varMethod,
