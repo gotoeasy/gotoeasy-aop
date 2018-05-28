@@ -27,6 +27,8 @@ public class Src00ConstructorCreater {
     /**
      * 构造方法代码生成
      * 
+     * @param max 中间类最大序号
+     * @param seq 当前序号
      * @return 构造方法代码
      */
     public StringBuilder getConstructorSrc(int max, int seq) {

@@ -7,6 +7,12 @@ import top.gotoeasy.framework.aop.annotation.Last;
 import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.util.CmnString;
 
+/**
+ * Last拦截代码块生成类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
 public class Src14LastCreater {
 
     private String               TAB1 = "    ";
@@ -15,11 +21,22 @@ public class Src14LastCreater {
     private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;
 
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
     public Src14LastCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
     }
 
+    /**
+     * Last拦截代码块生成
+     * 
+     * @param method 方法
+     * @return Last拦截代码块
+     */
     public StringBuilder getLastSrc(Method method) {
         // ---------------------------------- --------------------------------------------------
         //      {varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames})

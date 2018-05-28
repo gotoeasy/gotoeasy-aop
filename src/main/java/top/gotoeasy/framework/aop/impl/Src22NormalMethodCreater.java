@@ -7,6 +7,12 @@ import top.gotoeasy.framework.aop.annotation.Last;
 import top.gotoeasy.framework.aop.annotation.Throwing;
 import top.gotoeasy.framework.aop.util.AopUtil;
 
+/**
+ * 普通拦截方法代码生成类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
 public class Src22NormalMethodCreater {
 
     private static final String TAB1 = "    ";
@@ -14,10 +20,21 @@ public class Src22NormalMethodCreater {
 
     private DataBuilderVars     dataBuilderVars;
 
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
     public Src22NormalMethodCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
     }
 
+    /**
+     * 普通拦截方法代码生成
+     * 
+     * @param seq 当前序号
+     * @return 普通拦截方法代码
+     */
     public StringBuilder getNormalMethodSrc() {
         // ---------------------------------- --------------------------------------------------
         //  @Override

@@ -4,6 +4,12 @@ import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
 
+/**
+ * 增强中间类代码生成类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
 public class Src92EnhanceSuperClassCreater {
 
     private static final Log         log  = LoggerFactory.getLogger(Src92EnhanceSuperClassCreater.class);
@@ -14,6 +20,11 @@ public class Src92EnhanceSuperClassCreater {
     private Src00ConstructorCreater  src00ConstructorCreater;
     private Src21AroundMethodCreater src21AroundMethodCreater;
 
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
     public Src92EnhanceSuperClassCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.src00ConstructorCreater = new Src00ConstructorCreater(dataBuilderVars);

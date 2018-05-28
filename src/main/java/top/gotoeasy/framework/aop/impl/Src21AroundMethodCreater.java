@@ -8,24 +8,35 @@ import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.util.CmnString;
 
 /**
- * Around拦截代码块生成类
+ * Around拦截方法代码生成类
  * 
  * @author 青松
  * @since 2018/04
  */
 public class Src21AroundMethodCreater {
 
-    private String               TAB1 = "    ";
-    private String               TAB2 = TAB1 + TAB1;
+    private static final String  TAB1 = "    ";
+    private static final String  TAB2 = TAB1 + TAB1;
 
     private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;
 
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
     public Src21AroundMethodCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
     }
 
+    /**
+     * Around拦截方法代码生成
+     * 
+     * @param seq 当前序号
+     * @return Around拦截方法代码
+     */
     public StringBuilder getAroundMethodSrc(int seq) {
         StringBuilder buf = new StringBuilder();
         dataBuilderVars.methodAroundSuperList.forEach(method -> {

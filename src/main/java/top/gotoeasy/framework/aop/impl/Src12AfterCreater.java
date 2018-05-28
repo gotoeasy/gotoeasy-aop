@@ -7,19 +7,35 @@ import top.gotoeasy.framework.aop.annotation.After;
 import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.util.CmnString;
 
+/**
+ * After拦截代码块生成类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
 public class Src12AfterCreater {
 
-    private String               TAB1 = "    ";
-    private String               TAB2 = TAB1 + TAB1;
+    private static final String  TAB2 = "        ";
 
     private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;
 
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
     public Src12AfterCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
     }
 
+    /**
+     * After拦截代码块生成
+     * 
+     * @param method 方法
+     * @return After拦截代码块
+     */
     public StringBuilder getAfterSrc(Method method) {
         // ---------------------------------- --------------------------------------------------
         //      {varAopObj}.{aopMethodName}(this, {varMethod}, {parameterNames})
