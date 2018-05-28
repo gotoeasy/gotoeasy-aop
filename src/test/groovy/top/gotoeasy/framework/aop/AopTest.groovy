@@ -192,7 +192,7 @@ class AopTest extends Specification {
     }
 
     @Test
-    public void "08final class异常"() {
+    public void "08final class没有异常"() {
 
         expect:
 
@@ -200,12 +200,11 @@ class AopTest extends Specification {
         EnhanceBuilder.get().setSuperclass(String.class).build();
 
         then:
-        Exception ex=  thrown(Exception)
-        ex.toString() == "java.lang.UnsupportedOperationException: 无法通过继承来增强的final类：java.lang.String"
+        noExceptionThrown()
     }
 
     @Test
-    public void "09环绕拦截独占检查"() {
+    public void "09环绕拦截可以重复"() {
 
         expect:
 
@@ -213,8 +212,7 @@ class AopTest extends Specification {
         EnhanceBuilder.get().setSuperclass(Sample99Bean.class).matchAop(new Sample99AopCheck()).build();
 
         then:
-        Exception ex =  thrown(Exception)
-        ex.getClass() == AopException.class
+        noExceptionThrown()
 
         when:
         EnhanceBuilder.get().setSuperclass(Sample99Bean.class).matchAop(new Sample99AopCheck2()).build();

@@ -120,7 +120,8 @@ public class DataBuilderVars {
      * 
      * @return 目标类构造方法
      */
-    public Constructor<?> getConstructor() {
+    @SuppressWarnings("rawtypes")
+    public Constructor getConstructor() {
         return constructor;
     }
 
