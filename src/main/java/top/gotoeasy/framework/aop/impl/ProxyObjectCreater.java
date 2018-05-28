@@ -24,18 +24,18 @@ import top.gotoeasy.framework.core.util.CmnBean;
  */
 public class ProxyObjectCreater {
 
-    private static final Log      log = LoggerFactory.getLogger(ProxyObjectCreater.class);
+    private static final Log         log = LoggerFactory.getLogger(ProxyObjectCreater.class);
 
-    private DataBuilderVars           dataBuilderVars;
-    private AopDataMatcher          aopDataMatcher;
-    private Src91EnhanceClassCreater     src91EnhanceClassCreater;
-    private Src92SuperClassCreater src92SuperClassCreater;
+    private DataBuilderVars          dataBuilderVars;
+    private AopMatcher               aopMatcher;
+    private Src91EnhanceClassCreater src91EnhanceClassCreater;
+    private Src92EnhanceSuperClassCreater   src92EnhanceSuperClassCreater;
 
     public ProxyObjectCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
-        this.aopDataMatcher = new AopDataMatcher(dataBuilderVars);
-        this.src91EnhanceClassCreater = new Src91EnhanceClassCreater(dataBuilderVars);
-        this.src92SuperClassCreater = new Src92SuperClassCreater(dataBuilderVars);
+        this.aopMatcher = new AopMatcher(dataBuilderVars);
+        this.src91EnhanceClassCreater = new Src91EnhanceClassCreater(dataBuilderVars, new AopMethodArgsMapping(dataBuilderVars));
+        this.src92EnhanceSuperClassCreater = new Src92EnhanceSuperClassCreater(dataBuilderVars);
     }
 
     /**
@@ -48,7 +48,7 @@ public class ProxyObjectCreater {
     public <T> T create() {
 
         // 设定拦截
-        aopDataMatcher.matchAops();
+        aopMatcher.matchAops();
 
         // final类或没有匹配的拦截时，不做增强处理
         try {
@@ -74,9 +74,10 @@ public class ProxyObjectCreater {
         String className = AopUtil.getEnhanceName(dataBuilderVars.clas);
         Map<String, String> map = new HashMap<>();
         // 创建中间类源码
-        int maxSize = dataBuilderVars.getMaxSizeOfMethodAroundList();
+        int maxSize = dataBuilderVars.getMaxMethodAroundCount();
         for ( int i = 0; i < maxSize; i++ ) {
-            map.put(AopUtil.getAroundMiddleClassName(dataBuilderVars.clas, maxSize, i), src92SuperClassCreater.createAroundMiddleClassCode(maxSize, i));
+            map.put(AopUtil.getAroundMiddleClassName(dataBuilderVars.clas, maxSize, i),
+                    src92EnhanceSuperClassCreater.createAroundMiddleClassCode(maxSize, i));
         }
         // 创建代理类源码
         map.put(className, src91EnhanceClassCreater.createEnhanceClassCode());
@@ -100,7 +101,8 @@ public class ProxyObjectCreater {
         }
 
         // 设定拦截处理对象
-        dataBuilderVars.aopObjFieldMap.keySet().forEach(aopObj -> CmnBean.setFieldValue(proxyObject, dataBuilderVars.aopObjFieldMap.get(aopObj), aopObj));
+        dataBuilderVars.aopObjFieldMap.keySet()
+                .forEach(aopObj -> CmnBean.setFieldValue(proxyObject, dataBuilderVars.aopObjFieldMap.get(aopObj), aopObj));
 
         // 返回代理对象
         return (T)proxyObject;

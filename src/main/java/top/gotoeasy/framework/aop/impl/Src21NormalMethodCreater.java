@@ -9,13 +9,15 @@ import top.gotoeasy.framework.aop.util.AopUtil;
 
 public class Src21NormalMethodCreater {
 
-    private String      TAB1 = "    ";
-    private String      TAB2 = TAB1 + TAB1;
+    private String               TAB1 = "    ";
+    private String               TAB2 = TAB1 + TAB1;
 
-    private DataBuilderVars dataBuilderVars;
+    private DataBuilderVars      dataBuilderVars;
+    private AopMethodArgsMapping aopMethodArgsMapping;
 
     public Src21NormalMethodCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
+        this.aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
     }
 
     public StringBuilder getNormalMethodSrc() {
@@ -45,15 +47,19 @@ public class Src21NormalMethodCreater {
 
             sbNormalMethod.append(TAB1).append("@Override").append("\n");
             sbNormalMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "final")).append(" {\n");
-            sbNormalMethod.append(TAB2).append("if (").append(dataBuilderVars.methodFieldMap.get(method)).append(" == null ) ");
-            sbNormalMethod.append(dataBuilderVars.methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
-                    .append("\"");
-            if ( AopUtil.hasParameters(method) ) {
-                sbNormalMethod.append(", ");
-            }
-            sbNormalMethod.append(AopUtil.getParameterTypes(method)).append(");\n").append("\n");
 
-            // AopContext context = new AopContext(System.currentTimeMillis())
+            // 使用方法参数时，初始化
+            if ( dataBuilderVars.hasUseMethodArg(method) ) {
+                sbNormalMethod.append(TAB2).append("if (").append(dataBuilderVars.methodFieldMap.get(method)).append(" == null ) ");
+                sbNormalMethod.append(dataBuilderVars.methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
+                        .append("\"");
+                if ( AopUtil.hasParameters(method) ) {
+                    sbNormalMethod.append(", ");
+                }
+                sbNormalMethod.append(AopUtil.getParameterTypes(method)).append(");\n").append("\n");
+            }
+
+            // 使用上下文时，初始化
             if ( hasAopContext ) {
                 sbNormalMethod.append(TAB2).append("AopContext context = new AopContext(System.currentTimeMillis());").append("\n");
             }

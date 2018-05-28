@@ -4,25 +4,20 @@ import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
 
-public class Src92SuperClassCreater {
+public class Src92EnhanceSuperClassCreater {
 
-    private static final Log       log  = LoggerFactory.getLogger(Src92SuperClassCreater.class);
+    private static final Log         log  = LoggerFactory.getLogger(Src92EnhanceSuperClassCreater.class);
 
-    private String                 TAB1 = "    ";
-    private String                 TAB2 = TAB1 + TAB1;
+    private static final String      TAB1 = "    ";
 
-    private DataBuilderVars            dataBuilderVars;
-    private AopMethodArgsMapping   aopMethodArgsMapping;
+    private DataBuilderVars          dataBuilderVars;
     private Src00ConstructorCreater  src00ConstructorCreater;
     private Src11AroundMethodCreater src11AroundMethodCreater;
-    private Src21NormalMethodCreater src21NormalMethodCreater;
 
-    public Src92SuperClassCreater(DataBuilderVars dataBuilderVars) {
+    public Src92EnhanceSuperClassCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
-        this.aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
         this.src00ConstructorCreater = new Src00ConstructorCreater(dataBuilderVars);
         this.src11AroundMethodCreater = new Src11AroundMethodCreater(dataBuilderVars);
-        this.src21NormalMethodCreater = new Src21NormalMethodCreater(dataBuilderVars);
     }
 
     /**
@@ -39,8 +34,8 @@ public class Src92SuperClassCreater {
 
         if ( seq == 0 ) {
             // protected Method varMethod
-            dataBuilderVars.methodFieldMap.keySet().forEach(
-                    method -> sbMethodField.append(TAB1).append("protected Method ").append(dataBuilderVars.methodFieldMap.get(method)).append(";\n"));
+            dataBuilderVars.methodFieldMap.keySet().forEach(method -> sbMethodField.append(TAB1).append("protected Method ")
+                    .append(dataBuilderVars.methodFieldMap.get(method)).append(";\n"));
             // protected SuperInvoker varSuperInvoker
             dataBuilderVars.superInvokerFieldMap.keySet().forEach(method -> sbSuperInvokerField.append(TAB1).append("protected SuperInvoker ")
                     .append(dataBuilderVars.superInvokerFieldMap.get(method)).append(";\n"));
@@ -70,7 +65,6 @@ public class Src92SuperClassCreater {
         sbClass.append("package ").append(dataBuilderVars.clas.getPackage().getName()).append(";\n");
         sbClass.append("\n");
         sbClass.append("import java.lang.reflect.Method;").append("\n");
-        sbClass.append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.util.AopUtil;").append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.Enhance;").append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.SuperInvoker;").append("\n");

@@ -12,7 +12,7 @@ public class Src10BeforeCreater {
     private String               TAB1 = "    ";
     private String               TAB2 = TAB1 + TAB1;
 
-    private DataBuilderVars          dataBuilderVars;
+    private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;
 
     public Src10BeforeCreater(DataBuilderVars dataBuilderVars) {
@@ -34,8 +34,8 @@ public class Src10BeforeCreater {
 
         for ( DataMethodSrcInfo info : list ) {
             // 前5个参数判断类型自动入参
-            StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Before.class.getSimpleName(),
-                    info.varMethod, "null", "null");
+            StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Before.class, info.varMethod, "null",
+                    "null");
 
             buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(").append(sbAopMethodParams);
             String parameterNames = AopUtil.getParameterNames(method, info.aopMethod);

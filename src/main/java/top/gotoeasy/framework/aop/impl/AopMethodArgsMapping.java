@@ -1,5 +1,6 @@
 package top.gotoeasy.framework.aop.impl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import top.gotoeasy.framework.aop.AopContext;
@@ -8,10 +9,21 @@ import top.gotoeasy.framework.aop.SuperInvoker;
 import top.gotoeasy.framework.aop.annotation.Around;
 import top.gotoeasy.framework.core.util.CmnString;
 
+/**
+ * AOP调用参数匹配类
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
 public class AopMethodArgsMapping {
 
     private DataBuilderVars dataBuilderVars;
 
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
     public AopMethodArgsMapping(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
     }
@@ -27,8 +39,8 @@ public class AopMethodArgsMapping {
      * @param varExceptionName 异常对象变量名
      * @return 入参代码片段StringBuilder
      */
-    public StringBuilder mappingArgs(Method method, Method aopMethod, String aopType, String varMethodName, String varSuperInvokerName,
-            String varExceptionName) {
+    public StringBuilder mappingArgs(Method method, Method aopMethod, Class<? extends Annotation> aopClass, String varMethodName,
+            String varSuperInvokerName, String varExceptionName) {
 
         StringBuilder buf = new StringBuilder();
         Class<?>[] aopParamClass = aopMethod.getParameterTypes();
@@ -40,11 +52,12 @@ public class AopMethodArgsMapping {
                 var = "this";
             } else if ( Method.class.isAssignableFrom(paramClass) ) {
                 var = varMethodName;
+                dataBuilderVars.argMethodList.add(method); // 此方法要被作为参数使用
             } else if ( SuperInvoker.class.isAssignableFrom(paramClass) ) {
                 var = varSuperInvokerName;
             } else if ( AopContext.class.isAssignableFrom(paramClass) ) {
                 var = "context";
-                setMethodContextInfo(method, aopType);
+                setMethodContextInfo(method, aopClass.getSimpleName());
             } else if ( Exception.class.isAssignableFrom(paramClass) ) {
                 var = varExceptionName;
             }

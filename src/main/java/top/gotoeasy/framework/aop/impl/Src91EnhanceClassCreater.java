@@ -6,17 +6,16 @@ import top.gotoeasy.framework.core.log.LoggerFactory;
 
 public class Src91EnhanceClassCreater {
 
-    private static final Log       log  = LoggerFactory.getLogger(Src91EnhanceClassCreater.class);
+    private static final Log         log  = LoggerFactory.getLogger(Src91EnhanceClassCreater.class);
 
-    private String                 TAB1 = "    ";
-    private String                 TAB2 = TAB1 + TAB1;
+    private static final String      TAB1 = "    ";
 
-    private DataBuilderVars            dataBuilderVars;
+    private DataBuilderVars          dataBuilderVars;
     private Src00ConstructorCreater  src00ConstructorCreater;
     private Src11AroundMethodCreater src11AroundMethodCreater;
     private Src21NormalMethodCreater src21NormalMethodCreater;
 
-    public Src91EnhanceClassCreater(DataBuilderVars dataBuilderVars) {
+    public Src91EnhanceClassCreater(DataBuilderVars dataBuilderVars, AopMethodArgsMapping aopMethodArgsMapping) {
         this.dataBuilderVars = dataBuilderVars;
         this.src00ConstructorCreater = new Src00ConstructorCreater(dataBuilderVars);
         this.src11AroundMethodCreater = new Src11AroundMethodCreater(dataBuilderVars);
@@ -69,7 +68,6 @@ public class Src91EnhanceClassCreater {
         sbClass.append("package ").append(dataBuilderVars.clas.getPackage().getName()).append(";\n");
         sbClass.append("\n");
         sbClass.append("import java.lang.reflect.Method;").append("\n");
-        sbClass.append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.util.AopUtil;").append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.Enhance;").append("\n");
         sbClass.append("import top.gotoeasy.framework.aop.SuperInvoker;").append("\n");
@@ -79,7 +77,7 @@ public class Src91EnhanceClassCreater {
         if ( dataBuilderVars.methodAroundSuperList.isEmpty() ) {
             sbClass.append(dataBuilderVars.clas.getSimpleName()).append(" implements Enhance {");
         } else {
-            int max = dataBuilderVars.getMaxSizeOfMethodAroundList();
+            int max = dataBuilderVars.getMaxMethodAroundCount();
             sbClass.append(AopUtil.getAroundMiddleClassSimpleName(dataBuilderVars.clas, max, max - 1)).append(" {");
         }
         sbClass.append("\n");

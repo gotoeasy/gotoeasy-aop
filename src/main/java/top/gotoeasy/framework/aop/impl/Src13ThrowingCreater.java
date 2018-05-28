@@ -12,7 +12,7 @@ public class Src13ThrowingCreater {
     private String               TAB1 = "    ";
     private String               TAB2 = TAB1 + TAB1;
 
-    private DataBuilderVars          dataBuilderVars;
+    private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;
 
     public Src13ThrowingCreater(DataBuilderVars dataBuilderVars) {
@@ -33,8 +33,8 @@ public class Src13ThrowingCreater {
         list.sort((info1, info2) -> info1.aopOrder - info2.aopOrder);
         for ( DataMethodSrcInfo info : list ) {
             // 前5个参数判断类型自动入参
-            StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Throwing.class.getSimpleName(),
-                    info.varMethod, "null", "ex");
+            StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Throwing.class, info.varMethod, "null",
+                    "ex");
 
             buf.append(TAB2).append(info.varAopObj).append(".").append(info.aopMethodName).append("(").append(sbAopMethodParams);
             String parameterNames = AopUtil.getParameterNames(method, info.aopMethod);

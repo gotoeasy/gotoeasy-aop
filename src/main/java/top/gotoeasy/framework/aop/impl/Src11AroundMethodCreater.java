@@ -12,12 +12,12 @@ public class Src11AroundMethodCreater {
     private String               TAB1 = "    ";
     private String               TAB2 = TAB1 + TAB1;
 
-    private DataBuilderVars          dataBuilderVars;
+    private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;
 
     public Src11AroundMethodCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
-        aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
+        this.aopMethodArgsMapping = new AopMethodArgsMapping(dataBuilderVars);
     }
 
     public StringBuilder getAroundMethodSrc(int seq) {
@@ -57,15 +57,19 @@ public class Src11AroundMethodCreater {
             DataMethodSrcInfo info = dataBuilderVars.methodAroundSrcInfoMap1.get(method);
             sbAroundMethod.append(TAB1).append("@Override").append("\n");
             sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "")).append(" {\n");
-            // method$abc变量初始化
-            sbAroundMethod.append(TAB2).append("if (").append(dataBuilderVars.methodFieldMap.get(method)).append(" == null ) ");
-            sbAroundMethod.append(dataBuilderVars.methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
-                    .append("\"");
-            String parameterTypes = AopUtil.getParameterTypes(method);
-            if ( CmnString.isNotBlank(parameterTypes) ) {
-                sbAroundMethod.append(", ").append(parameterTypes);
+
+            // 使用方法参数时，初始化
+            if ( dataBuilderVars.hasUseMethodArg(method) ) {
+                sbAroundMethod.append(TAB2).append("if (").append(dataBuilderVars.methodFieldMap.get(method)).append(" == null ) ");
+                sbAroundMethod.append(dataBuilderVars.methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
+                        .append("\"");
+                String parameterTypes = AopUtil.getParameterTypes(method);
+                if ( CmnString.isNotBlank(parameterTypes) ) {
+                    sbAroundMethod.append(", ").append(parameterTypes);
+                }
+                sbAroundMethod.append(");\n");
             }
-            sbAroundMethod.append(");\n");
+
             // superInvoker$abc变量初始化
             if ( hasReturn ) {
                 sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
@@ -79,8 +83,8 @@ public class Src11AroundMethodCreater {
             sbAroundMethod.append("\n");
 
             // 前5个参数判断类型自动入参
-            StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Around.class.getSimpleName(),
-                    info.varMethod, info.varSuperInvoker, "null");
+            StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Around.class, info.varMethod,
+                    info.varSuperInvoker, "null");
 
             if ( !hasReturn ) {
                 // 无返回值
@@ -135,14 +139,17 @@ public class Src11AroundMethodCreater {
 
         sbAroundMethod.append(TAB1).append("@Override").append("\n");
         sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "")).append(" {\n");
-        // superInvoker$abc变量初始化
-        sbAroundMethod.append(TAB2).append("if (").append(dataBuilderVars.methodFieldMap.get(method)).append(" == null ) ");
-        sbAroundMethod.append(dataBuilderVars.methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\"");
-        String parameterTypes = AopUtil.getParameterTypes(method);
-        if ( CmnString.isNotBlank(parameterTypes) ) {
-            sbAroundMethod.append(", ").append(parameterTypes);
+        // 使用方法参数时，初始化
+        if ( dataBuilderVars.hasUseMethodArg(method) ) {
+            sbAroundMethod.append(TAB2).append("if (").append(dataBuilderVars.methodFieldMap.get(method)).append(" == null ) ");
+            sbAroundMethod.append(dataBuilderVars.methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
+                    .append("\"");
+            String parameterTypes = AopUtil.getParameterTypes(method);
+            if ( CmnString.isNotBlank(parameterTypes) ) {
+                sbAroundMethod.append(", ").append(parameterTypes);
+            }
+            sbAroundMethod.append(");\n");
         }
-        sbAroundMethod.append(");\n");
         // superInvoker$abc变量初始化
         if ( hasReturn ) {
             sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
@@ -156,7 +163,7 @@ public class Src11AroundMethodCreater {
         sbAroundMethod.append("\n");
 
         // 前5个参数判断类型自动入参
-        StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Around.class.getSimpleName(), info.varMethod,
+        StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Around.class, info.varMethod,
                 info.varSuperInvoker, "null");
 
         if ( hasReturn ) {

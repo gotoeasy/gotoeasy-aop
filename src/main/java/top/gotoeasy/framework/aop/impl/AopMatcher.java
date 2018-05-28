@@ -25,13 +25,24 @@ import top.gotoeasy.framework.core.log.LoggerFactory;
 import top.gotoeasy.framework.core.reflect.MethodScaner;
 import top.gotoeasy.framework.core.util.CmnString;
 
-public class AopDataMatcher {
+/**
+ * AOP拦截匹配器
+ * 
+ * @author 青松
+ * @since 2018/04
+ */
+public class AopMatcher {
 
-    private static final Log log = LoggerFactory.getLogger(AopDataMatcher.class);
+    private static final Log log = LoggerFactory.getLogger(AopMatcher.class);
 
-    private DataBuilderVars      dataBuilderVars;
+    private DataBuilderVars  dataBuilderVars;
 
-    public AopDataMatcher(DataBuilderVars dataBuilderVars) {
+    /**
+     * 构造方法
+     * 
+     * @param dataBuilderVars 公用变量
+     */
+    public AopMatcher(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
     }
 
@@ -70,7 +81,9 @@ public class AopDataMatcher {
             dataBuilderVars.methodSuperMap.put(method, false);
         }
 
-        dataBuilderVars.methodSuperMap.keySet().forEach(method -> dataBuilderVars.methodDesc.put(method, AopUtil.getMethodDesc(dataBuilderVars.clas, method)));
+        // 初始化待匹配的方法描述字符串
+        dataBuilderVars.methodSuperMap.keySet()
+                .forEach(method -> dataBuilderVars.methodDesc.put(method, AopUtil.getMethodDesc(dataBuilderVars.clas, method)));
 
         int modifiers;
         for ( Method method : dataBuilderVars.methodSuperMap.keySet() ) {
@@ -81,9 +94,11 @@ public class AopDataMatcher {
             }
 
             for ( Object aopObj : dataBuilderVars.aopList ) {
+                // 检查@Aop，仅声明@Aop的拦截处理类才起作用
                 if ( aopObj.getClass().isAnnotationPresent(Aop.class) ) {
-                    // 检查@Aop
                     matchMethodWithAopObject(method, aopObj);
+                } else {
+                    log.warn("类缺@Aop声明，该拦截处理对象不起拦截作用：{}", aopObj);
                 }
             }
         }
