@@ -52,7 +52,9 @@ public class AopMethodArgsMapping {
                 var = "this";
             } else if ( Method.class.isAssignableFrom(paramClass) ) {
                 var = varMethodName;
-                dataBuilderVars.argMethodList.add(method); // 此方法要被作为参数使用
+                if ( !dataBuilderVars.argMethodList.contains(method) ) {
+                    dataBuilderVars.argMethodList.add(method); // 此方法要被作为参数使用
+                }
             } else if ( SuperInvoker.class.isAssignableFrom(paramClass) ) {
                 var = varSuperInvokerName;
             } else if ( AopContext.class.isAssignableFrom(paramClass) ) {

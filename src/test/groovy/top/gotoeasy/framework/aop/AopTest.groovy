@@ -364,4 +364,14 @@ class AopTest extends Specification {
 
         testAop.getCnt() == 11
     }
+
+    @Test
+    public void "18 TestNoAop"() {
+
+        expect:
+        def testAop = new TestAop1();
+        Object obj = EnhanceBuilder.get().setSuperclass(HashMap.class).matchAop( testAop).build();
+
+        obj.getClass() == HashMap.class
+    }
 }

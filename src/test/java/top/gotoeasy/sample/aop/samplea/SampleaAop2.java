@@ -22,7 +22,7 @@ public class SampleaAop2 {
         return (double)superInvoker.invoke(args) + 1;
     }
 
-    @After(value = "*.compute(*)", classes = SampleaBean.class)
+    @After(classes = SampleaBean.class)
     public void after(AopContext context, Method method) {
         log.info("计算结果 ......... {}", context.getResult());
         log.info("after Method......... {}", method);

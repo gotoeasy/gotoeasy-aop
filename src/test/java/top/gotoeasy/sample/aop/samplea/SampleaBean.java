@@ -16,4 +16,8 @@ public class SampleaBean {
     public void print(int a) {
         log.debug("print {}", a);
     }
+
+    public void print2(int a) {
+        log.debug("print2 {}", a);
+    }
 }

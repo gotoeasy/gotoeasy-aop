@@ -17,7 +17,7 @@ public class SampleaAop1 {
 
     private static final Log log = LoggerFactory.getLogger(SampleaAop1.class);
 
-    @Before(value = "xxxxxx", classes = LoggerFactory.class)
+    @Before(value = "xxxxx", classes = SampleaBean.class)
     public void nouse(AopContext context) {
         log.info("before .........");
     }
@@ -27,40 +27,40 @@ public class SampleaAop1 {
         log.info("before .........");
     }
 
-    @After(classes = LoggerFactory.class)
+    @After(classes = SampleaBean.class)
     public void after(AopContext context) {
         log.info("after .........");
     }
 
-    @Throwing(classes = LoggerFactory.class)
+    @Throwing(classes = SampleaBean.class)
     public void throwing() {
         log.info("throwing .........");
     }
 
-    @Last(classes = LoggerFactory.class)
+    @Last(classes = SampleaBean.class)
     public void last(AopContext context) {
         log.info("last .........");
     }
 
-    @Around(classes = LoggerFactory.class, order = 1)
+    @Around(classes = SampleaBean.class, order = 1)
     public Object around1(SuperInvoker superInvoker, Object ... args) {
         log.info("around1 .........");
         return superInvoker.invoke(args);
     }
 
-    @Around(classes = LoggerFactory.class, order = 2)
+    @Around(classes = SampleaBean.class, order = 2)
     public Object around2(Enhance enhance, SuperInvoker superInvoker, Object ... args) {
         log.info("around2 .........");
         return superInvoker.invoke(args);
     }
 
-    @Around(classes = LoggerFactory.class, order = 3)
+    @Around(classes = SampleaBean.class, order = 3)
     public Object around3(Enhance enhance, SuperInvoker superInvoker, Object ... args) {
         log.info("around3 .........");
         return superInvoker.invoke(args);
     }
 
-    @Around(classes = LoggerFactory.class, order = 4)
+    @Around(classes = SampleaBean.class, order = 4)
     public Object around4(Enhance enhance, SuperInvoker superInvoker, Object ... args) {
         log.info("around4 .........");
         return superInvoker.invoke(args);

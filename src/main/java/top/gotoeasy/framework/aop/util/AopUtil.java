@@ -301,40 +301,11 @@ public class AopUtil {
      * </p>
      * 
      * @param clas 被代理类
-     * @return 中间类的类名(含包名)
-     */
-    public static String getAroundMiddleClassName(Class<?> clas) {
-        return clas.getName() + "$$gotoeasy$$AroundBase";
-    }
-
-    /**
-     * 取得中间类的类名(不含包名)
-     * <p>
-     * 中间类的类名 = 被代理类的类名 + "$$gotoeasy$$AroundBase"
-     * </p>
-     * 
-     * @param clas 被代理类
-     * @return 中间类的类名(不含包名)
-     */
-    public static String getAroundMiddleClassSimpleName(Class<?> clas) {
-        return clas.getSimpleName() + "$$gotoeasy$$AroundBase";
-    }
-
-    /**
-     * 取得中间类的类名(含包名)
-     * <p>
-     * 中间类的类名 = 被代理类的类名 + "$$gotoeasy$$AroundBase"
-     * </p>
-     * 
-     * @param clas 被代理类
      * @param max 中间类最大数
      * @param order 中间类序号
      * @return 中间类的类名(含包名)
      */
     public static String getAroundMiddleClassName(Class<?> clas, int max, int order) {
-        if ( max == order ) {
-            return getEnhanceClassName(clas);
-        }
         return clas.getName() + "$$gotoeasy$$Base" + max + "$" + (order + 1);
     }
 

@@ -100,29 +100,10 @@ public class DataBuilderVars {
     /**
      * 拦截目标类
      * 
-     * @return 拦截目标类
-     */
-    public Class<?> getTargetClass() {
-        return clas;
-    }
-
-    /**
-     * 拦截目标类
-     * 
      * @param clas 拦截目标类
      */
     public void setTargetClass(Class<?> clas) {
         this.clas = clas;
-    }
-
-    /**
-     * 目标类构造方法
-     * 
-     * @return 目标类构造方法
-     */
-    @SuppressWarnings("rawtypes")
-    public Constructor getConstructor() {
-        return constructor;
     }
 
     /**
