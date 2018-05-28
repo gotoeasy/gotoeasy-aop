@@ -39,7 +39,7 @@ public class ProxyObjectCreater {
     public ProxyObjectCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.aopMatcher = new AopMatcher(dataBuilderVars);
-        this.src91EnhanceClassCreater = new Src91EnhanceClassCreater(dataBuilderVars, new AopMethodArgsMapping(dataBuilderVars));
+        this.src91EnhanceClassCreater = new Src91EnhanceClassCreater(dataBuilderVars);
         this.src92EnhanceSuperClassCreater = new Src92EnhanceSuperClassCreater(dataBuilderVars);
     }
 
@@ -76,7 +76,7 @@ public class ProxyObjectCreater {
         }
 
         // 代理类的类名
-        String className = AopUtil.getEnhanceName(dataBuilderVars.clas);
+        String className = AopUtil.getEnhanceClassName(dataBuilderVars.clas);
         Map<String, String> map = new HashMap<>();
         // 创建中间类源码
         int maxSize = dataBuilderVars.getMaxMethodAroundCount();

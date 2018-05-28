@@ -82,7 +82,7 @@ public class Src92EnhanceSuperClassCreater {
         sbClass.append(sbSuperInvokerField);
         sbClass.append(sbAopField);
         sbClass.append("\n");
-        sbClass.append(src00ConstructorCreater.getConstructorSrc());
+        sbClass.append(src00ConstructorCreater.getConstructorSrc(max, seq));
         sbClass.append("\n");
         sbClass.append(sbAroundMethod);
         sbClass.append("}").append("\n");

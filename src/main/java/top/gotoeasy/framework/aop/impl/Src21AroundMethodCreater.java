@@ -64,18 +64,6 @@ public class Src21AroundMethodCreater {
             sbAroundMethod.append(TAB1).append("@Override").append("\n");
             sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "")).append(" {\n");
 
-            // 使用方法参数时，初始化
-            if ( dataBuilderVars.hasUseMethodArg(method) ) {
-                sbAroundMethod.append(TAB2).append("if (").append(dataBuilderVars.methodFieldMap.get(method)).append(" == null ) ");
-                sbAroundMethod.append(dataBuilderVars.methodFieldMap.get(method)).append(" = AopUtil.getMethod(this, \"").append(method.getName())
-                        .append("\"");
-                String parameterTypes = AopUtil.getParameterTypes(method);
-                if ( CmnString.isNotBlank(parameterTypes) ) {
-                    sbAroundMethod.append(", ").append(parameterTypes);
-                }
-                sbAroundMethod.append(");\n");
-            }
-
             // superInvoker$abc变量初始化
             if ( hasReturn ) {
                 sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");

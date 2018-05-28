@@ -15,7 +15,7 @@ public class Src91EnhanceClassCreater {
     private Src21AroundMethodCreater src21AroundMethodCreater;
     private Src22NormalMethodCreater src22NormalMethodCreater;
 
-    public Src91EnhanceClassCreater(DataBuilderVars dataBuilderVars, AopMethodArgsMapping aopMethodArgsMapping) {
+    public Src91EnhanceClassCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.src00ConstructorCreater = new Src00ConstructorCreater(dataBuilderVars);
         this.src21AroundMethodCreater = new Src21AroundMethodCreater(dataBuilderVars);
@@ -74,10 +74,10 @@ public class Src91EnhanceClassCreater {
         sbClass.append("import top.gotoeasy.framework.aop.AopContext;").append("\n");
         sbClass.append("\n");
         sbClass.append("public class ").append(AopUtil.getEnhanceSimpleName(dataBuilderVars.clas)).append(" extends ");
+        int max = dataBuilderVars.getMaxMethodAroundCount();
         if ( dataBuilderVars.methodAroundSuperList.isEmpty() ) {
             sbClass.append(dataBuilderVars.clas.getSimpleName()).append(" implements Enhance {");
         } else {
-            int max = dataBuilderVars.getMaxMethodAroundCount();
             sbClass.append(AopUtil.getAroundMiddleClassSimpleName(dataBuilderVars.clas, max, max - 1)).append(" {");
         }
         sbClass.append("\n");
@@ -85,7 +85,7 @@ public class Src91EnhanceClassCreater {
         sbClass.append(sbSuperInvokerField);
         sbClass.append(sbAopField);
         sbClass.append("\n");
-        sbClass.append(src00ConstructorCreater.getConstructorSrc());
+        sbClass.append(src00ConstructorCreater.getConstructorSrc(max, max));
         sbClass.append("\n");
         sbClass.append(sbNormalMethod);
         sbClass.append("\n");

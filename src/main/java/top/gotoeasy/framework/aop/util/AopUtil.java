@@ -164,10 +164,11 @@ public class AopUtil {
      * @return 方法的参数定义源码
      */
     public static String getParameterDefines(Constructor<?> constructor) {
-        Class<?>[] paramTypes = constructor.getParameterTypes();
-        if ( paramTypes.length == 0 ) {
+        if ( constructor == null || constructor.getParameterCount() == 0 ) {
             return "";
         }
+
+        Class<?>[] paramTypes = constructor.getParameterTypes();
 
         StringBuilder sb = new StringBuilder();
         for ( int i = 0; i < paramTypes.length; i++ ) {
@@ -226,6 +227,9 @@ public class AopUtil {
      * @return 方法的参数名源码
      */
     public static String getParameterNames(Constructor<?> constructor) {
+        if ( constructor == null ) {
+            return "";
+        }
 
         StringBuilder sb = new StringBuilder();
         for ( int i = 0; i < constructor.getParameterCount(); i++ ) {
@@ -273,7 +277,7 @@ public class AopUtil {
      * @param clas 被代理类
      * @return 代理类的类名(含包名)
      */
-    public static String getEnhanceName(Class<?> clas) {
+    public static String getEnhanceClassName(Class<?> clas) {
         return clas.getName() + "$$gotoeasy$$";
     }
 
@@ -328,6 +332,9 @@ public class AopUtil {
      * @return 中间类的类名(含包名)
      */
     public static String getAroundMiddleClassName(Class<?> clas, int max, int order) {
+        if ( max == order ) {
+            return getEnhanceClassName(clas);
+        }
         return clas.getName() + "$$gotoeasy$$Base" + max + "$" + (order + 1);
     }
 
@@ -343,6 +350,9 @@ public class AopUtil {
      * @return 中间类的类名(含包名)
      */
     public static String getAroundMiddleClassSimpleName(Class<?> clas, int max, int order) {
+        if ( max == order ) {
+            return getEnhanceSimpleName(clas);
+        }
         return clas.getSimpleName() + "$$gotoeasy$$Base" + max + "$" + (order + 1);
     }
 

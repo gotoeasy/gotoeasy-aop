@@ -29,16 +29,35 @@ public class Src00ConstructorCreater {
      * 
      * @return 构造方法代码
      */
-    public StringBuilder getConstructorSrc() {
+    public StringBuilder getConstructorSrc(int max, int seq) {
         StringBuilder buf = new StringBuilder();
-        if ( dataBuilderVars.constructor == null ) {
-            return buf;
+        String simpleClassName = AopUtil.getAroundMiddleClassSimpleName(dataBuilderVars.clas, max, seq);
+
+        if ( max == seq || dataBuilderVars.constructor != null ) {
+            buf.append(TAB1).append("public ").append(simpleClassName).append("(").append(AopUtil.getParameterDefines(dataBuilderVars.constructor))
+                    .append("){").append("\n");
+            buf.append(TAB2).append("super(").append(AopUtil.getParameterNames(dataBuilderVars.constructor)).append(");").append("\n");
+
+            if ( max == seq ) {
+                buf.append(getInitMethodVarsSrc());
+            }
+
+            buf.append(TAB1).append("}").append("\n");
         }
 
-        buf.append(TAB1).append("public ").append(AopUtil.getEnhanceSimpleName(dataBuilderVars.clas)).append("(")
-                .append(AopUtil.getParameterDefines(dataBuilderVars.constructor)).append("){").append("\n");
-        buf.append(TAB2).append("super(").append(AopUtil.getParameterNames(dataBuilderVars.constructor)).append(");").append("\n");
-        buf.append(TAB1).append("}").append("\n");
+        return buf;
+    }
+
+    private StringBuilder getInitMethodVarsSrc() {
+        StringBuilder buf = new StringBuilder();
+        dataBuilderVars.argMethodList.forEach(method -> {
+            buf.append(TAB2).append(dataBuilderVars.methodFieldMap.get(method));
+            buf.append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\"");
+            if ( AopUtil.hasParameters(method) ) {
+                buf.append(", ");
+            }
+            buf.append(AopUtil.getParameterTypes(method)).append(");").append("\n");
+        });
         return buf;
     }
 
