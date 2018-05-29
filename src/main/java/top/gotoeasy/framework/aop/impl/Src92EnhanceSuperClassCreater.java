@@ -35,7 +35,7 @@ public class Src92EnhanceSuperClassCreater {
      * 创建环绕拦截中间类源码
      * 
      * @param max 中间类最大数
-     * @param order 中间类序号
+     * @param seq 中间类序号
      * @return 环绕拦截中间类源码
      */
     public String createAroundMiddleClassCode(int max, int seq) {

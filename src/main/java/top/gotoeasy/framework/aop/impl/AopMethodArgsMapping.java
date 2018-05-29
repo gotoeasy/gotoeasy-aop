@@ -33,7 +33,7 @@ public class AopMethodArgsMapping {
      * 
      * @param method 被拦截的目标方法
      * @param aopMethod 拦截处理方法
-     * @param aopType 拦截类型（Around/Before/After/Throwing/Last）
+     * @param aopClass 拦截注解类
      * @param varMethodName 目标方法变量名
      * @param varSuperInvokerName 原方法调用器变量名
      * @param varExceptionName 异常对象变量名

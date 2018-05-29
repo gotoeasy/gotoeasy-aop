@@ -32,7 +32,6 @@ public class Src22NormalMethodCreater {
     /**
      * 普通拦截方法代码生成
      * 
-     * @param seq 当前序号
      * @return 普通拦截方法代码
      */
     public StringBuilder getNormalMethodSrc() {
