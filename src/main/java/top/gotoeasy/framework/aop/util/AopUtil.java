@@ -275,8 +275,8 @@ public class AopUtil {
      * @param method 方法
      * @return true:是/fasle:否
      */
-    public static boolean isVoid(Method method) {
-        return void.class.equals(method.getReturnType());
+    public static boolean hasReturnType(Method method) {
+        return !void.class.equals(method.getReturnType());
     }
 
     /**

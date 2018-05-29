@@ -15,8 +15,7 @@ import top.gotoeasy.framework.core.util.CmnString;
  */
 public class Src14LastCreater {
 
-    private String               TAB1 = "    ";
-    private String               TAB2 = TAB1 + TAB1;
+    private static final String  TAB2 = "        ";
 
     private DataBuilderVars      dataBuilderVars;
     private AopMethodArgsMapping aopMethodArgsMapping;

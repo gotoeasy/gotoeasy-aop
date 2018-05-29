@@ -448,7 +448,7 @@ public class AopMatcher {
      */
     private void checkAop(Method method, Method aopMethod, boolean isAround) {
         // 方法返回类型检查
-        if ( isAround && !AopUtil.isVoid(method) && AopUtil.isVoid(aopMethod) ) {
+        if ( isAround && AopUtil.hasReturnType(method) && !AopUtil.hasReturnType(aopMethod) ) {
             log.error("拦截处理漏返回类型缺失，应和目标方法一致");
             log.error("   目标方法：{}", method);
             log.error("   拦截处理：{}", aopMethod);

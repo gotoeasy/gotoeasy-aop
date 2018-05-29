@@ -92,12 +92,7 @@ public class Src22NormalMethodCreater {
     private void setMethodBlockSrc(Method method, StringBuilder sbNormalMethod, StringBuilder sbAfterSrc, boolean hasAfter, boolean hasContextResult,
             boolean hasAfterUseContext) {
 
-        if ( AopUtil.isVoid(method) ) {
-            // 无返回值
-            sbNormalMethod.append(TAB2).append("super.").append(method.getName()).append("(").append(AopUtil.getParameterNames(method, null))
-                    .append(");\n");
-            sbNormalMethod.append(sbAfterSrc); // After
-        } else {
+        if ( AopUtil.hasReturnType(method) ) {
             // 有返回值
             if ( hasAfter ) {
                 setAfterBlockSrc(method, sbNormalMethod, sbAfterSrc, hasContextResult, hasAfterUseContext);
@@ -116,6 +111,11 @@ public class Src22NormalMethodCreater {
                             .append(AopUtil.getParameterNames(method, null)).append(");\n");
                 }
             }
+        } else {
+            // 无返回值
+            sbNormalMethod.append(TAB2).append("super.").append(method.getName()).append("(").append(AopUtil.getParameterNames(method, null))
+                    .append(");\n");
+            sbNormalMethod.append(sbAfterSrc); // After
         }
 
     }

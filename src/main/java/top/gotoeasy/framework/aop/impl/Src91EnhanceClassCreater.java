@@ -18,7 +18,6 @@ public class Src91EnhanceClassCreater {
 
     private DataBuilderVars          dataBuilderVars;
     private Src00ConstructorCreater  src00ConstructorCreater;
-    private Src21AroundMethodCreater src21AroundMethodCreater;
     private Src22NormalMethodCreater src22NormalMethodCreater;
 
     /**
@@ -29,7 +28,6 @@ public class Src91EnhanceClassCreater {
     public Src91EnhanceClassCreater(DataBuilderVars dataBuilderVars) {
         this.dataBuilderVars = dataBuilderVars;
         this.src00ConstructorCreater = new Src00ConstructorCreater(dataBuilderVars);
-        this.src21AroundMethodCreater = new Src21AroundMethodCreater(dataBuilderVars);
         this.src22NormalMethodCreater = new Src22NormalMethodCreater(dataBuilderVars);
     }
 
@@ -56,8 +54,6 @@ public class Src91EnhanceClassCreater {
                     .append(" ").append(dataBuilderVars.aopObjFieldMap.get(aopObj)).append(";\n"));
         }
 
-        // AroundMethod
-        StringBuilder sbAroundMethod = src21AroundMethodCreater.getAroundMethodSrc(false);
         // NormalMethod
         StringBuilder sbNormalMethod = src22NormalMethodCreater.getNormalMethodSrc();
         // Class
@@ -100,7 +96,6 @@ public class Src91EnhanceClassCreater {
         sbClass.append("\n");
         sbClass.append(sbNormalMethod);
         sbClass.append("\n");
-        sbClass.append(sbAroundMethod);
         sbClass.append("}").append("\n");
 
         String srcCode = sbClass.toString();
