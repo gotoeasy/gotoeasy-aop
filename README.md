@@ -5,7 +5,7 @@
 
 
 # `gotoeasy-aop`
-基于JavaCompiler的AOP实现，提供另一种折中的AOP实现方式
+基于JavaCompiler的继承方式AOP实现，在性能优良的基础上，提供更多的简易性。
 
 
 Maven使用
@@ -94,13 +94,15 @@ Total: 6, Count = 3
 ```
 
 ## `gotoeasy-aop特性`
-- 参考CGLIB，通过动态生成子类继承的方式实现代理，避免接口要求
-- 仅匹配的拦截方法才会被重写实现，而不是把全部能继承的public方法都重写代理掉，再也不必担心hashCode/toString/equals等方法被代理的副作用了
-- 进一步简化AOP程序的编写实现，拦截程序本身也没有接口的要求
-- 有实用性，经过各种尝试后的一调再调，性能已是越战越勇状态
+- 通过动态生成子类继承的方式实现代理（不能继承的不支持），避免目标类的接口要求
+- 提供丰富灵活的目标方法匹配方式，拦截你想要拦截的方法，不少拦也不多拦
+- 目标方法可以被多个拦截处理多次拦截，提供拦截顺序设定功能，有序管理拦截处理程序的执行
+- 简化AOP程序的编写实现，拦截程序本身也没有接口的要求
+- 针对拦截处理的方法参数，提供高度的灵活性，按需编写，清爽，同时也有效降低参数转换的性能损失
+- 当前实现是经过各种实验后的选定，性能已是越战越勇状态
 
 ## `gotoeasy-aop性能测试列举`
-Around拦截（Sample2），（测试机环境：win8.1，64位，8G内存，i5-4200U）
+Around拦截（Sample2），（测试机环境：Java8，win8.1，64位，8G内存，i5-4200U）
 随着调用次数的增多可以被优化，消耗时间并没有直线上升
 
 |No.|调用次数|直接调用|gotoeasy-aop|cglib3.2.4|
@@ -140,6 +142,7 @@ Around拦截（Sample2），（测试机环境：win8.1，64位，8G内存，i5-
 - `gotoeasy-core` http://github.com/gotoeasy/gotoeasy-core/
 - `gotoeasy-aop` http://github.com/gotoeasy/gotoeasy-aop/
 - `gotoeasy-rmi` http://github.com/gotoeasy/gotoeasy-rmi/
+- `gotoeasy-rmi` http://github.com/gotoeasy/gotoeasy-orm/
 - TODO
 - TODO
 - TODO
