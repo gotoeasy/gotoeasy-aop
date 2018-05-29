@@ -92,7 +92,7 @@ public class Src22NormalMethodCreater {
     private void setMethodBlockSrc(Method method, StringBuilder sbNormalMethod, StringBuilder sbAfterSrc, boolean hasAfter, boolean hasContextResult,
             boolean hasAfterUseContext) {
 
-        if ( void.class.equals(method.getReturnType()) ) {
+        if ( AopUtil.isVoid(method) ) {
             // 无返回值
             sbNormalMethod.append(TAB2).append("super.").append(method.getName()).append("(").append(AopUtil.getParameterNames(method, null))
                     .append(");\n");

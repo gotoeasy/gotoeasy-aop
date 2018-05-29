@@ -24,7 +24,7 @@ public class SampleaAop2 {
 
     @After(classes = SampleaBean.class)
     public void after(AopContext context, Method method) {
-        log.info("计算结果 ......... {}", context.getResult());
+        log.info("after 计算结果 ......... {}", context.getResult());
         log.info("after Method......... {}", method);
     }
 }

@@ -22,45 +22,45 @@ public class SampleaAop1 {
         log.info("before .........");
     }
 
-    @Before(classes = SampleaBean.class)
+    @Before(classes = LoggerFactory.class)
     public void before() {
         log.info("before .........");
     }
 
-    @After(classes = SampleaBean.class)
+    @After(classes = LoggerFactory.class)
     public void after(AopContext context) {
         log.info("after .........");
     }
 
-    @Throwing(classes = SampleaBean.class)
+    @Throwing(classes = LoggerFactory.class)
     public void throwing() {
         log.info("throwing .........");
     }
 
-    @Last(classes = SampleaBean.class)
+    @Last(classes = LoggerFactory.class)
     public void last(AopContext context) {
         log.info("last .........");
     }
 
-    @Around(classes = SampleaBean.class, order = 1)
+    @Around(classes = LoggerFactory.class, order = 1)
     public Object around1(SuperInvoker superInvoker, Object ... args) {
         log.info("around1 .........");
         return superInvoker.invoke(args);
     }
 
-    @Around(classes = SampleaBean.class, order = 2)
+    @Around(classes = LoggerFactory.class, order = 2)
     public Object around2(Enhance enhance, SuperInvoker superInvoker, Object ... args) {
         log.info("around2 .........");
         return superInvoker.invoke(args);
     }
 
-    @Around(classes = SampleaBean.class, order = 3)
+    @Around(classes = LoggerFactory.class, order = 3)
     public Object around3(Enhance enhance, SuperInvoker superInvoker, Object ... args) {
         log.info("around3 .........");
         return superInvoker.invoke(args);
     }
 
-    @Around(classes = SampleaBean.class, order = 4)
+    @Around(classes = LoggerFactory.class, order = 4)
     public Object around4(Enhance enhance, SuperInvoker superInvoker, Object ... args) {
         log.info("around4 .........");
         return superInvoker.invoke(args);
