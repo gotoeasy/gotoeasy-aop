@@ -12,12 +12,7 @@ import java.lang.annotation.Target;
  * 用于声明一个调用拦截处理，用以替换原方法的调用，一个方法只能有一个拦截生效
  * <p>
  * 相应类必须同时有@Aop声明<br>
- * 仅对类自身定义的public方法有效
- * </p>
- * <p>
- * 【注】<br>
- * 可以和@Before、@After、@Throwing、@Last共同拦截同一方法<br>
- * 但Around拦截是独占的，不能有多个@Around共同拦截同一方法
+ * 同一方法上可用多个@Around声明拦截对象，相互之间为“或”的关系<br>
  * </p>
  * <p>
  * 【注】<br>
@@ -26,10 +21,10 @@ import java.lang.annotation.Target;
  * 换言之，在享受方法名参数等书写自由及性能提升的同时，需要自行对方法参数的正确性负责，即使本拦截模块会有必要的检查<br>
  * </p>
  * <p>
- * 【Around拦截处理方法中最安全的参数写法】 (Enhance enhance, Method method, SuperInvoker superInvoker, Object ... args)<br>
- * 被拦截方法有返回值时，拦截处理方法若没有返回值将会发生编译异常<br>
- * 返回类型不一致无法强制转换时，将会发生编译异常<br>
- * 特别是同时拦截了多个方法，且不同方法的返回类型无法相互转换时，将会发生编译异常<br>
+ * 【Around拦截处理方法中安全的参数写法】 (Enhance enhance, Method method, AopContext context, SuperInvoker superInvoker, Object ... args)<br>
+ * 被拦截方法有返回值时，拦截处理方法若没有返回值将会发生异常<br>
+ * 返回类型不一致无法强制转换时，将会发生异常<br>
+ * 特别是同时拦截了多个方法，且不同方法的返回类型无法相互转换时，将会发生异常<br>
  * </p>
  * 
  * @since 2018/04

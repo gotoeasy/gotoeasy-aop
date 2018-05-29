@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * 用于声明一个异常拦截处理，在捕获到异常时执行
  * <p>
  * 相应类必须同时有@Aop声明<br>
- * 仅对类自身定义的public方法有效
+ * 同一方法上可用多个@Throwing声明拦截对象，相互之间为“或”的关系<br>
  * </p>
  * <p>
  * 【注】<br>
@@ -21,8 +21,8 @@ import java.lang.annotation.Target;
  * 换言之，在享受方法名参数等书写自由及性能提升的同时，需要自行对方法参数的正确性负责，即使本拦截模块会有必要的检查<br>
  * </p>
  * <p>
- * 【拦截处理方法中最安全的参数写法】 (Enhance enhance, Method method, Object ... args)<br>
- * Throwing拦截处理方法不应该有返回值，即便写了也不会出错<br>
+ * 【拦截处理方法中最安全的参数写法】 (Enhance enhance, Method method, AopContext context, Exception ex, Object ... args)<br>
+ * Throwing拦截处理方法不应该有返回值，即使写了也不会起作用<br>
  * </p>
  * 
  * @since 2018/03
