@@ -9,6 +9,8 @@ import org.junit.Test
 import spock.lang.Specification
 import top.gotoeasy.framework.aop.annotation.Around
 import top.gotoeasy.framework.aop.exception.AopException
+import top.gotoeasy.framework.aop.test20.Test20Aop
+import top.gotoeasy.framework.aop.test20.Test20Bean
 import top.gotoeasy.framework.aop.testclass.TestAop1
 import top.gotoeasy.framework.aop.testconfig.Sample99AopAfter
 import top.gotoeasy.framework.aop.testconfig.Sample99AopAround
@@ -36,6 +38,7 @@ import top.gotoeasy.framework.aop.testtypeanno.TestAopAnno
 import top.gotoeasy.framework.aop.testtypeanno.TestBeanAnno1
 import top.gotoeasy.framework.aop.testtypeanno.TestBeanAnno2
 import top.gotoeasy.framework.aop.util.AopUtil
+import top.gotoeasy.framework.core.config.DefaultConfig
 
 class AopTest extends Specification {
 
@@ -373,5 +376,23 @@ class AopTest extends Specification {
         Object obj = EnhanceBuilder.get().setSuperclass(HashMap.class).matchAop( testAop).build();
 
         obj.getClass() == HashMap.class
+    }
+
+
+    @Test
+    public void "20 拦截异常声明的方法"() {
+
+        expect:
+        DefaultConfig.getInstance().set("log.level.trace", "true");
+
+        def aop = new Test20Aop();
+        Test20Bean obj = EnhanceBuilder.get().setSuperclass(Test20Bean.class).matchAop(aop).build();
+
+        obj.compute(9, 2.0) == 4.5
+
+        when:
+        obj.print(1, 2.0)
+        then:
+        thrown(RuntimeException)
     }
 }

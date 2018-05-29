@@ -146,13 +146,26 @@ public class Src21AroundMethodCreater {
         sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "")).append(" {\n");
         // superInvoker$abc变量初始化
         if ( hasReturn ) {
-            sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
-            sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> super.").append(method.getName()).append("(")
-                    .append(AopUtil.getLambdaArgs(method)).append(");").append("\n");
+            if ( method.getExceptionTypes().length > 0 ) {
+                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
+                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {try{return super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append(");}catch(Exception e){throw new RuntimeException(e);}};").append("\n");
+            } else {
+                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
+                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append(");").append("\n");
+            }
         } else {
-            sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
-            sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {super.").append(method.getName()).append("(")
-                    .append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
+            if ( method.getExceptionTypes().length > 0 ) {
+                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
+                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {try{super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append(");return null;}catch(Exception e){throw new RuntimeException(e);}};")
+                        .append("\n");
+            } else {
+                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
+                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
+            }
         }
         sbAroundMethod.append("\n");
 

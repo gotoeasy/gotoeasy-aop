@@ -39,6 +39,17 @@ public class AopUtil {
         sb.append(method.getName()).append("(");
         sb.append(getParameterDefines(method)).append(")");
 
+        // 异常
+        Class<?>[] classes = method.getExceptionTypes();
+        for ( int i = 0; i < classes.length; i++ ) {
+            if ( i == 0 ) {
+                sb.append(" throws ");
+            } else {
+                sb.append(", ");
+            }
+            sb.append(classes[i].getName());
+        }
+
         return sb.toString();
     }
 
@@ -270,9 +281,6 @@ public class AopUtil {
 
     /**
      * 取得代理类的类名(含包名)
-     * <p>
-     * 代理类的类名 = 被代理类的类名 + "$$gotoeasy$$"
-     * </p>
      * 
      * @param clas 被代理类
      * @return 代理类的类名(含包名)
@@ -283,9 +291,6 @@ public class AopUtil {
 
     /**
      * 取得代理类的类名(不含包名)
-     * <p>
-     * 代理类的类名 = 被代理类的类名 + "$$gotoeasy$$"
-     * </p>
      * 
      * @param clas 被代理类
      * @return 代理类的类名
@@ -296,9 +301,6 @@ public class AopUtil {
 
     /**
      * 取得中间类的类名(含包名)
-     * <p>
-     * 中间类的类名 = 被代理类的类名 + "$$gotoeasy$$AroundBase"
-     * </p>
      * 
      * @param clas 被代理类
      * @param max 中间类最大数
@@ -311,9 +313,6 @@ public class AopUtil {
 
     /**
      * 取得中间类的类名(含包名)
-     * <p>
-     * 中间类的类名 = 被代理类的类名 + "$$gotoeasy$$AroundBase"
-     * </p>
      * 
      * @param clas 被代理类
      * @param max 中间类最大数
