@@ -71,7 +71,7 @@ public class ProxyObjectCreater {
         }
 
         // Around拦截排序
-        for ( Method method : dataBuilderVars.methodAroundSuperList ) {
+        for ( Method method : dataBuilderVars.methodAroundSuperSet ) {
             dataBuilderVars.methodAroundSrcInfoMap.get(method).sort((srcInfo1, srcInfo2) -> srcInfo2.aopOrder - srcInfo1.aopOrder);
         }
 

@@ -52,7 +52,7 @@ public class Src00ConstructorCreater {
 
     private StringBuilder getInitMethodVarsSrc() {
         StringBuilder buf = new StringBuilder();
-        dataBuilderVars.argMethodList.forEach(method -> {
+        dataBuilderVars.argMethodMap.keySet().forEach(method -> {
             buf.append(TAB2).append(dataBuilderVars.methodFieldMap.get(method));
             buf.append(" = AopUtil.getMethod(this, \"").append(method.getName()).append("\"");
             if ( AopUtil.hasParameters(method) ) {

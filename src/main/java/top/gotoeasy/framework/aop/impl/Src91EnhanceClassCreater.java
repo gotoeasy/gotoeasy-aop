@@ -44,7 +44,7 @@ public class Src91EnhanceClassCreater {
         StringBuilder sbAopField = new StringBuilder();
 
         // 没有中间类的时候添加全局变量，否则全局变量全部放在中间类中
-        if ( dataBuilderVars.methodAroundSuperList.isEmpty() ) {
+        if ( dataBuilderVars.methodAroundSuperSet.isEmpty() ) {
             // private Method varMethod
             dataBuilderVars.methodFieldMap.keySet().forEach(
                     method -> sbMethodField.append(TAB1).append("private Method ").append(dataBuilderVars.methodFieldMap.get(method)).append(";\n"));
@@ -86,7 +86,7 @@ public class Src91EnhanceClassCreater {
         sbClass.append("\n");
         sbClass.append("public class ").append(AopUtil.getEnhanceSimpleName(dataBuilderVars.clas)).append(" extends ");
         int max = dataBuilderVars.getMaxMethodAroundCount();
-        if ( dataBuilderVars.methodAroundSuperList.isEmpty() ) {
+        if ( dataBuilderVars.methodAroundSuperSet.isEmpty() ) {
             sbClass.append(dataBuilderVars.clas.getSimpleName()).append(" implements Enhance {");
         } else {
             sbClass.append(AopUtil.getAroundMiddleClassSimpleName(dataBuilderVars.clas, max, max - 1)).append(" {");

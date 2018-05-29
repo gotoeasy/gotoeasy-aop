@@ -39,7 +39,7 @@ public class Src21AroundMethodCreater {
      */
     public StringBuilder getAroundMethodSrc(int seq) {
         StringBuilder buf = new StringBuilder();
-        dataBuilderVars.methodAroundSuperList.forEach(method -> {
+        dataBuilderVars.methodAroundSuperSet.forEach(method -> {
             List<DataMethodSrcInfo> list = dataBuilderVars.methodAroundSrcInfoMap.get(method);
             if ( seq < list.size() ) {
                 buf.append(getAroundMethodSrc(method, seq));
@@ -65,8 +65,8 @@ public class Src21AroundMethodCreater {
         // ---------------------------------- --------------------------------------------------
         StringBuilder sbAroundMethod = new StringBuilder();
         dataBuilderVars.methodAroundSrcInfoMap1.keySet().forEach(method -> {
-            if ( isMiddleClass && !dataBuilderVars.methodAroundSuperList.contains(method)
-                    || !isMiddleClass && dataBuilderVars.methodAroundSuperList.contains(method) ) {
+            if ( isMiddleClass && !dataBuilderVars.methodAroundSuperSet.contains(method)
+                    || !isMiddleClass && dataBuilderVars.methodAroundSuperSet.contains(method) ) {
                 return;
             }
 

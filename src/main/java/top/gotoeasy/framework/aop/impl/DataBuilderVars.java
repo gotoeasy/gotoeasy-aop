@@ -4,9 +4,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 公用变量类
@@ -60,13 +62,13 @@ public class DataBuilderVars {
     protected Map<Method, String>                  aopContextMap            = new HashMap<>();
 
     // 中间类所需实现的环绕拦截方法
-    protected List<Method>                         methodAroundSuperList    = new ArrayList<>();
+    protected Set<Method>                          methodAroundSuperSet     = new HashSet<>();
 
     // method描述
     protected Map<Method, String>                  methodDesc               = new HashMap<>();
 
-    // 要被作为参数使用的方法列表
-    protected List<Method>                         argMethodList            = new ArrayList<>();
+    // 要被作为参数使用的方法列表(方法：方法变量名)
+    protected Map<Method, String>                  argMethodMap             = new HashMap<>();
 
     /**
      * 方法单位的最大Around拦截数
@@ -78,7 +80,7 @@ public class DataBuilderVars {
      */
     public int getMaxMethodAroundCount() {
         int max = 0;
-        for ( Method method : methodAroundSuperList ) {
+        for ( Method method : methodAroundSuperSet ) {
             int size = methodAroundSrcInfoMap.get(method).size();
             if ( max < size ) {
                 max = size;
@@ -94,7 +96,7 @@ public class DataBuilderVars {
      * @return true:是/false:否
      */
     public boolean hasUseMethodArg(Method method) {
-        return argMethodList.contains(method);
+        return argMethodMap.containsKey(method);
     }
 
     /**

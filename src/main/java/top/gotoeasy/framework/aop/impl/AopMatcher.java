@@ -455,6 +455,10 @@ public class AopMatcher {
             throw new AopException("拦截错误，目标方法有返回值，拦截处理漏返回 (" + aopMethod + ")");
         }
 
+//        if ( dataBuilderVars.methodAroundAopMap.containsKey(method) ) {
+//            dataBuilderVars.methodAroundSuperSet.add(method);
+//        }
+
         // 保存
         if ( isAround ) {
             dataBuilderVars.methodAroundAopMap.put(method, aopMethod);
@@ -464,8 +468,9 @@ public class AopMatcher {
 
         // Around拦截和普通拦截冲突时，创建中间类实现Around拦截处理，普通拦截继承中间类实现
         if ( (dataBuilderVars.methodNormalAopMap.containsKey(method) && dataBuilderVars.methodAroundAopMap.containsKey(method)
-                || isAround && dataBuilderVars.methodAroundAopMap.containsKey(method)) && !dataBuilderVars.methodAroundSuperList.contains(method) ) {
-            dataBuilderVars.methodAroundSuperList.add(method);
+                || isAround && dataBuilderVars.methodAroundAopMap.containsKey(method)) ) {
+            dataBuilderVars.methodAroundSuperSet.add(method);
         }
+
     }
 }
