@@ -286,7 +286,7 @@ public class AopUtil {
      * @return 代理类的类名(含包名)
      */
     public static String getEnhanceClassName(Class<?> clas) {
-        return clas.getName() + "$$gotoeasy$$Enhance";
+        return clas.getName() + "$$gotoeasy$$enhance";
     }
 
     /**
@@ -296,7 +296,7 @@ public class AopUtil {
      * @return 代理类的类名
      */
     public static String getEnhanceSimpleName(Class<?> clas) {
-        return clas.getSimpleName() + "$$gotoeasy$$Enhance";
+        return clas.getSimpleName() + "$$gotoeasy$$enhance";
     }
 
     /**
@@ -308,7 +308,7 @@ public class AopUtil {
      * @return 中间类的类名(含包名)
      */
     public static String getAroundMiddleClassName(Class<?> clas, int max, int order) {
-        return clas.getName() + "$$gotoeasy$$Around" + max + "$" + (order + 1);
+        return clas.getName() + "$$gotoeasy$$around" + max + "$" + (order + 1);
     }
 
     /**
@@ -323,7 +323,7 @@ public class AopUtil {
         if ( max == order ) {
             return getEnhanceSimpleName(clas);
         }
-        return clas.getSimpleName() + "$$gotoeasy$$Around" + max + "$" + (order + 1);
+        return clas.getSimpleName() + "$$gotoeasy$$around" + max + "$" + (order + 1);
     }
 
     /**
