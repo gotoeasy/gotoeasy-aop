@@ -90,16 +90,6 @@ public class DataBuilderVars {
     }
 
     /**
-     * 判断方法是否要被作为参数使用
-     * 
-     * @param method 方法
-     * @return true:是/false:否
-     */
-    public boolean hasUseMethodArg(Method method) {
-        return argMethodMap.containsKey(method);
-    }
-
-    /**
      * 拦截目标类
      * 
      * @param clas 拦截目标类
@@ -120,15 +110,6 @@ public class DataBuilderVars {
     /**
      * 目标类构造方法参数
      * 
-     * @return 目标类构造方法参数
-     */
-    public Object[] getInitargs() {
-        return initargs;
-    }
-
-    /**
-     * 目标类构造方法参数
-     * 
      * @param initargs 目标类构造方法参数
      */
     public void setInitargs(Object[] initargs) {
@@ -142,15 +123,6 @@ public class DataBuilderVars {
      */
     public List<Object> getAopList() {
         return aopList;
-    }
-
-    /**
-     * 拦截处理对象列表
-     * 
-     * @param aopList 拦截处理对象列表
-     */
-    public void setAopList(List<Object> aopList) {
-        this.aopList = aopList;
     }
 
 }

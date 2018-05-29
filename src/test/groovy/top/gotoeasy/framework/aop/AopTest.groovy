@@ -9,6 +9,10 @@ import org.junit.Test
 import spock.lang.Specification
 import top.gotoeasy.framework.aop.annotation.Around
 import top.gotoeasy.framework.aop.exception.AopException
+import top.gotoeasy.framework.aop.test18.Test18Aop
+import top.gotoeasy.framework.aop.test18.Test18Bean
+import top.gotoeasy.framework.aop.test19.Test19Aop
+import top.gotoeasy.framework.aop.test19.Test19Bean
 import top.gotoeasy.framework.aop.test20.Test20Aop
 import top.gotoeasy.framework.aop.test20.Test20Bean
 import top.gotoeasy.framework.aop.testclass.TestAop1
@@ -38,7 +42,6 @@ import top.gotoeasy.framework.aop.testtypeanno.TestAopAnno
 import top.gotoeasy.framework.aop.testtypeanno.TestBeanAnno1
 import top.gotoeasy.framework.aop.testtypeanno.TestBeanAnno2
 import top.gotoeasy.framework.aop.util.AopUtil
-import top.gotoeasy.framework.core.config.DefaultConfig
 
 class AopTest extends Specification {
 
@@ -372,10 +375,24 @@ class AopTest extends Specification {
     public void "18 TestNoAop"() {
 
         expect:
-        def testAop = new TestAop1();
-        Object obj = EnhanceBuilder.get().setSuperclass(HashMap.class).matchAop( testAop).build();
+        def testAop = new Test18Aop();
+        Test18Bean obj = EnhanceBuilder.get().setSuperclass(Test18Bean.class).matchAop(testAop).build();
 
-        obj.getClass() == HashMap.class
+        obj.getClass() == Test18Bean.class
+    }
+
+    @Test
+    public void "19 没有After，但有Throwing或Last要用到context"() {
+
+        expect:
+        //  DefaultConfig.getInstance().set("log.level.trace", "true");
+        def testAop = new Test19Aop();
+        Test19Bean obj = EnhanceBuilder.get().setSuperclass(Test19Bean.class).matchAop(testAop).build();
+
+        when:
+        obj.compute(1, 0)
+        then:
+        thrown(Exception)
     }
 
 
@@ -383,8 +400,6 @@ class AopTest extends Specification {
     public void "20 拦截异常声明的方法"() {
 
         expect:
-        DefaultConfig.getInstance().set("log.level.trace", "true");
-
         def aop = new Test20Aop();
         Test20Bean obj = EnhanceBuilder.get().setSuperclass(Test20Bean.class).matchAop(aop).build();
 

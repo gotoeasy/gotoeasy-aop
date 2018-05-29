@@ -46,9 +46,9 @@ public class Src91EnhanceClassCreater {
             // private Method varMethod
             dataBuilderVars.methodFieldMap.keySet().forEach(
                     method -> sbMethodField.append(TAB1).append("private Method ").append(dataBuilderVars.methodFieldMap.get(method)).append(";\n"));
-            // private SuperInvoker varSuperInvoker
-            dataBuilderVars.superInvokerFieldMap.keySet().forEach(key -> sbSuperInvokerField.append(TAB1).append("private SuperInvoker ")
-                    .append(dataBuilderVars.superInvokerFieldMap.get(key)).append(";\n"));
+//            // private SuperInvoker varSuperInvoker
+//            dataBuilderVars.superInvokerFieldMap.keySet().forEach(key -> sbSuperInvokerField.append(TAB1).append("private SuperInvoker ")
+//                    .append(dataBuilderVars.superInvokerFieldMap.get(key)).append(";\n"))
             // public {aopClass} varAopObj
             dataBuilderVars.aopObjFieldMap.keySet().forEach(aopObj -> sbAopField.append(TAB1).append("public ").append(aopObj.getClass().getName())
                     .append(" ").append(dataBuilderVars.aopObjFieldMap.get(aopObj)).append(";\n"));
