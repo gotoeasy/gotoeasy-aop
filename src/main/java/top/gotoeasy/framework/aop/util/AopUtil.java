@@ -70,7 +70,7 @@ public class AopUtil {
      * @return 方法的返回类型源码
      */
     public static String getReturnType(Method method) {
-        return method.getReturnType().getName();
+        return method.getReturnType().getCanonicalName();
     }
 
     /**

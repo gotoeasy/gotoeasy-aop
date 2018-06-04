@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 /**
  * 用于声明一个最终拦截处理，在finally时执行
  * <p>
- * 相应类必须同时有@Aop声明<br>
+ * 相应类有@Aop声明才能被自动扫描<br>
  * 同一方法上可用多个@Last声明拦截对象，相互之间为“或”的关系<br>
  * </p>
  * <p>

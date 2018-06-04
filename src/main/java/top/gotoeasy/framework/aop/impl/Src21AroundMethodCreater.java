@@ -104,7 +104,7 @@ public class Src21AroundMethodCreater {
             String returnType = "";
             if ( !method.getReturnType().equals(info.aopMethodReturnType) ) {
                 // 返回类型不同时需要强制转换
-                returnType = "(" + method.getReturnType().getName() + ")";
+                returnType = "(" + method.getReturnType().getCanonicalName() + ")";
             }
             sbAroundMethod.append(TAB2).append("return ").append(returnType).append(info.varAopObj).append(".").append(info.aopMethodName)
                     .append("(");

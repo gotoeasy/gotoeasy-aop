@@ -9,7 +9,6 @@ import java.util.Map;
 
 import top.gotoeasy.framework.aop.annotation.After;
 import top.gotoeasy.framework.aop.annotation.Afters;
-import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Around;
 import top.gotoeasy.framework.aop.annotation.Arounds;
 import top.gotoeasy.framework.aop.annotation.Before;
@@ -94,12 +93,7 @@ public class AopMatcher {
             }
 
             for ( Object aopObj : dataBuilderVars.aopList ) {
-                // 检查@Aop，仅声明@Aop的拦截处理类才起作用
-                if ( aopObj.getClass().isAnnotationPresent(Aop.class) ) {
-                    matchMethodWithAopObject(method, aopObj);
-                } else {
-                    log.warn("类缺@Aop声明，该拦截处理对象不起拦截作用：{}", aopObj);
-                }
+                matchMethodWithAopObject(method, aopObj);
             }
         }
 
