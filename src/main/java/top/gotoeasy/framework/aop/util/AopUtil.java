@@ -362,7 +362,12 @@ public class AopUtil {
      */
     public static String getMethodDesc(Class<?> clas, Method method) {
         StringBuilder buf = new StringBuilder();
-        buf.append(clas.getCanonicalName()).append('.').append(method.getName()).append("(");
+        Class<?> targetClass = clas;
+        while ( Enhance.class.isAssignableFrom(targetClass) ) {
+            targetClass = targetClass.getSuperclass();
+        }
+
+        buf.append(targetClass.getCanonicalName()).append('.').append(method.getName()).append("(");
         Class<?>[] paramTypes = method.getParameterTypes();
 
         for ( int i = 0; i < paramTypes.length; i++ ) {
