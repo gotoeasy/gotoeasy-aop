@@ -378,7 +378,7 @@ class AopTest extends Specification {
         def testAop = new Test18Aop();
         Test18Bean obj = EnhanceBuilder.get().setSuperclass(Test18Bean.class).matchAop(testAop).build();
 
-        obj.getClass() == Test18Bean.class
+        obj.getClass() != Test18Bean.class
     }
 
     @Test
