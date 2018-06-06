@@ -31,19 +31,41 @@ public class Src00ConstructorCreater {
      * @param seq 当前序号
      * @return 构造方法代码
      */
-    public StringBuilder getConstructorSrc(int max, int seq) {
+    public StringBuilder getConstructorSrc(int max) {
         StringBuilder buf = new StringBuilder();
-        String simpleClassName = AopUtil.getAroundMiddleClassSimpleName(dataBuilderVars.clas, max, seq);
+        String simpleClassName = AopUtil.getAroundMiddleClassSimpleName(dataBuilderVars.clas, max, max);
 
-        if ( max == seq || dataBuilderVars.constructor != null ) {
+        StringBuilder bufMethodVars = getInitMethodVarsSrc();
+        if ( bufMethodVars.length() > 0 || dataBuilderVars.constructor != null ) {
             buf.append(TAB1).append("public ").append(simpleClassName).append("(").append(AopUtil.getParameterDefines(dataBuilderVars.constructor))
                     .append("){").append("\n");
             buf.append(TAB2).append("super(").append(AopUtil.getParameterNames(dataBuilderVars.constructor)).append(");").append("\n");
 
-            if ( max == seq ) {
-                buf.append(getInitMethodVarsSrc());
-            }
+            buf.append(getInitMethodVarsSrc());
 
+            buf.append(TAB1).append("}").append("\n");
+        }
+
+        return buf;
+    }
+
+    /**
+     * 中间类构造方法代码生成
+     * 
+     * @param max 中间类最大序号
+     * @param max 中间类最大序号
+     * @param sbCode 代码
+     * @return 构造方法代码
+     */
+    public StringBuilder getConstructorSrc(int max, int seq, StringBuilder sbCode) {
+        StringBuilder buf = new StringBuilder();
+        String simpleClassName = AopUtil.getAroundMiddleClassSimpleName(dataBuilderVars.clas, max, seq);
+
+        if ( sbCode.length() > 0 ) {
+            buf.append(TAB1).append("public ").append(simpleClassName).append("(").append(AopUtil.getParameterDefines(dataBuilderVars.constructor))
+                    .append("){").append("\n");
+            buf.append(TAB2).append("super(").append(AopUtil.getParameterNames(dataBuilderVars.constructor)).append(");").append("\n");
+            buf.append(sbCode);
             buf.append(TAB1).append("}").append("\n");
         }
 

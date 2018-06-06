@@ -57,6 +57,8 @@ public class Src92EnhanceSuperClassCreater {
 
         // AroundMethod
         StringBuilder sbAroundMethod = src21AroundMethodCreater.getAroundMethodSrc(seq);
+        // SuperInvoker
+        StringBuilder sbSuperInvoker = src21AroundMethodCreater.getSuperInvokerInitSrc(seq);
         // Class
         StringBuilder sbClass = new StringBuilder();
         // -------------------------------------------------------------------------
@@ -93,7 +95,7 @@ public class Src92EnhanceSuperClassCreater {
         sbClass.append(sbSuperInvokerField);
         sbClass.append(sbAopField);
         sbClass.append("\n");
-        sbClass.append(src00ConstructorCreater.getConstructorSrc(max, seq));
+        sbClass.append(src00ConstructorCreater.getConstructorSrc(max, seq, sbSuperInvoker));
         sbClass.append("\n");
         sbClass.append(sbAroundMethod);
         sbClass.append("}").append("\n");

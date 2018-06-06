@@ -49,9 +49,27 @@ public class Src21AroundMethodCreater {
     }
 
     /**
+     * SuperInvoker变量初始化代码生成
+     * 
+     * @param seq 当前序号
+     * @return SuperInvoker变量初始化代码
+     */
+    public StringBuilder getSuperInvokerInitSrc(int seq) {
+        StringBuilder buf = new StringBuilder();
+        dataBuilderVars.methodAroundSuperSet.forEach(method -> {
+            List<DataMethodSrcInfo> list = dataBuilderVars.methodAroundSrcInfoMap.get(method);
+            if ( seq < list.size() ) {
+                buf.append(getSuperInvokerInitSrc(method, seq));
+            }
+        });
+        return buf;
+    }
+
+    /**
      * Around拦截源码
      * 
-     * @param isMiddleClass 是否中间类
+     * @param method 方法
+     * @param seq 序号
      * @return StringBuilder
      */
     private StringBuilder getAroundMethodSrc(Method method, int seq) {
@@ -60,9 +78,6 @@ public class Src21AroundMethodCreater {
         // ---------------------------------- --------------------------------------------------
         //  @Override
         //  public .....
-        //      if varMethod == null
-        //          {varMethod} = AopUtil.getMethod(this, "{methodName}", {parameterTypes})
-        //          {varSuperInvoker} = (method, args) -> super.{methodName}({args})
         //      return {returnType}{varAopObj}.{aopMethodName}(this, {varMethod}, {varSuperInvoker}, {parameterNames})
         // ---------------------------------- --------------------------------------------------
         StringBuilder sbAroundMethod = new StringBuilder();
@@ -70,30 +85,6 @@ public class Src21AroundMethodCreater {
 
         sbAroundMethod.append(TAB1).append("@Override").append("\n");
         sbAroundMethod.append(TAB1).append(AopUtil.getMethodDefine(method, "")).append(" {\n");
-        // superInvoker$abc变量初始化
-        if ( hasReturn ) {
-            if ( method.getExceptionTypes().length > 0 ) {
-                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null) ");
-                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {try{return super.").append(method.getName()).append("(")
-                        .append(AopUtil.getLambdaArgs(method)).append(");}catch(Exception e){throw new RuntimeException(e);}};").append("\n");
-            } else {
-                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
-                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> super.").append(method.getName()).append("(")
-                        .append(AopUtil.getLambdaArgs(method)).append(");").append("\n");
-            }
-        } else {
-            if ( method.getExceptionTypes().length > 0 ) {
-                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null) ");
-                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {try{super.").append(method.getName()).append("(")
-                        .append(AopUtil.getLambdaArgs(method)).append(");return null;}catch(Exception e){throw new RuntimeException(e);}};")
-                        .append("\n");
-            } else {
-                sbAroundMethod.append(TAB2).append("if (").append(info.varSuperInvoker).append(" == null ) ");
-                sbAroundMethod.append(info.varSuperInvoker).append(" = (args) -> {super.").append(method.getName()).append("(")
-                        .append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
-            }
-        }
-        sbAroundMethod.append("\n");
 
         // 前5个参数判断类型自动入参
         StringBuilder sbAopMethodParams = aopMethodArgsMapping.mappingArgs(info.method, info.aopMethod, Around.class, info.varMethod,
@@ -127,5 +118,45 @@ public class Src21AroundMethodCreater {
         sbAroundMethod.append(TAB1).append("}\n\n");
 
         return sbAroundMethod;
+    }
+
+    /**
+     * SuperInvoker变量初始化源码
+     * 
+     * @param method 方法
+     * @param seq 序号
+     * @return StringBuilder
+     */
+    private StringBuilder getSuperInvokerInitSrc(Method method, int seq) {
+
+        StringBuilder sbSuperInvokerInit = new StringBuilder();
+        boolean hasReturn = !void.class.equals(method.getReturnType());
+        // ---------------------------------- --------------------------------------------------
+        //  {varSuperInvoker} = (method, args) -> super.{methodName}({args})
+        // ---------------------------------- --------------------------------------------------
+        DataMethodSrcInfo info = dataBuilderVars.methodAroundSrcInfoMap.get(method).get(seq);
+
+        // superInvoker$abc变量初始化
+        if ( hasReturn ) {
+            if ( method.getExceptionTypes().length > 0 ) {
+                sbSuperInvokerInit.append(TAB2).append(info.varSuperInvoker).append(" = (args) -> {try{return super.").append(method.getName())
+                        .append("(").append(AopUtil.getLambdaArgs(method)).append(");}catch(Exception e){throw new RuntimeException(e);}};")
+                        .append("\n");
+            } else {
+                sbSuperInvokerInit.append(TAB2).append(info.varSuperInvoker).append(" = (args) -> super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append(");").append("\n");
+            }
+        } else {
+            if ( method.getExceptionTypes().length > 0 ) {
+                sbSuperInvokerInit.append(TAB2).append(info.varSuperInvoker).append(" = (args) -> {try{super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append(");return null;}catch(Exception e){throw new RuntimeException(e);}};")
+                        .append("\n");
+            } else {
+                sbSuperInvokerInit.append(TAB2).append(info.varSuperInvoker).append(" = (args) -> {super.").append(method.getName()).append("(")
+                        .append(AopUtil.getLambdaArgs(method)).append("); return null;};").append("\n");
+            }
+        }
+
+        return sbSuperInvokerInit;
     }
 }
