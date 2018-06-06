@@ -3,6 +3,7 @@ package top.gotoeasy.framework.aop
 import static org.junit.Assert.*
 
 import java.lang.reflect.Constructor
+import java.lang.reflect.Method
 
 import org.junit.Test
 
@@ -15,6 +16,10 @@ import top.gotoeasy.framework.aop.test19.Test19Aop
 import top.gotoeasy.framework.aop.test19.Test19Bean
 import top.gotoeasy.framework.aop.test20.Test20Aop
 import top.gotoeasy.framework.aop.test20.Test20Bean
+import top.gotoeasy.framework.aop.test21.Test21Aop
+import top.gotoeasy.framework.aop.test21.Test21Bean
+import top.gotoeasy.framework.aop.test22.Test22Aop
+import top.gotoeasy.framework.aop.test22.Test22Bean
 import top.gotoeasy.framework.aop.testclass.TestAop1
 import top.gotoeasy.framework.aop.testconfig.Sample99AopAfter
 import top.gotoeasy.framework.aop.testconfig.Sample99AopAround
@@ -169,7 +174,6 @@ class AopTest extends Specification {
     public void "06前置拦截"() {
 
         expect:
-
         Sample99Bean enhance = EnhanceBuilder.get().setSuperclass(Sample99Bean.class).matchAop(
                 new Sample99AopBefore()
                 , new Sample99AopAfter()
@@ -409,5 +413,45 @@ class AopTest extends Specification {
         obj.print(1, 2.0)
         then:
         thrown(RuntimeException)
+    }
+
+
+    @Test
+    public void "21 方法描述，有参构造方法"() {
+
+        expect:
+        //DefaultConfig.getInstance().set("log.level.trace", "1")
+        Constructor<?> constructor = Test21Bean.class.getDeclaredConstructor(int.class)
+
+        def aop = new Test21Aop();
+        Test21Bean obj = EnhanceBuilder.get().setSuperclass(Test21Bean.class).setConstructorArgs(constructor, 1).matchAop(aop).build();
+
+        Method[] methods =  Test21Bean.class.getDeclaredMethods()
+        Method method
+        for(int i=0;i<methods.length;i++) {
+            if(methods[i].getName().equals("compute")) {
+                method = methods[i]
+            }
+        }
+
+        AopUtil.getMethodDesc(obj.getClass(),  method) == "top.gotoeasy.framework.aop.test21.Test21Bean.compute(int,double)"
+    }
+
+    @Test
+    public void "22 方法描述，无参构造方法"() {
+
+        expect:
+        def aop = new Test22Aop();
+        Test22Bean obj = EnhanceBuilder.get().setSuperclass(Test22Bean.class).matchAop(aop).build();
+
+        Method[] methods =  Test22Bean.class.getDeclaredMethods()
+        Method method
+        for(int i=0;i<methods.length;i++) {
+            if(methods[i].getName().equals("compute")) {
+                method = methods[i]
+            }
+        }
+
+        AopUtil.getMethodDesc(obj.getClass(),  method) == "top.gotoeasy.framework.aop.test22.Test22Bean.compute(int,double)"
     }
 }
