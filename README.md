@@ -2,7 +2,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/3919db3635b04ff399228c478bdf2343)](https://www.codacy.com/app/gotoeasy/gotoeasy-aop?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gotoeasy/gotoeasy-aop&amp;utm_campaign=Badge_Coverage)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop/badge.svg)](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-aop)
 [![Javadocs](https://www.javadoc.io/badge/top.gotoeasy/gotoeasy-aop.svg)](https://www.javadoc.io/doc/top.gotoeasy/gotoeasy-aop)
-
+[![License](https://img.shields.io/badge/License-apache2.0-brightgreen.svg)](https://github.com/gotoeasy/gotoeasy-aop/blob/master/LICENSE)
 
 # `gotoeasy-aop`
 基于JavaCompiler的继承方式AOP实现，在性能优良的基础上，提供更多的简易性。
@@ -145,19 +145,3 @@ Around拦截（Sample2），（测试机环境：Java8，win8.1，64位，8G内�
 - `gotoeasy-rmi` http://github.com/gotoeasy/gotoeasy-orm/
 - TODO
 - TODO
-
-## LICENSE
-
-    Copyright (c) 2018 ZhangMing (www.gotoeasy.top)
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
